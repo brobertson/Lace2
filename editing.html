@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page-margins.html" data-template-at="container">
+    <h1>Guide To Editing with Lace</h1>
+    <h3>Colour Codes</h3>
+When OCR output is spellchecked, a html attribute is applied to indicate the spellcheck status of the word and what spellchecking strategies were applied to it. In display, these attributes are indicated with different colours. Spellcheck is performed with dictionaries, large lists of known-good words. Here are how the OCR words relate to dictionary words and the corresponding colour codes:
+<ul>
+        <li>
+            <p>
+                <span class="ocr_word" data-spellcheck-mode="True">¹²παρελθεῖν</span>: this word has passed spellcheck. I.e., it matches one of the words in the spellcheck dictionary. Notice that there are characters allowed to be before and after the dictionary word, such as the '¹²' here, which do not disrupt the spellchecking.
+</p>
+        </li>
+        <li>
+            <p>
+                <span class="ocr_word" data-spellcheck-mode="TrueLower">Κυρίου</span>: this word passed spellcheck when it was transformed to its lowercase form.</p>
+        </li>
+        <li>
+            <p>
+                <span class="ocr_word" data-spellcheck-mode="Numerical">(11)</span>: this word comprises numbers or punctuation.</p>
+        </li>
+        <li>
+            <p>
+                <span class="ocr_word" data-spellcheck-mode="Sub α-&gt;ο">κατοικήσομεν</span>: this word has been corrected by substituting one character for another. In this case, a 'α' was replaced with a 'ο'. (The exact substitution is encoded in the html attribute, but not visible to the reader).</p>
+        </li>
+        <li>
+            <p>
+                <span class="ocr_word" title="bbox 1197 3138 1534 3212" id="_47251541264864" data-spellcheck-mode="Dedup" data-pre-spellcheck="εὑρήμματα" data-manually-confirmed="false" data-selected-form="εὑρήματα" contenteditable="true">εὑρήματα</span>: this word was matched to a dictionary word when a pair of the same letter was replaced with only one instance of that letter. In this case, εὑρήμματα was the OCR output, a word that is not in the dictionary. </p>
+        </li>
+        <li>
+            <p>
+                <span class="ocr_word" title="bbox 399 1663 861 1733" id="_47251534608648" data-spellcheck-mode="SplitOnPunct" data-pre-spellcheck="besides,-five" data-manually-confirmed="false" data-selected-form="besides, -five" contenteditable="true">besides, -five</span>: in this case, there was no space between the punctuation separating two dictionary words.
+</p>
+        </li>
+        <li>
+            <p>
+                <span class="ocr_word" title="bbox 1526 1753 2277 1834" id="_47251534608936" data-spellcheck-mode="Split" data-pre-spellcheck="τῆςαὐλητρίδος"> τῆς αὐλητρίδος</span>: these words passed spellcheck only when a space was inserted between them. The original OCR output was τῆςαὐλητρίδος.
+</p>
+        </li>
+        <li>
+            <p>
+                <span class="ocr_word" data-spellcheck-mode="None">ὥμοσεν</span>: this word cannot be matched with a dictionary word by any of the strategies.</p>
+        </li>
+    </ul>
+    <p>Additionally, when text has been identified as pertaining to the Apparatus Criticus, it is bordered with vertical blue lines, thus:</p>
+    <span class="ocr_line" title="bbox 440 2984 2180 3049" data-app-crit="true">
+        <span class="ocr_word" title="bbox 440 2989 517 3044" id="_47251571594088" data-spellcheck-mode="None" data-selected-form="64" contenteditable="true">64</span>
+        <span class="ocr_word" title="bbox 526 2989 675 3044" id="_47251571594160" data-spellcheck-mode="None" data-pre-spellcheck="θυραις" data-selected-form="θυραις" contenteditable="true">θυραις</span>
+        <span class="ocr_word" title="bbox 680 2989 766 3044" id="_47251571594232" data-spellcheck-mode="None" data-selected-form="καθ" contenteditable="true">καθ</span>
+        <span class="ocr_word" title="bbox 769 2989 949 3044" id="_47251571594304" data-spellcheck-mode="None" data-pre-spellcheck="ημεραν]" data-selected-form="ημεραν]" contenteditable="true">ημεραν]</span>
+        <span class="ocr_word" title="bbox 959 2989 1100 3044" id="_47251571594376" data-spellcheck-mode="None" data-selected-form="θυραν" contenteditable="true">θυραν</span>
+        <span class="ocr_word" title="bbox 1099 2989 1172 3044" id="_47251571594448" data-spellcheck-mode="None" data-selected-form="Κ*" contenteditable="true">Κ*</span>
+        <span class="ocr_word" title="bbox 1178 2989 1346 3044" id="_47251571594520" data-spellcheck-mode="None" data-pre-spellcheck="(θυραις" data-selected-form="(θυραις" contenteditable="true">(θυραις</span>
+        <span class="ocr_word" title="bbox 1345 2989 1413 3044" id="_47251571594592" data-spellcheck-mode="None" data-selected-form="κ." contenteditable="true">κ.</span>
+        <span class="ocr_word" title="bbox 1409 2989 1465 3044" id="_47251571594664" data-spellcheck-mode="None" data-selected-form="η." contenteditable="true">η.</span>
+        <span class="ocr_word" title="bbox 1464 2989 1581 3044" id="_47251571594736" data-spellcheck-mode="None" data-selected-form="Bᵃ)" contenteditable="true">Bᵃ)</span>
+        <span class="ocr_word" title="bbox 1741 2989 1812 3044" id="_47251571594808" data-spellcheck-mode="None" data-selected-form="66" contenteditable="true">66</span>
+        <span class="ocr_word" title="bbox 1822 2989 2130 3044" id="_47251571594880" data-spellcheck-mode="None" data-selected-form="αμαρτανοντες" contenteditable="true">αμαρτανοντες</span>
+        <span class="ocr_word" title="bbox 1822 2989 2180 3044" id="_47251571594952" data-spellcheck-mode="None" data-pre-spellcheck="εις" data-selected-form="εις" contenteditable="true">εις</span>
+    </span>
+    <br/>
+    <span class="ocr_line" title="bbox 440 3037 1812 3092" data-app-crit="true">
+        <span class="ocr_word" title="bbox 440 3042 534 3087" id="_47251571595024" data-spellcheck-mode="None" data-selected-form="εμε" contenteditable="true">εμε</span>
+        <span class="ocr_word" title="bbox 550 3042 601 3087" id="_47251571595096" data-spellcheck-mode="None" data-selected-form="8" contenteditable="true">8</span>
+        <span class="ocr_word" title="bbox 608 3042 637 3087" id="_47251571595168" data-spellcheck-mode="None" data-selected-form="|" contenteditable="true">|</span>
+        <span class="ocr_word" title="bbox 640 3042 885 3087" id="_47251571595240" data-spellcheck-mode="None" data-selected-form="ασεβουσιν]" contenteditable="true">ασεβουσιν]</span>
+        <span class="ocr_word" title="bbox 884 3042 924 3087" id="_47251571595312" data-spellcheck-mode="None" data-selected-form="+" contenteditable="true">+</span>
+        <span class="ocr_word" title="bbox 930 3042 998 3087" id="_47251571595384" data-spellcheck-mode="None" data-pre-spellcheck="εις" data-selected-form="εις" contenteditable="true">εις</span>
+        <span class="ocr_word" title="bbox 1002 3042 1129 3087" id="_47251571595456" data-spellcheck-mode="None" data-selected-form="8SᵃA" contenteditable="true">8SᵃA</span>
+        <span class="ocr_word" title="bbox 1138 3042 1178 3087" id="_47251571595528" data-spellcheck-mode="None" data-selected-form="|" contenteditable="true">|</span>
+        <span class="ocr_word" title="bbox 1183 3042 1249 3087" id="_47251571595600" data-spellcheck-mode="None" data-selected-form="om" contenteditable="true">om</span>
+        <span class="ocr_word" title="bbox 1270 3042 1333 3087" id="_47251571595672" data-spellcheck-mode="None" data-selected-form="με" contenteditable="true">με</span>
+        <span class="ocr_word" title="bbox 1339 3042 1387 3087" id="_47251571595744" data-spellcheck-mode="None" data-selected-form="8" contenteditable="true">8</span>
+        <span class="ocr_word" title="bbox 1417 3042 1530 3087" id="_47251571595816" data-spellcheck-mode="None" data-selected-form="(hab" contenteditable="true">(hab</span>
+        <span class="ocr_word" title="bbox 1417 3042 1652 3087" id="_47251571595888" data-spellcheck-mode="None" data-selected-form="2ᵇᵃ)" contenteditable="true">2ᵇᵃ)</span>
+    </span>
+    <h3>Simple Editing</h3>
+    <p>To edit the OCR output, click on a word. The content of that word is now editable: you can type additional characters or use the backspace key to delete; alternatively you can select and delete a range of characters in the usual manner. When a word is clicked on, a tooltip pops up with the corresponding image range from the OCR'd page. It is usually easier to compare the text with this image than it is to scan the entire page image on the left side of the screen.</p>
+    <p>Once the editor is assured that the text in the word is what is in the pop-up image, he or she should press the <code>Return</code> (or <code>Enter</code>) key. This action is all that is required to save the edit in the underlying database. The editor will note that the colour of the word changes to light-blue, indicating that the word has been manually verified. The editing cursor now moves to the next word on the page.</p>
+    <p>In the case where a text is highly accurate, editing will simply entail clicking on the first word, checking that the word text corresponds to the pop-up image and then pressing <code>Return</code>. The process is repeated again and again, the text being changed only when necessary.</p>
+    <p>Once the whole page has been verified thus, a 'Download' button appears at the end of the page. It is not necessary to use this: the page is stored in the database in any case.</p>
+    <h3>Advanced Editing</h3>
+The following advanced editing functions are available:
+<ol>
+        <li>
+            <p>If an editor verifies a word with the <code>Control</code> key held down while pressing <code>Return</code>, the edit function is applied to all applicable words on all pages of the text. So, if the word is unchanged and verified, all words that contain that string are similarly verified (sight unseen), and will appear coloured as light-blue, no matter what page they appear on. This is a very powerful function and should be used sparingly, especially at first. However, it may become clear that a word like Ἰσραήλ is very unlikely to be incorrectly identified. In which case, verifying all of these words at once saves time.
+If a word has been changed, all words in all pages of the text that had the original form of the word will be changed to the edited form. Note that by 'original form' it is mean the very first form outputted. Thus if all words reading ἐπ’ are changed to ἐπ' (with a different final character) and then, using this function, one of those words is used to do a global change to ἐφ', this will not change words that originally were output as ἐπ’.
+</p>
+        </li>
+        <li>
+            <p>Holding the <code>Control</code> key down while also holding <code>Alt</code> key down while pressing <code>Return</code> causes a new work dialog box to be created for the purpose of notes.
+</p>
+        </li>
+        <li>
+            <p>Holding the <code>Alt</code> key down while pressing <code>Return</code> causes the creation of a space to indicate a new section of text.
+</p>
+        </li>
+        <li>
+            <p>Holding <code>Shift</code> down while pressing <code>Return</code> causes a new blank line to be inserted into the document, directly following the current one. This, too, is editable, but its content is not broken into words. Pressing <code>Return</code> in this line will save its content as expected. This allows one to add content to the page which has been missed by the OCR engine.
+</p>
+        </li>
+        <li>
+            <p>If a word is split in the editor, meaning that it apears in multiple boxes rather than altoghether in a single box, you may correct this error by completing the word as it appears in the text in the first editing box and deleting the content of the subsequent box(es). If multiple words are detected as a single word, you may solve this by simply separating them by a <code>Space</code> as the computer will detect this as being seprate words.
+</p>
+        </li>
+    </ol>
+    <h3>Using Unicode</h3>
+Special reminders regarding character use in the editor:
+<ol>
+        <p>
+            <li>Unicode is a universal set of characters meant to act as a consistent method for encoding plain-text. It standardizes text by assigning every character a universal and unique numeric value and name. This means that unicode creates a unification of characters, making them dynamic to use and simple to convert.
+</li>
+        </p>
+        <p>
+            <li>The use of unicode characters is imperative to creating a convertable, searchable document. When using Greek characters, and especially a Greek keyboard, you must remember that the keys you use may not be the correct symbols which unicode requires. For example, when inserting left or right-angle brackets, you must use that specific symbol (ex. U+2329, Ps.) rather than the <code>less than</code> or <code>greater than</code> symbols found on your keyboard. Due to the nature of unicode characters formatting bold or italic words is unnecessary.
+</li>
+        </p>
+        <p>
+            <li>When a character is unavalible on the standard keyboard, it is likely to be found in the index of Unicode characters which can be found via online search engine.
+</li>
+        </p>
+        <p>
+            <li> Font is irrelivent when using unicode, so if a character must be pasted into the editing environment, although likely apearing on a different coloured background, the character, provided it is unicode, will be detectable to the OCR engine.
+</li>
+        </p>
+        <p>
+            <li>In order to transfer your keyboard to Greek there are various resources avalible online for both Mac and PC users to help with the creation of accents, breathing marks, and iota subscripts. Some programs make it possible to create on on-screen keyboard, which is controlled by <code>Mouse</code>. Others may prefer to use their own keyboard in Greek Polytonic form.
+</li>
+        </p>
+    </ol>
+</div>

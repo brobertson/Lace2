@@ -1,0 +1,162 @@
+@import url("http://fonts.googleapis.com/css?family=Cardo"); 
+@import url("http://fonts.googleapis.com/css?family=Lato");
+@import url("http://fonts.googleapis.com/css?family=Quicksand");
+/* put hyphen in name to distinguish from regular font
+*/
+@font-face {
+    font-family: 'GFS-Porson';
+/*    src: url('http://heml.mta.ca/rigaudon/static/Fonts/Porson/GFSPorson.eot');
+    src: url('http://heml.mta.ca/rigaudon/static/Fonts/Porson/GFSPorson.eot?#iefix') format('embedded-opentype');
+*/ 
+   src: url('../font/GFSPorson.woff') format('woff'),
+         url('../font/GFSPorson.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    
+    unicode-range:
+         U+590-5ff, U+300-345, U+370-3ff, U+1e00-1fff;
+}
+/*
+span.ocr_word {
+    margin:0 0.1em;
+     background:#faf; 
+}
+*/
+
+#footer {
+    font-size: 12px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Quicksand', 'Lato', sans-serif!important;
+}
+body {
+  font-family: 'GFS-Porson', 'Quicksand', 'Lato', sans-serif!important;
+/*
+  font-family:  'GFS-Porson', 'New Athena Unicode', 'GFS Philostratos', serif;
+*/
+  font-size: 14px;
+  background: #eee;
+  line-height: 130%;
+}
+
+
+
+.resize {
+  width:200px;
+  height:40px;
+}
+
+span.ocr_word, span.index_word:first-of-type {
+    margin-left:0;
+}
+
+span.ocr_word, span.index_word:last-of-type {
+    margin-right:0;
+}
+
+span.index_word {
+
+  border-style: dashed;
+    border-width: 2px;
+  border-color: red;
+  margin-left: 5px;
+  min-width: 25px;/* This doesn't seem to work for some reason */
+  color: #C0C0C0;
+}
+span.ocr_line {
+    display: block;
+}
+
+span.ocr_line + br {
+    display: none;
+}
+p{
+    margin: 0;
+    padding: 0;
+}
+
+.inserted_line {
+  border-style: dashed;
+    border-width: 2px;
+  border-color: green;
+  display: inline-block;
+  min-width:200px;
+}
+
+.runsNotAvailable {
+    color: #CCCCCC;
+}
+
+p span:first-child {
+	text-indent: 2em;
+}
+
+p:first-child span:first-child {
+       text-indent: 0em;
+}
+span[data-spellcheck-mode] {
+   min-width: 10px;
+   padding-left: 2px;
+   padding-right: 2px;
+   margin-left: 2px;
+   margin-right: 2px;
+}
+span[data-spellcheck-mode="True"],
+span[data-spellcheck-mode="TrueLower"]
+ { 
+    background-color: #C9E8C9;
+}
+span[data-spellcheck-mode^="Sub"] {
+    background-color: #BFCE67;
+}
+span[data-spellcheck-mode="NoAcc"] {
+    background-color: #A6D9A6;
+}
+span[data-spellcheck-mode^="Dedup"] {
+    background-color: #EBF7A5;
+}
+span[data-spellcheck-mode^="Split"] {
+    background-color: #D4C26A;
+}
+span[data-spellcheck-mode^="Numerical"] {
+    background-color: #55AA55;
+}
+span[data-spellcheck-mode="PunctStrip"] {
+    background-color: #2D882D;
+}
+span[data-spellcheck-mode="None"] {
+    background-color: #FFCCCC;
+}
+span[data-spellcheck-mode="Manual"] {
+    background-color: #CCFFFF;
+}
+span[data-manually-confirmed="true"] {
+    background-color: #E5FFFF;
+}
+
+#download {
+  display: block;
+  width: 115px;
+  height: 25px;
+  background: #4E9CAF;
+  padding: 10px;
+  text-align: center;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+}
+
+span.ocr_line[data-app-crit=true] { border-right-color: #341BFF; border-left-color: #341BFF;
+border-left-style: solid; border-right-style: solid;
+border-right-width: 2px; border-left-width: 2px;
+padding-right: 6px; padding-left: 6px;}
+
+/*.ocr_word:not([data-spellcheck-mode]) {
+    background-color: #FFAAAA;
+}
+*/
+/* other colours:
+#FFF0AA
+#D4C26A
+*/

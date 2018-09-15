@@ -1,0 +1,65 @@
+span[data-spellcheck-mode] {
+   min-width: 10px;
+   padding-left: 2px;
+   padding-right: 2px;
+   margin-left: 2px;
+   margin-right: 2px;
+}
+span[data-spellcheck-mode="True"],
+span[data-spellcheck-mode="TrueLower"]
+ { 
+    background-color: #C9E8C9;
+}
+span[data-spellcheck-mode^="Sub"] {
+    background-color: #BFCE67;
+}
+span[data-spellcheck-mode="NoAcc"] {
+    background-color: #A6D9A6;
+}
+span[data-spellcheck-mode^="Dedup"] {
+    background-color: #EBF7A5;
+}
+span[data-spellcheck-mode^="Split"] {
+    background-color: #D4C26A;
+}
+span[data-spellcheck-mode^="Numerical"] {
+    background-color: #55AA55;
+}
+span[data-spellcheck-mode="PunctStrip"] {
+    background-color: #2D882D;
+}
+span[data-spellcheck-mode="None"] {
+    background-color: #FFCCCC;
+}
+span[data-spellcheck-mode="Manual"] {
+    background-color: #CCFFFF;
+}
+span[data-manually-confirmed="true"] {
+    background-color: #E5FFFF;
+}
+
+#download {
+  display: block;
+  width: 115px;
+  height: 25px;
+  background: #4E9CAF;
+  padding: 10px;
+  text-align: center;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+}
+
+span.ocr_line[data-app-crit=true] { border-right-color: #341BFF; border-left-color: #341BFF;
+border-left-style: solid; border-right-style: solid;
+border-right-width: 2px; border-left-width: 2px;
+padding-right: 6px; padding-left: 6px;}
+
+/*.ocr_word:not([data-spellcheck-mode]) {
+    background-color: #FFAAAA;
+}
+*/
+/* other colours:
+#FFF0AA
+#D4C26A
+*/

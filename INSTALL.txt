@@ -1,0 +1,4 @@
+How to install Lace2
+1. Install eXist-db 4.3.2 or greater (must have bug #2128 fixed)
+2. From within eXist's dashboard, go to the Package Manager, and use it to install Lace2 xar file
+3. Make a data directory at /db/Lace2Data, and populate it with /metadata, /images and /texts
