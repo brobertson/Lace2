@@ -11,7 +11,7 @@ import module namespace xmldb="http://exist-db.org/xquery/xmldb";
 declare namespace ls="ls";
 declare namespace local="http://heml.mta.ca/Namespace/local";
 declare namespace xh="http://www.w3.org/1999/xhtml";
-declare variable $app:dataPath :="/db/Lace2Data";
+declare variable $app:dataPath :="/db/Lace2Data/";
 
 declare variable $app:textDataPath := $app:dataPath || "texts/";
 declare variable $app:imageDataPath := $app:dataPath || "images/";
