@@ -4,7 +4,7 @@ import module namespace response = "http://exist-db.org/xquery/response";
 
 let $user := "admin"
 let $pass := "foo"
-let $dbroot := "/db/apps/lace/data/texts/"
+let $dbroot := "/db/Lace2Data/texts/"
 let $id := request:get-parameter('id', '')
 let $new := request:get-parameter('value', '')
 let $fileName := request:get-parameter('fileName', '')
