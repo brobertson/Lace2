@@ -22,7 +22,7 @@ declare function local:scaleDimension($pixel as xs:string) {
          xs:int($float)
 };
 
-let $imageBase := '/db/Lace2data/images/'
+let $imageBase := '/db/Lace2Data/images/'
 let $bbox:= request:get-parameter('bbox', '')
 let $book := request:get-parameter('book','')
 let $file := request:get-parameter('file','')
