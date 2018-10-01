@@ -14,6 +14,41 @@ declare variable $app:textDataPath := $app:dataPath || "texts/";
 declare variable $app:imageDataPath := $app:dataPath || "images/";
 declare variable $app:catalogFile := doc($app:dataPath || "metadata/laceTexts.xml");
 
+(: Functions used to present the catalogs of works.
+ : This is the highest level view of the data.
+ :  
+ : :)
+ 
+declare function app:countCatalog($node as node(), $model as map(*)) {
+        count($app:catalogFile/texts/archivetext) || " "
+};
+
+declare function app:formatCatalogEntry($text as node()) {
+    <span class="catalogueEntry">{$text/creator/text()} ({$text/date/text()}). <i>{fn:substring($text/title/text(),1,80)}</i>. {$text/volume/text()}</span>
+};
+
+declare function app:formatCatalogEntryWithRunsLink($text as node()) {
+    <a href="{concat("runs.html?archive_number=",$text/archive_number)}">
+        {app:formatCatalogEntry($text)}
+    </a>
+};
+
+declare function app:catalog($node as node(), $model as map(*)) {
+    for $text in $app:catalogFile/texts/archivetext
+        order by $text/creator
+        return 
+            if  (xmldb:collection-available($app:textDataPath || $text/archive_number)) 
+            then
+                <tr>
+                    <td>
+                        {app:formatCatalogEntryWithRunsLink($text)}
+                    </td>
+                </tr>
+            else 
+                <tr class="notAvailable">
+                <td>{app:formatCatalogEntry($text)}</td></tr>
+ };
+ 
 declare function app:latest($node as node(), $model as map(*), $count as xs:string?) {
     let $sorted-runs :=
         for $run in $app:catalogFile/texts/archivetext/run
@@ -23,29 +58,11 @@ declare function app:latest($node as node(), $model as map(*), $count as xs:stri
         return
             <tr>
                 <td>
-                {$run/date}<a href="{concat("runs.html?archive_number=",$run/../archive_number)}">{$run/../creator} ({$run/../date}). <i>{fn:substring($run/../title,1,80)}</i>. {$run/../volume}</a>
+                {$run/date}{app:formatCatalogEntryWithRunsLink($run/..)}
                 </td>
             </tr>
  };
 
-declare function app:countCatalog($node as node(), $model as map(*)) {
-        count($app:catalogFile/texts/archivetext) || " "
-};
-
-declare function app:catalog($node as node(), $model as map(*)) {
-for $text in $app:catalogFile/texts/archivetext
-order by $text/creator
-return if  (xmldb:collection-available($app:textDataPath || $text/archive_number)) 
-then
-<tr>
-    <td>
-<a href="{concat("runs.html?archive_number=",$text/archive_number)}">{$text/creator/text()} ({$text/date/text()}). <i>{fn:substring($text/title/text(),1,80)}</i>. {$text/volume/text()}</a>
-</td>
-</tr>
-else 
-    <tr class="notAvailable">
-    <td>{$text/creator/text()} ({$text/date/text()}). <i>{fn:substring($text/title/text(),1,80)}</i>. {$text/volume/text()}</td></tr>
- };
 
 declare function app:runsAvailable($text as xs:string) {
   xmldb:collection-available($app:textDataPath || $text)
@@ -74,11 +91,6 @@ declare function app:hocrTypeStringForNumber($hocrTypeName as xs:string) {
    case "3" return "selected"
    default return "HOCR Type *Out of bounds*"
    return $name
-};
-
-declare function app:cropImage() {
-  let $bin := file:read-binary('data/images/624438295/624438295_0036.jpg')
-  return image:crop($bin,(100,100,200,200),"image/jpeg")  
 };
 
 declare function app:hocrTypes($run as node()) {
