@@ -19,20 +19,42 @@ declare variable $app:catalogFile := doc($app:dataPath || "metadata/laceTexts.xm
  :  
  : :)
  
+ (: Count the number of 'archive texts', that is, volumes, in the 
+  : catalog file
+  :)
 declare function app:countCatalog($node as node(), $model as map(*)) {
         count($app:catalogFile/texts/archivetext) || " "
 };
 
+(: For a given archive_text node, format the contents :)
 declare function app:formatCatalogEntry($text as node()) {
     <span class="catalogueEntry">{$text/creator/text()} ({$text/date/text()}). <i>{fn:substring($text/title/text(),1,80)}</i>. {$text/volume/text()}</span>
 };
 
+(: for a given archive_text node, format the contents and link to 
+ : its 'runs' :)
 declare function app:formatCatalogEntryWithRunsLink($text as node()) {
     <a href="{concat("runs.html?archive_number=",$text/archive_number)}">
         {app:formatCatalogEntry($text)}
     </a>
 };
 
+(: 
+ : This uses the "archive number" string as a key to the catalog entry, then formats
+ : the resulting catalog information
+ : TODO: the xpath here is a bit wonky. Clean up to not require a loop, since there
+ : should be only one $text for each $archive_number
+ : Once it's cleaned up, this function can be removed and the xpath put in the call.
+ :)
+declare function app:formatCatalogEntryForArchiveNumber($archive_number as xs:string) {
+for $text in $app:catalogFile/texts/archivetext[archive_number=$archive_number][1]
+return
+app:formatCatalogEntryWithRunsLink($text)
+};
+
+(: loop through all the 'archivetext' nodes in the catalogue xml file and 
+ : lay them out in a table, linked to their runs. If there are not runs, then
+ : don't link them, and assign css class 'notAvailable' :)
 declare function app:catalog($node as node(), $model as map(*)) {
     for $text in $app:catalogFile/texts/archivetext
         order by $text/creator
@@ -49,6 +71,9 @@ declare function app:catalog($node as node(), $model as map(*)) {
                 <td>{app:formatCatalogEntry($text)}</td></tr>
  };
  
+(: Provide a catalog of the $count most recently processed volumes, or archivetexts, 
+ : ordered from most recently processed to least. 
+ : :)
 declare function app:latest($node as node(), $model as map(*), $count as xs:string?) {
     let $sorted-runs :=
         for $run in $app:catalogFile/texts/archivetext/run
@@ -63,16 +88,16 @@ declare function app:latest($node as node(), $model as map(*), $count as xs:stri
             </tr>
  };
 
-
+(: 
+ : End of functions relating to catalog entries.
+ : 
+ : The following functions format and present 'runs', 
+ : that is, OCR jobs on a given text
+ :  :)
 declare function app:runsAvailable($text as xs:string) {
   xmldb:collection-available($app:textDataPath || $text)
 };
 
-declare function app:formatWorkAndLinkToRuns($archive_number as xs:string) {
-for $text in $app:catalogFile/texts/archivetext[archive_number=$archive_number][1]
-return
-<a href="{concat("runs.html?archive_number=",$archive_number)}">{$text/creator} ({$text/date}). <i>{fn:substring($text/title,1,80)}</i>. {$text/volume}</a>
-};
 
 declare function app:runs($node as node(), $model as map(*),  $archive_number as xs:string?) {
     for $run in $app:catalogFile/texts/archivetext[archive_number=$archive_number][1]/run
@@ -112,13 +137,6 @@ declare function app:hocrCollectionLinkForhocrTypeElement($hocrtype as node()) {
   :)
 };
 
-declare function app:formatWork($archive_number as xs:string) {
-for $text in $app:catalogFile/texts/archivetext[archive_number=$archive_number][1]
-return
-<p>{$text/creator} ({$text/date}). <i>{fn:substring($text/title,1,80)}</i>. {$text/volume}</p>
-};
-
-
 declare function app:add-attribute-to-ocrword($input as node()?, $attributeName as xs:string, $attributeValue as xs:string?) {
     let $xslt := <xsl:stylesheet  xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xh="http://www.w3.org/1999/xhtml" version="1.0">
     <xsl:template match="xh:span[@class='ocr_word']">
@@ -156,7 +174,7 @@ declare function app:sidebyside($node as node(), $model as map(*), $fileNum as x
      return
          <div xmlns="http://www.w3.org/1999/xhtml">
          <div class="text-center">
-         {app:formatWorkAndLinkToRuns($documentId)}
+             {app:formatCatalogEntryForArchiveNumber($documentId)}
   <nav aria-label="...">
   <ul class="pagination">
     <li class="page-item">
