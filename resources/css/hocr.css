@@ -84,7 +84,7 @@ p{
   min-width:200px;
 }
 
-.runsNotAvailable {
+.runsNotAvailable .notAvailable{
     color: #CCCCCC;
 }
 
