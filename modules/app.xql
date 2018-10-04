@@ -7,6 +7,7 @@ import module namespace image="http://exist-db.org/xquery/image";
 import module namespace markdown="http://exist-db.org/xquery/markdown";
 import module namespace xmldb="http://exist-db.org/xquery/xmldb";
 
+declare namespace test="http://exist-db.org/xquery/xqsuite";
 declare namespace xh="http://www.w3.org/1999/xhtml";
 
 declare variable $app:dataPath :="/db/Lace2Data/";
@@ -141,13 +142,17 @@ return
 };
 
 (: convert the $hocrTypeName, which is internally formatted as a number, to a user-friendly string :)
-declare function app:hocrTypeStringForNumber($hocrTypeName as xs:string) {
+declare 
+ %test:arg("hocrTypeName", "0") %test:assertEquals("raw")
+ %test:arg("hocrTypeName", "3") %test:assertEquals("selected")
+ %test:arg("hocrTypeName", "97") %test:assertEquals("HOCR Type '97'")
+function app:hocrTypeStringForNumber($hocrTypeName as xs:string) {
     let   $name :=  switch ($hocrTypeName) 
     case "0" return "raw"
     case "1" return "combined"
     case "2" return "selected"
     case "3" return "selected"
-    default return "HOCR Type *Out of bounds*"
+    default return "HOCR Type '" || $hocrTypeName || "'"
     return $name
 };
 
