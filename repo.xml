@@ -10,6 +10,5 @@
     <target>lace</target>
     <prepare>pre-install.xql</prepare>
     <finish/>
-    <permissions user="admin" group="dba" mode="rw-rw-r--"/>
-<deployed>2018-08-10T08:49:01.072-03:00</deployed>
+    <permissions xmlns:repo="http://exist-db.org/xquery/repo" password="" user="admin" group="dba" mode="rw-rw-r--"/>
 </meta>
