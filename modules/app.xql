@@ -25,7 +25,8 @@ declare variable $app:catalogFile := doc($app:dataPath || "metadata/laceTexts.xm
  : Bruce Robertson is Head of the Department of Classics at [Mount Allison University](http://www.mta.ca) in Canada. He received his PhD in Classics   : at the University of Toronto, and has worked on several digital initiatives.
  : </div>
  :)
-declare function app:renderMarkdown($node as node(), $model as map(*), $name as xs:string?) {
+declare
+ function app:renderMarkdown($node as node(), $model as map(*), $name as xs:string?) {
     if ($name) then
         markdown:parse("This is a *fine* howdydo.")
     else
@@ -182,10 +183,10 @@ declare function app:hocrCollectionUriForHocrTypeElement($hocrtype as node()) {
 declare function app:hocrTypes($run as node()) {
     for $hocrtype in $run/hocrtype
     return 
-        if (xmldb:collection-available(concat($app:textDataPath,$run/../archive_number)))
+        if (xmldb:collection-available(concat($app:textDataPath,$run/../archive_number)) and ($hocrtype = "3"))
         then
             <td>
-                <a href="{concat("side_by_side_view.html?collectionUri=",app:hocrCollectionUriForHocrTypeElement($hocrtype),"&amp;positionInCollection=2")}">{app:hocrTypeStringForNumber($hocrtype)}</a> 
+                <a href="{concat("side_by_side_view.html?documentId=",$hocrtype/../../archive_number,"&amp;runId=",$hocrtype/../date,"_",$hocrtype/../classifier,"_selected_hocr_output","&amp;positionInCollection=2")}">{app:hocrTypeStringForNumber($hocrtype)}</a> 
                 </td>
         else
             <td>{app:hocrTypeStringForNumber($hocrtype)}</td>
@@ -230,9 +231,12 @@ declare function app:fixHocrPageNode($hocrPageNode as node(), $innerAddress as x
 (: 
  : generate a <img> tag for a given $imageFile in the database 
  :)
-declare function app:getImageLink($imageFile as xs:string?) {
-    (: if (doc:available()) doesn't work with these binary files. Find another approach :)
+declare 
+%test:arg('imageFile', "/db/Lace2Data/images/myname 4athing/myname 4athing_0020.jpg") %test:assertEquals('<img width="500" class="img-responsive" onclick="return page_back()" id="page_image" src="/db/Lace2Data/images/myname 4athing/myname 4athing_0020.jpg" alt="photo"/>')
+function app:getImageLink($imageFile as xs:string?) {
+    (: if (util:binary-doc-available) works with these binary files, but we need to get at it before the /rest path is put on. :)
     <img width="500"  class="img-responsive" onclick="return page_back()" id="page_image" src="{$imageFile}" alt="photo"/>
+
 };
 
 (:  
@@ -243,6 +247,8 @@ declare function app:getImageLink($imageFile as xs:string?) {
  :  :)
  declare function app:navButton($collectionUri, $positionInCollection as xs:integer, $skipBy as xs:integer, $label as xs:string) {
     let $targetIndex := $positionInCollection + $skipBy
+    let $documentId :=  app:documentIdFromCollectionUri($collectionUri)
+    let $runId := app:runIdFromCollectionUri($collectionUri)
     return
     if ($skipBy = 0)
     then
@@ -256,35 +262,61 @@ declare function app:getImageLink($imageFile as xs:string?) {
     </li>
     else
         <li class="page-item">
-      <a class="page-link" href="{concat("?collectionUri=", $collectionUri, "&amp;positionInCollection=", $targetIndex)}">{$label}</a>
+      <a class="page-link" href="{concat("?documentId=", $documentId, "&amp;runId=", $runId, "&amp;positionInCollection=", $targetIndex)}">{$label}</a>
     </li>
 };
 
  declare function app:paginationWidget($collectionUri, $positionInCollection as xs:integer) {
 <nav aria-label="...">
   <ul class="pagination">
-    {app:navButton($collectionUri,$positionInCollection,-1,"Previous")}
+   {app:navButton($collectionUri,$positionInCollection,-20,"-20")}
     {app:navButton($collectionUri,$positionInCollection,-5,"-5")}
-    {app:navButton($collectionUri,$positionInCollection,-20,"-20")}
+    {app:navButton($collectionUri,$positionInCollection,-1,"Previous")}
     {app:navButton($collectionUri,$positionInCollection,0,"")}
-    {app:navButton($collectionUri,$positionInCollection,20,"+20")}
-    {app:navButton($collectionUri,$positionInCollection,5,"+5")}
     {app:navButton($collectionUri,$positionInCollection,1,"Next")}
+        {app:navButton($collectionUri,$positionInCollection,5,"+5")}
+        {app:navButton($collectionUri,$positionInCollection,20,"+20")}
   </ul>
   </nav>
 };
 
-declare function app:getImageFilePath($documentId as xs:string, $fileNum as xs:integer) {
+(:
+ : not currently used  
+declare 
+ %test:args("12882192", 5) %test:assertEquals("/exist/rest/db/Lace2Data/images/12882192/12882192_0005.jpg")
+function app:getImageFilePath($documentId as xs:string, $fileNum as xs:integer) {
      let $fileNumFormat := format-number($fileNum, '0000')
+     let $imageCollectionPath :=  $app:imageDataPath || $documentId 
      return 
-         concat('/exist/rest',$app:imageDataPath,$documentId,"/",$documentId,"_",$fileNumFormat,".jpg")
+         if (util:binary-doc-available($imageCollectionPath || "/" || $documentId || "_" || $fileNumFormat || ".jpg")) then
+            concat('/exist/rest',$app:imageDataPath,$documentId,"/",$documentId,"_",$fileNumFormat,".jpg")
+         else
+             "wow"
 };
 
-declare function app:documentIdFromCollectionUri($collectionUri as xs:string) {
+:)
+
+
+declare 
+(: 
+ %test:args(collectionUri, "/db/Lace2Data/texts/ajax00soph") %test:assertEquals("/exist/rest/db/Lace2Data/images/12882192/12882192_0005.jpg")
+ :)
+ function app:documentIdFromCollectionUri($collectionUri as xs:string) {
   let $stripped := substring($collectionUri, string-length($app:textDataPath))
   let $documentId := tokenize($stripped, "/")
   (: The first element of the sequence is the string before '/', namely '' :)
   return $documentId[2]
+};
+
+declare 
+(: 
+ %test:args(collectionUri, "/db/Lace2Data/texts/ajax00soph") %test:assertEquals("/exist/rest/db/Lace2Data/images/12882192/12882192_0005.jpg")
+ :)
+ function app:runIdFromCollectionUri($collectionUri as xs:string) {
+  let $stripped := substring($collectionUri, string-length($app:textDataPath))
+  let $documentId := tokenize($stripped, "/")
+  (: The first element of the sequence is the string before '/', namely '' :)
+  return $documentId[3]
 };
 
 (: 
@@ -292,7 +324,13 @@ declare function app:documentIdFromCollectionUri($collectionUri as xs:string) {
  : is unordered, we use this function to make sure it is ordered by the names
  : of the files, which should be standardized to something like volumeidentifier_0123.html
  :)
-declare function app:sortCollection($collectionUri as xs:string) {
+
+declare 
+(: 
+ %test:args(collectionUri, "/db/Lace2Data/texts/ajax00soph") %test:assertEquals("/exist/rest/db/Lace2Data/images/12882192/12882192_0005.jpg")
+ TODO: we need to pass to the function a collection in order to unit test this properly. 
+ : :)
+function app:sortCollection($collectionUri as xs:string) {
     for $item in collection($collectionUri)
     order by util:document-name($item)
     return $item
@@ -308,10 +346,18 @@ declare function app:sortCollection($collectionUri as xs:string) {
  : and the position of the current page in that collection.
  : 
  :  :)
-declare function app:sidebyside($node as node(), $model as map(*), $collectionUri as xs:string, $positionInCollection as xs:integer?) {
+
+
+
+declare function app:getCollectionUri($documentId as xs:string, $runId as xs:string) {
+  (: /db/Lace2Data/texts/evangeliaapocry00tiscgoog/2018-07-12-09-33_tischendorf-2018-06-18-12-36-00008100.pyrnn.gz_selected_hocr_output :)
+  concat($app:textDataPath,$documentId,'/',$runId)  
+};
+
+declare function app:sidebyside($node as node(), $model as map(*), $documentId as xs:string, $runId as xs:string, $positionInCollection as xs:integer?) {
+let $collectionUri := app:getCollectionUri($documentId,$runId)
  let $me := util:document-name(app:sortCollection($collectionUri)[$positionInCollection])
  let $meAsJpeg := replace($me,"html","jpg")
-let $documentId := app:documentIdFromCollectionUri($collectionUri)
 let $rawHocrNode := app:sortCollection($collectionUri)[$positionInCollection]
 let $innerAddressWithHead := $collectionUri || '/' || util:document-name($rawHocrNode)
 let $innerAddress := replace($innerAddressWithHead,$app:textDataPath, "")
@@ -328,3 +374,4 @@ let $innerAddress := replace($innerAddressWithHead,$app:textDataPath, "")
 </div>
 </div>
 };
+
