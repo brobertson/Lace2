@@ -104,24 +104,34 @@ $(function() {
         
     //The actual dynamic generation of the tooltip 
     $('.ocr_word').on({
-    'mouseenter': function() {
-       // alert("enter");
+    'focus mouseenter': function() {
+        //alert("enter");
         $(this).tooltip({
                 //container: 'body',
                 html: true,
                 trigger: 'manual',
                 placement: 'bottom',
                 title: function() 
-              { var prev_bbox = ""; 
+              { //console.log("Hi there " + this.nodeName)
+                var prev_bbox = ""; 
                 var page_path = $(this).closest('.ocr_page').attr("title");
                 var bbox = $(this).attr('original-title');
-                if($(this).is(':last-child') && $(this).prev().length)
+               // console.log("using bbox array: " + bbox)
+               //In the case of the last one in a line, the image spans both the second-to-last
+               //and last word, so we cut the image for the last at the end of the second-to-last.
+               //However, this tooltip widget puts itself in previous position, so we need to ask for 
+               //the first previous element that is a span.ocr_word.
+	if($(this).is(':last-child') && $(this).prevAll("span.ocr_word:first").length)
 		{
-    		prev_bbox = $(this).prev().attr('original-title')
+		        prev_ocrword = $(this).prevAll("span.ocr_word:first")
+		        //console.log("the previous is: " + prev_ocrword.get(0).nodeName + " and has class: " +  prev_ocrword.get(0).className)
+		        prev_bbox = prev_ocrword.attr('original-title')
+		        //console.log("previous box: " + prev_bbox)
                 prev_end = prev_bbox.split(" ")[3]
                 bbox_array = bbox.split(" ")
                 bbox_array[1] = prev_end
                 bbox = bbox_array.join(" ")
+                //console.log("for end word, using bbox array: " + bbox)
 		}
                             var path_array = page_path.split('/');
                             var page_file = path_array[path_array.length - 1];
@@ -130,7 +140,7 @@ $(function() {
                             return generate_image_tag_call(book_name, page_file, bbox)},
             }).tooltip('show');
     },
-    'mouseleave': function() {
+    'focusout mouseout': function() {
         $(this).tooltip('hide');
     }
 });
