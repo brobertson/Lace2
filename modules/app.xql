@@ -6,6 +6,7 @@ import module namespace file="http://exist-db.org/xquery/file";
 import module namespace image="http://exist-db.org/xquery/image";
 import module namespace markdown="http://exist-db.org/xquery/markdown";
 import module namespace xmldb="http://exist-db.org/xquery/xmldb";
+import module namespace compression="http://exist-db.org/xquery/compression";
 
 declare namespace test="http://exist-db.org/xquery/xqsuite";
 declare namespace xh="http://www.w3.org/1999/xhtml";
@@ -138,7 +139,7 @@ declare function app:runs($node as node(), $model as map(*),  $archive_number as
     order by $run/date descending
 return
     <tr>
-<td>{$run/date}</td> <td>{$run/classifier}</td><td>{app:hocrTypes($run)}</td>
+<td>{$run/date}</td><td>{$run/classifier}</td>{app:hocrTypes($run)}
 </tr>
 };
 
@@ -173,7 +174,7 @@ declare function app:hocrCollectionLinkForhocrTypeElement($hocrtype as node()) {
 };
 
 declare function app:hocrCollectionUriForHocrTypeElement($hocrtype as node()) {
-  concat($app:textDataPath,$hocrtype/../../archive_number,"/",$hocrtype/../date,"_",$hocrtype/../classifier,"_selected_hocr_output")
+  concat($app:textDataPath,$hocrtype/../../archive_number,"/",$hocrtype/../date,"_",$hocrtype/../classifier,"_selected_hocr_output/")
 };
 
 (: Every run can, and often does, have multiple HOCR types, representing various stages of the process.
@@ -185,12 +186,19 @@ declare function app:hocrTypes($run as node()) {
     return 
         if (xmldb:collection-available(concat($app:textDataPath,$run/../archive_number)) and ($hocrtype = "3"))
         then
-            <td>
-                <a href="{concat("side_by_side_view.html?documentId=",$hocrtype/../../archive_number,"&amp;runId=",$hocrtype/../date,"_",$hocrtype/../classifier,"_selected_hocr_output","&amp;positionInCollection=2")}">{app:hocrTypeStringForNumber($hocrtype)}</a> 
-                </td>
+            <td>{app:hocrTypeStringForNumber($hocrtype)}:
+            <span>
+                <a href="{concat("side_by_side_view.html?documentId=",$hocrtype/../../archive_number,"&amp;runId=",$hocrtype/../date,"_",$hocrtype/../classifier,"_selected_hocr_output","&amp;positionInCollection=2")}">Edit</a><span> | </span> <a href="{concat("getZippedCollection.xq?collectionUri=",app:hocrCollectionUriForHocrTypeElement($hocrtype))}">Download XML zip </a>| <a href="{concat("getZippedCollection.xq?collectionUri=",app:hocrCollectionUriForHocrTypeElement($hocrtype), "&amp;format=text")}">Download Plain text zip </a>
+                </span>
+            </td>
         else
+            <span/>
+            (:
             <td>{app:hocrTypeStringForNumber($hocrtype)}</td>
+    :)                    
 };
+
+
 
 (: 
  : End functions relating to runs
