@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<collection xmlns="http://exist-db.org/collection-config/1.0">
+<!-- collection.xconf for image collections, which only require metadata to be indexed -->
+    <index xmlns:lace="http://heml.mta.ca/2019/lace" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dc="http://purl.org/dc/elements/1.1/">
+        <!-- Range indexes  -->
+        <range>
+            <create qname="@dc:identifier" type="xs:string"/>
+            <create qname="@dc:date" type="xs:string"/>
+            <create qname="@dc:title" type="xs:string"/>
+            <create qname="@dc:publisher" type="xs:string"/>
+            <create qname="@dc:creator" type="xs:string"/>
+        </range>
+    </index>
+    <triggers>
+        <trigger class="org.exist.extensions.exquery.restxq.impl.RestXqTrigger"/>
+    </triggers>
+</collection>
