@@ -3,6 +3,38 @@ function get_filename() {
     return path_array[path_array.length - 1]
 }
 
+function get_editing_progress() {
+    alert("wow");
+}
+
+$.urlParam = function(name){
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    if (results===null) {
+       return null;
+    }
+    return decodeURI(results[1]) || 0;
+}
+
+function update_progress_bar() {
+    var confirmed = $("span[data-manually-confirmed='true']").length;
+    $('.ocr_page').attr('data-confirmed-word-count', confirmed)
+    var all_words = $("span[class='ocr_word']").length
+    console.log("all words" + all_words)
+    //$('.ocr_page').attr('data-word-count', all_words)
+    var empty_words = $("span[class='ocr_word']:empty").length
+    $('.ocr_page').attr('data-empty-word-count',empty_words)
+    console.log("we have " + all_words + " words.")
+    console.log(confirmed + " are corrected")
+    console.log(empty_words + " are empty")
+    editing_progress = confirmed / all_words
+    var progress_percent = Math.round(editing_progress * 100.0)
+    console.log(progress_percent)
+    $('#progress_bar').css('width', progress_percent + "%");
+    $('#progress_bar').text(progress_percent + "%");
+    if (confirmed >= (all_words - empty_words)) {
+        $('.ocr_page').addClass("complete_text");
+    }
+}
 function updateCTSURN(inputField,ui) {
     input = inputField[0]
     inputField.attr("data-cts-urn",ui.item.value);
@@ -35,7 +67,24 @@ function update_xmldb(element, e) {
             data['filePath'] = filePath
             whole_address = 'modules/updateWord.xq';
             console.log("posting ", data, " to ", whole_address)
-            $.post(whole_address,data)
+            old_attribute = element.getAttribute("data-manually-confirmed")
+            element.setAttribute("data-manually-confirmed", "true");
+            $.post(whole_address,data,function( data ) {
+                //this is the 'success' function 
+                //if the update works, it will fire.
+                //We can't use JQuery syntax here, for some reason.
+                
+            })
+            .fail( function(xhr, textStatus, errorThrown) {
+                element.setAttribute("data-manually-confirmed", old_attribute);
+                if ((xhr.status == 404) || (xhr.status === 0)) {
+                    alert("The connection has been lost to the lace server.")
+                } 
+                else {
+                    alert(xhr.responseText + " status" + xhr.status);
+                }
+            });
+          
 }
 
 function update_all_xmldb(element, e) {
@@ -64,7 +113,30 @@ function add_line_below_xmldb(element, e,uniq) {
             data['fileName'] = fileName
             var filePath = doc.substring(0,n);
             data['filePath'] = filePath
-            $.post(exist_server_address + '/exist/apps/laceApp/addLineBelow.xq',data)
+            $.post('modules/addLineBelow.xq',data).fail( function(xhr, textStatus, errorThrown) {
+        alert(xhr.responseText);
+    });
+}
+
+/*called when the 'x' button beside the added line is pressed*/
+function delete_added_line(buttonElement) {
+    var data = {};
+    doc = $('.ocr_page').attr('title')
+    data['doc'] = doc
+    var n = doc.lastIndexOf('/');
+    var fileName = doc.substring(n + 1);
+    data['fileName'] = fileName
+    var filePath = doc.substring(0,n);
+    data['filePath'] = filePath
+    enclosing_div_element = buttonElement.id.substr(0, buttonElement.id.lastIndexOf('_')).concat('_div');
+    data['id'] = enclosing_div_element
+    $.post('modules/deleteLine.xq',data).fail( function(xhr, textStatus, errorThrown) {
+        alert(xhr.responseText);
+    }).success( 
+        /* if it succeeds in removing from the database, 
+        then also remove from the DOM on the screen 
+        */
+        $("#" + data['id']).remove());
 }
 
 function add_index_after(element, e,uniq) {
@@ -83,16 +155,17 @@ function add_index_after(element, e,uniq) {
             a = $.post(exist_server_address +  '/exist/apps/laceApp/addIndexWordAfter.xq',data)
 }
 
-function generate_image_tag_call(book_name, page_file, bbox) {
+function generate_image_tag_call(collectionUri, page_file, bbox) {
     //book_name = "490021999brucerob"
     //page_file = "490021999brucerob_0100.jpg"
-        var request = "<img src=\"" + "getCroppedImage.xq?book=" + encodeURIComponent(book_name) + "&amp;file=" + encodeURIComponent(page_file) + "&amp;bbox=" + encodeURIComponent(bbox) + "\" alt='a word image'/>"
+        var request = "<img src=\"" + "getCroppedImage.xq?collectionUri=" + encodeURIComponent(collectionUri) + "&amp;file=" + encodeURIComponent(page_file) + "&amp;bbox=" + encodeURIComponent(bbox) + "\" alt='a word image'/>"
         //console.log(request);
 	return request
 }
 
 $(function() {
-
+    $("#svg_focus_rect").attr('visibility','hidden');
+    update_progress_bar();
     //Store the 'title' attribute value somewhere else, because
     //the tooltip requires this to store its value
     $('.ocr_word').each(function() {
@@ -104,8 +177,9 @@ $(function() {
         
     //The actual dynamic generation of the tooltip 
     $('.ocr_word').on({
-    'focus mouseenter': function() {
-        //alert("enter");
+    'focus mouseover': function() {
+        
+
         $(this).tooltip({
                 //container: 'body',
                 html: true,
@@ -113,35 +187,65 @@ $(function() {
                 placement: 'bottom',
                 title: function() 
               { //console.log("Hi there " + this.nodeName)
+                
                 var prev_bbox = ""; 
                 var page_path = $(this).closest('.ocr_page').attr("title");
                 var bbox = $(this).attr('original-title');
-               // console.log("using bbox array: " + bbox)
+                bbox = bbox.split(';')[0];
+                console.log("listen up: this is bbox: " + bbox)
+                var bbox_array = bbox.split(" ");
+                //Strip following, additional data in this
+                if (bbox.includes(';')) {
+                    console.log("theres additional data, that we'll strip")
+                    bbox = bbox.substr(0, bbox.indexOf(';'));
+
+                }
+                //console.log("using bbox array: " + bbox)
                //In the case of the last one in a line, the image spans both the second-to-last
                //and last word, so we cut the image for the last at the end of the second-to-last.
                //However, this tooltip widget puts itself in previous position, so we need to ask for 
                //the first previous element that is a span.ocr_word.
 	if($(this).is(':last-child') && $(this).prevAll("span.ocr_word:first").length)
 		{
-		        prev_ocrword = $(this).prevAll("span.ocr_word:first")
-		        //console.log("the previous is: " + prev_ocrword.get(0).nodeName + " and has class: " +  prev_ocrword.get(0).className)
+		        prev_ocrword = $(this).prevAll("span.ocr_word:first");
+		        console.log("the previous is: " + prev_ocrword.get(0).nodeName + " and has class: " +  prev_ocrword.get(0).className + " and its text is " + prev_ocrword.get(0).nodeName.text)
 		        prev_bbox = prev_ocrword.attr('original-title')
-		        //console.log("previous box: " + prev_bbox)
+		        console.log("previous box: " + prev_bbox)
                 prev_end = prev_bbox.split(" ")[3]
                 bbox_array = bbox.split(" ")
                 bbox_array[1] = prev_end
                 bbox = bbox_array.join(" ")
-                //console.log("for end word, using bbox array: " + bbox)
+                console.log("for end word, using bbox array: " + bbox)
 		}
+                            var url = new URL(window.location.href);
+                            var collectionUri = url.searchParams.get("collectionUri");
+                            //collectionUri = $.urlParam('collectionUri');
                             var path_array = page_path.split('/');
                             var page_file = path_array[path_array.length - 1];
-                            var book_name = path_array[0];
-                            //console.log(page_file);
-                            return generate_image_tag_call(book_name, page_file, bbox)},
+                            // Thanks StackOerflow! 
+                            //https://stackoverflow.com/questions/6884513/how-to-get-the-real-unscaled-size-of-an-embedded-image-in-the-svg-document
+                            //get the horizontal dimension of the original document
+                            var myPicXE = document.getElementsByTagName('image')[0];
+                            var address = myPicXE.getAttribute('xlink:href');
+                            var myPicXO = new Image();
+                            myPicXO.src = address;
+                            var original_width = myPicXO.width;
+                            //don't need this now
+                            //var original_height = myPicXO.height;
+                            var scale = $("#svg").attr("width") / original_width
+                            console.log("bbox_array " + bbox_array[1] + " " + original_width + " scale: " + scale)
+                            console.log("bbox_array[4] " + bbox_array[4])
+                            $("#svg_focus_rect").attr("x",bbox_array[1]*scale)
+                            $("#svg_focus_rect").attr("y",bbox_array[2]*scale)
+                            $("#svg_focus_rect").attr("width",(bbox_array[3]-bbox_array[1])*scale)
+                            $("#svg_focus_rect").attr("height",(bbox_array[4]-bbox_array[2])*scale)
+                            $('#svg_focus_rect').attr('visibility','visible');
+                            return generate_image_tag_call(collectionUri, page_file, bbox)},
             }).tooltip('show');
     },
     'focusout mouseout': function() {
         $(this).tooltip('hide');
+        $('#svg_focus_rect').attr('visibility','hidden');
     }
 });
 //end generate tooltips
@@ -159,15 +263,17 @@ $(function() {
            e.preventDefault();
            console.log("trying to update xmldb")
            update_xmldb(this, e);
-           $(this).attr("data-manually-confirmed", "true");
         }
     });
     
     $('.ocr_word').bind('keypress', function(e) { 
         if (e.which == 13) {
+            console.log("return hit")
          e.preventDefault();
          if (e.altKey == true) {
+             console.log("alt is on")
            if (e.ctrlKey == false) {
+               console.log("ctrl is off")
             //alert("that's it");
             var uniq = 'ins_word_' + (new Date()).getTime();
             var index_word = $( "<span class='index_word' id='" + uniq + "' data-manually-confirmed='false' contenteditable='true'/>" )
@@ -177,7 +283,7 @@ $(function() {
                if (e.which == 13) {
                   e.preventDefault();
                   update_xmldb(this, e);
-                  $(this).attr("data-manually-confirmed", "true");
+                 // $(this).attr("data-manually-confirmed", "true");
                }
             });
             index_word.focus()
@@ -185,15 +291,16 @@ $(function() {
          }
        
        else {//ctrlKey is true
-        var uniq = 'ins_cts_picker_' + (new Date()).getTime();
-            var cts_picker = $( "<!--div class='ui-widget'--><label for='" + uniq + "'>New Work:</label><input id='" + uniq + "' data-cts-urn='urn:cts:greekLit:tlg0001.tlg001:' value='Apollonius of Rhodes\", Argonautica'/><!--/div-->")
+       console.log("control-alt-return hit")
+        var uniq_picker = 'ins_cts_picker_' + (new Date()).getTime();
+            var cts_picker = $( "<!--div class='ui-widget'--><label for='" + uniq_picker + "'>New Work:</label><input id='" + uniq_picker + "' data-cts-urn='urn:cts:greekLit:tlg0001.tlg001:' value='Apollonius of Rhodes\", Argonautica'/><!--/div-->");
 var options = {
 source: ctsGreekTags,
 select: function( event, ui ) {
           event.preventDefault();
           $(this).val(ui.item.label);  },
 change: function (event, ui) { updateCTSURN($(this),ui);}
-}
+};
 var selector = '#' + uniq
 $(this).before(cts_picker);
 
@@ -217,17 +324,13 @@ $(document).on('keydown.autocomplete', selector, function() {
                });
              }//end e.ctrlKey == true
             else {//ctrlKey == false
+            //this is what happens if you just hit return.
                console.log("doing single word update")
                update_xmldb(this, e);
+               //console.log(get_editing_progress())
+               update_progress_bar()
             }
-            /*alert($(this).text());
-	    data['value'] = $(this).text();
-            data['id'] = this.id;
-            doc = $('.ocr_page').attr('title')
-            data['doc'] = doc
-            $.post('http://heml.mta.ca:8080/exist/apps/laceApp/updateWord.xq',data)
-*/
-            $(this).attr("data-manually-confirmed", "true");
+            //$(this).attr("data-manually-confirmed", "true");
             var focusables = $(".ocr_word");
             var current = focusables.index(this);
             var path_array = window.location.pathname.split("/")
@@ -264,16 +367,22 @@ $(document).on('keydown.autocomplete', selector, function() {
             else { // shiftkey is true
              if (e.shiftKey == true) {
                var uniq = 'ins_line_' + (new Date()).getTime();
-               var newline = $( "<span class='inserted_line' id='" + uniq + "' data-manually-confirmed='false' contenteditable='true'/>" )
+               var newline = $( "<div class='inserted_line_div' id='" + uniq + "_div'><span class='inserted_line' id='" + uniq + "' data-manually-confirmed='false' contenteditable='true'></span><button id='" + uniq + "_button' type='button' class='close' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>" )
+                  $('.ocr_page').on('click', '.close', function(e) {
+                      console.log(this.id)
+              delete_added_line(this)
+           });
                $(this).parent('.ocr_line').after(newline);
                add_line_below_xmldb(this,e,uniq);
+              
                $('.ocr_page').on('keypress', '.inserted_line', function(e) {
         if (e.which == 13) {
            e.preventDefault();
            update_xmldb(this, e);
-           $(this).attr("data-manually-confirmed", "true");
+           //$(this).attr("data-manually-confirmed", "true");
         }
     });
+         
                newline.focus()
              }
             }//end else

@@ -10,7 +10,7 @@ then
 else 
 for $page in collection($path)
   return
-        if ($format = "xml")
+        if ($format = "xar")
  then
   <entry name="{util:document-name($page)}" type='text' method='deflate'>
      {$page}
@@ -25,14 +25,19 @@ for $page in collection($path)
 } ;
 
 declare function local:collection-local-name($path as xs:string) as xs:string {
-    let $a := tokenize(util:collection-name($path),'/')
+    let $a := tokenize(util:collection-name($path||'/f'),'/')
     return 
         $a[count($a)]
 };
 
 let $collectionUri := xs:string(request:get-parameter('collectionUri', ''))
-let $collectionName := local:collection-local-name($collectionUri) || ".zip"
-let $format := xs:string(request:get-parameter('format','xml'))
+let $format := xs:string(request:get-parameter('format','xar'))
+let $collectionSuffix := 
+if ($format = "xar") then
+    "xar"
+else
+    "zip"
+let $collectionName := local:collection-local-name($collectionUri) || "." || $collectionSuffix
 let $col :=  local:make-sources($collectionUri, $format)
 return
     response:stream-binary(

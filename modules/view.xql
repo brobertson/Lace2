@@ -20,8 +20,8 @@ declare option output:method "xhtml";
 declare option output:media-type "text/html";
 
 let $config := map {
-    $templates:CONFIG_APP_ROOT := $config:app-root,
-    $templates:CONFIG_STOP_ON_ERROR := true()
+    $templates:CONFIG_APP_ROOT : $config:app-root,
+    $templates:CONFIG_STOP_ON_ERROR : true()
 }
 (:
  : We have to provide a lookup function to templates:apply to help it

@@ -16,6 +16,17 @@
     unicode-range:
          U+590-5ff, U+300-345, U+370-3ff, U+1e00-1fff;
 }
+/* colour definitions */
+:root {
+    --imperceptable-blue: #E5FFFF;
+    --perceptable-blue:  #B3FFFF;
+    --true-green: #C9E8C9;
+    --sub-green: #BFCE67;
+    --noacc-green: #A6D9A6;
+    --split: #D4C26A;
+    
+}
+
 /*
 span.ocr_word {
     margin:0 0.1em;
@@ -105,19 +116,19 @@ span[data-spellcheck-mode] {
 span[data-spellcheck-mode="True"],
 span[data-spellcheck-mode="TrueLower"]
  { 
-    background-color: #C9E8C9;
+    background-color: var(--true-green);
 }
 span[data-spellcheck-mode^="Sub"] {
-    background-color: #BFCE67;
+    background-color: var(--sub-green);
 }
 span[data-spellcheck-mode="NoAcc"] {
-    background-color: #A6D9A6;
+    background-color: var(--noacc-green);
 }
 span[data-spellcheck-mode^="Dedup"] {
     background-color: #EBF7A5;
 }
 span[data-spellcheck-mode^="Split"] {
-    background-color: #D4C26A;
+    background-color: var(--split);
 }
 span[data-spellcheck-mode^="Numerical"] {
     background-color: #55AA55;
@@ -129,10 +140,10 @@ span[data-spellcheck-mode="None"] {
     background-color: #FFCCCC;
 }
 span[data-spellcheck-mode="Manual"] {
-    background-color: #CCFFFF;
+    background-color: var(--imperceptable-blue);
 }
 span[data-manually-confirmed="true"] {
-    background-color: #E5FFFF;
+    background-color: var(--imperceptable-blue);
 }
 
 #download {
@@ -160,3 +171,30 @@ padding-right: 6px; padding-left: 6px;}
 #FFF0AA
 #D4C26A
 */
+
+.complete_text 
+{ 
+  border-color: var(--perceptable-blue); 
+  border-width:3px; 
+  border-style:solid; 
+}
+
+
+#primary_text_button {
+    background-color: goldenrod;
+}
+
+#app_crit_button {
+    background-color: #fffdd0;
+}
+#page_number_button {
+    background-color: #bdb76b;
+}
+#title_button {
+    background-color: lightgrey;
+}
+
+/* Style the form - display items horizontally */
+#edits-since-form {
+  display: inline;
+}

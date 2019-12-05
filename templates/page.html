@@ -9,13 +9,15 @@
         <link rel="stylesheet" type="text/css" href="resources/css/style.css"/>
         <link rel="stylesheet" type="text/css" href="resources/css/hocr.css"/>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"/>
-        <script type="text/javascript" src="resources/javascript/jquery-1.7.1.min.js"/>
+        <script type="text/javascript" src="resources/javascript/jquery-3.4.1.min.js"/>
         <script type="text/javascript" src="resources/javascript/loadsource.js"/>
         <script type="text/javascript" src="resources/javascript/bootstrap-3.0.3.min.js"/>
         <script type="text/javascript" src="resources/javascript/jquery.tipsy.js"/>
         <script type="text/javascript" src="resources/javascript/lace_config.js"/>
         <script type="text/javascript" src="resources/javascript/cts_greek_texts.js"/>
         <script type="text/javascript" src="resources/javascript/tipsy.hocr.js"/>
+        <script type="text/javascript" src="resources/javascript/run_dropdown_menu.js"/>
+        <script type="text/javascript" src="resources/javascript/draw_svg_boxes.js"/>
     </head>
     <body id="body">
         <nav class="navbar navbar-default" role="navigation">
@@ -26,28 +28,25 @@
                     <span class="icon-bar"/>
                     <span class="icon-bar"/>
                 </button>
-                <a data-template="config:app-title" class="navbar-brand" href="./index.html">App Title</a>
+                <a data-template="config:app-title" class="navbar-brand" href="./">App Title</a>
             </div>
 
             <div class="navbar-collapse collapse" id="navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="catalog.html">Texts</a>
-                    </li>
-                    <li class="nav-item">
+                    <!--li class="nav-item">
                         <a class="nav-link" href="gallery.html">Gallery</a>
-                    </li>
+                    </li-->
                     <li class="nav-item">
-                        <a class="nav-link" href="latest.html">Latest</a>
+                        <a class="nav-link" href="latest-edits.html">Latest Edits</a>
                     </li>
-                    <li class="nav-item">
+                    <!--li class="nav-item">
                         <a class="nav-link" href="faq.html">FAQ</a>
-                    </li>
+                    </li-->
                     <li class="nav-item">
                         <a class="nav-link" href="editing.html">Editing Guide</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="about.html">About Us</a>
+                        <a class="nav-link" href="about.html">About</a>
                     </li>
                     <!--li class="dropdown" id="about">
                         <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documents</a>
@@ -84,14 +83,11 @@
                 </ul>
             </div>
         </nav>
-                    <div class="alert alert-info" role="alert">
-  Lace has been upgraded to a cleaner, more flexible <a href="https://github.com/brobertson/Lace2">code base</a> and displays all work from the OCRChallenge editing site and the old Lace. Old URLs will be redirected soon.
-</div>
         <div id="content" class="NOTcontainer"/>
         <footer>
             <div id="footer" class="container">
             <div class="text-center">
-                <p>Copyright 2013-2018 <a href="mailto:brobertson@mta.ca">Bruce Robertson,</a> Dept. of Classics, Mount Allison University and Federico Boschetti, ILC-CNR, Pisa. <div>
+                <p>Copyright 2013-2019 <a href="mailto:brobertson@mta.ca">Bruce Robertson,</a> Dept. of Classics, Mount Allison University and Federico Boschetti, ILC-CNR, Pisa. <div>
                 <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">
                         <img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png"/>
                     </a>This site is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.

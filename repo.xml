@@ -3,12 +3,12 @@
     <description>An eXist-db database for viewing and editing ancient Greek and Latin OCR.</description>
     <author>Bruce Robertson</author>
     <website/>
-    <status>alpha</status>
+    <status>beta</status>
     <license>GNU-LGPL</license>
     <copyright>true</copyright>
     <type>application</type>
     <target>lace</target>
     <prepare>pre-install.xql</prepare>
-    <finish/>
-    <permissions xmlns:repo="http://exist-db.org/xquery/repo" password="" user="admin" group="dba" mode="rw-rw-r--"/>
+    <finish>admin</finish>
+    <permissions user="admin" password="" group="dba" mode="rw-rw-r--"/>
 </meta>

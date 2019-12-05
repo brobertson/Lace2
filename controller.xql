@@ -23,16 +23,18 @@ else if ($exist:path eq "/") then
  : processing occcurs, meaning that we have to manually, below, list the pipeline
  : for html processing. Restxq is another option, though I haven't got that working,
  : either.
+ : 
+ : Here, I'm trying 'redirect':)
 else if (contains($exist:path, "editme")) then
     let $params := tokenize($exist:path,'/')
     return
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-        <forward url="{$exist:controller}/side_by_side_view.html">
+        <!--redirect url="{$exist:controller}/side_by_side_view.html"-->
+        <forward url="side_by_side_view.html">
             <add-parameter name="collectionUri" value="{concat('/db/Lace2Data/texts',$params[3])}"/>
             <add-parameter name="positionInCollection" value="{$params[4]}"/>
         </forward>
     </dispatch>
-    :)
     
 (:  The 'static' path goes back to Lace1 days, and is often used by harvesters. Here, we pass
  : them the edited version of the text 

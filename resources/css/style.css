@@ -1,3 +1,80 @@
 /* Application styles could go here */
 footer .poweredby { float: right; margin: 33px 10px 0 0;}
 footer .poweredby img { width: 120px; }
+
+/** spinner from https://codepen.io/mrsahar/pen/pMxyrE **/
+/**===== bars3 =====*/
+#bars3 {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 50px;
+  width: 50px;
+  margin: -25px 0 0 -25px;
+}
+
+#bars3 span {
+  position: absolute;
+  display: block;
+  bottom: 10px;
+  width: 9px;
+  height: 15px;
+  background: rgba(0, 0, 0, 0.25);
+  -webkit-animation: bars3 2s  infinite ease-in;
+          animation: bars3 2s  infinite ease-in;
+}
+
+#bars3 span:nth-child(2) {
+  left: 11px;
+  -webkit-animation-delay: 0.2s;
+          animation-delay: 0.2s;
+}
+
+#bars3 span:nth-child(3) {
+  left: 22px;
+  -webkit-animation-delay: 0.4s;
+          animation-delay: 0.4s;
+}
+
+#bars3 span:nth-child(4) {
+  left: 33px;
+  -webkit-animation-delay: 0.6s;
+          animation-delay: 0.6s;
+}
+
+#bars3 span:nth-child(5) {
+  left: 44px;
+  -webkit-animation-delay: 0.8s;
+          animation-delay: 0.8s;
+}
+
+@keyframes bars3 {
+  0% {
+    background: rgba(0, 0, 0, 0.25);
+  }
+  25% {
+    background: #000000;
+  }
+  50% {
+    background: rgba(0, 0, 0, 0.25);
+  }
+  100% {
+    background: rgba(0, 0, 0, 0.25);
+  }
+}
+@-webkit-keyframes bars3 {
+  0% {
+    background: rgba(0, 0, 0, 0.25);
+  }
+  25% {
+    background: #000000;
+  }
+  50% {
+    background: rgba(0, 0, 0, 0.25);
+  }
+  100% {
+    background: rgba(0, 0, 0, 0.25);
+  }
+}
+/** END of bars3 */
