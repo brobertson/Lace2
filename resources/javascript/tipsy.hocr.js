@@ -97,8 +97,16 @@ function update_all_xmldb(element, e) {
             var n = doc.lastIndexOf('/');
             var collectionPath = doc.substring(0,n);
             data['collectionPath'] = collectionPath
-            //alert("would have updated " + data['query'] + " with " + data['correctedForm'] + " in all of " + data['collectionPath']);
-            $.post(exist_server_address + '/exist/apps/laceApp/updateMany.xq',data)
+            console.log("would have updated " + data['query'] + " with " + data['correctedForm'] + " in all of " + data['collectionPath']);
+            $.post('modules/updateMany.xq',data, function( dataReturned, textStatus, xhr ) {
+                console.log("success!" + xhr.responseText)
+                //this is the 'success' function 
+                //if the update works, it will fire.
+                //We can't use JQuery syntax here, for some reason.
+                
+            }).fail( function(xhr, textStatus, errorThrown) {
+        alert(xhr.responseText);
+    });
 }
 
 function add_line_below_xmldb(element, e,uniq) {
