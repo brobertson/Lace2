@@ -4,18 +4,13 @@ declare namespace html="http://www.w3.org/1999/xhtml";
 
 import module namespace response = "http://exist-db.org/xquery/response";
 
-(:   :let $user := "admin"
-let $pass := "foo"
-:)
-let $dbroot := "/db/Lace2Data/texts/"
 let $id := request:get-parameter('id', '')
 let $fileName := request:get-parameter('fileName', '')
 let $filePath := request:get-parameter('filePath', '')
 
 (:  logs into the collection :)
   
-let $dbpath := concat($dbroot, $filePath)
-let $file := concat($dbpath, '/', $fileName)
+let $file := concat($filePath, '/', $fileName)
 (: 
 let $login := xmldb:login($dbpath, $user, $pass)
 :)

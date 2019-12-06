@@ -19,16 +19,16 @@ function update_progress_bar() {
     var confirmed = $("span[data-manually-confirmed='true']").length;
     $('.ocr_page').attr('data-confirmed-word-count', confirmed)
     var all_words = $("span[class='ocr_word']").length
-    console.log("all words" + all_words)
+    //console.log("all words" + all_words)
     //$('.ocr_page').attr('data-word-count', all_words)
     var empty_words = $("span[class='ocr_word']:empty").length
     $('.ocr_page').attr('data-empty-word-count',empty_words)
-    console.log("we have " + all_words + " words.")
-    console.log(confirmed + " are corrected")
-    console.log(empty_words + " are empty")
+    //console.log("we have " + all_words + " words.")
+    //console.log(confirmed + " are corrected")
+    //console.log(empty_words + " are empty")
     editing_progress = confirmed / all_words
     var progress_percent = Math.round(editing_progress * 100.0)
-    console.log(progress_percent)
+    //console.log(progress_percent)
     $('#progress_bar').css('width', progress_percent + "%");
     $('#progress_bar').text(progress_percent + "%");
     if (confirmed >= (all_words - empty_words)) {
@@ -69,7 +69,8 @@ function update_xmldb(element, e) {
             console.log("posting ", data, " to ", whole_address)
             old_attribute = element.getAttribute("data-manually-confirmed")
             element.setAttribute("data-manually-confirmed", "true");
-            $.post(whole_address,data,function( data ) {
+            $.post(whole_address,data,function( data, textStatus, xhr  ) {
+                console.log("success!" + xhr.responseText)
                 //this is the 'success' function 
                 //if the update works, it will fire.
                 //We can't use JQuery syntax here, for some reason.
@@ -101,6 +102,7 @@ function update_all_xmldb(element, e) {
 }
 
 function add_line_below_xmldb(element, e,uniq) {
+            console.log("calling addlinebelow")
             var data = {};
             data['shift'] = e.shiftKey
             data['value'] = $(element).text();
@@ -113,10 +115,19 @@ function add_line_below_xmldb(element, e,uniq) {
             data['fileName'] = fileName
             var filePath = doc.substring(0,n);
             data['filePath'] = filePath
-            $.post('modules/addLineBelow.xq',data).fail( function(xhr, textStatus, errorThrown) {
+            $.post('modules/addLineBelow.xq',data,function( data, textStatus, xhr ) {
+                console.log("success!" + xhr.responseText)
+                //this is the 'success' function 
+                //if the update works, it will fire.
+                //We can't use JQuery syntax here, for some reason.
+                
+            }).fail( function(xhr, textStatus, errorThrown) {
         alert(xhr.responseText);
     });
 }
+
+
+
 
 /*called when the 'x' button beside the added line is pressed*/
 function delete_added_line(buttonElement) {
@@ -130,13 +141,17 @@ function delete_added_line(buttonElement) {
     data['filePath'] = filePath
     enclosing_div_element = buttonElement.id.substr(0, buttonElement.id.lastIndexOf('_')).concat('_div');
     data['id'] = enclosing_div_element
-    $.post('modules/deleteLine.xq',data).fail( function(xhr, textStatus, errorThrown) {
-        alert(xhr.responseText);
-    }).success( 
-        /* if it succeeds in removing from the database, 
+    $.post('modules/deleteLine.xq',data, function( returnedData, textStatus, xhr ) {
+                console.log("success!" + xhr.responseText)
+                console.log("id is " + data["id"])
+                        /* if it succeeds in removing from the database, 
         then also remove from the DOM on the screen 
         */
-        $("#" + data['id']).remove());
+        $("#" + data['id']).remove();
+            }).fail( function(xhr, textStatus, errorThrown) {
+        alert(xhr.responseText);
+    });
+
 }
 
 function add_index_after(element, e,uniq) {
@@ -192,11 +207,11 @@ $(function() {
                 var page_path = $(this).closest('.ocr_page').attr("title");
                 var bbox = $(this).attr('original-title');
                 bbox = bbox.split(';')[0];
-                console.log("listen up: this is bbox: " + bbox)
+                //console.log("listen up: this is bbox: " + bbox)
                 var bbox_array = bbox.split(" ");
                 //Strip following, additional data in this
                 if (bbox.includes(';')) {
-                    console.log("theres additional data, that we'll strip")
+                    //console.log("theres additional data, that we'll strip")
                     bbox = bbox.substr(0, bbox.indexOf(';'));
 
                 }
@@ -208,14 +223,14 @@ $(function() {
 	if($(this).is(':last-child') && $(this).prevAll("span.ocr_word:first").length)
 		{
 		        prev_ocrword = $(this).prevAll("span.ocr_word:first");
-		        console.log("the previous is: " + prev_ocrword.get(0).nodeName + " and has class: " +  prev_ocrword.get(0).className + " and its text is " + prev_ocrword.get(0).nodeName.text)
+		        //console.log("the previous is: " + prev_ocrword.get(0).nodeName + " and has class: " +  prev_ocrword.get(0).className + " and its text is " + prev_ocrword.get(0).nodeName.text)
 		        prev_bbox = prev_ocrword.attr('original-title')
-		        console.log("previous box: " + prev_bbox)
+		        //console.log("previous box: " + prev_bbox)
                 prev_end = prev_bbox.split(" ")[3]
                 bbox_array = bbox.split(" ")
                 bbox_array[1] = prev_end
                 bbox = bbox_array.join(" ")
-                console.log("for end word, using bbox array: " + bbox)
+                //console.log("for end word, using bbox array: " + bbox)
 		}
                             var url = new URL(window.location.href);
                             var collectionUri = url.searchParams.get("collectionUri");
@@ -233,8 +248,8 @@ $(function() {
                             //don't need this now
                             //var original_height = myPicXO.height;
                             var scale = $("#svg").attr("width") / original_width
-                            console.log("bbox_array " + bbox_array[1] + " " + original_width + " scale: " + scale)
-                            console.log("bbox_array[4] " + bbox_array[4])
+                            //console.log("bbox_array " + bbox_array[1] + " " + original_width + " scale: " + scale)
+                            //console.log("bbox_array[4] " + bbox_array[4])
                             $("#svg_focus_rect").attr("x",bbox_array[1]*scale)
                             $("#svg_focus_rect").attr("y",bbox_array[2]*scale)
                             $("#svg_focus_rect").attr("width",(bbox_array[3]-bbox_array[1])*scale)
@@ -261,14 +276,14 @@ $(function() {
     $('.inserted_line').bind('keypress', function(e) {
         if (e.which == 13) {
            e.preventDefault();
-           console.log("trying to update xmldb")
+           //console.log("trying to update xmldb")
            update_xmldb(this, e);
         }
     });
     
     $('.ocr_word').bind('keypress', function(e) { 
         if (e.which == 13) {
-            console.log("return hit")
+            //console.log("return hit")
          e.preventDefault();
          if (e.altKey == true) {
              console.log("alt is on")
@@ -325,7 +340,7 @@ $(document).on('keydown.autocomplete', selector, function() {
              }//end e.ctrlKey == true
             else {//ctrlKey == false
             //this is what happens if you just hit return.
-               console.log("doing single word update")
+               //console.log("doing single word update")
                update_xmldb(this, e);
                //console.log(get_editing_progress())
                update_progress_bar()
@@ -366,22 +381,24 @@ $(document).on('keydown.autocomplete', selector, function() {
             }//end shiftkey = false
             else { // shiftkey is true
              if (e.shiftKey == true) {
+                 console.log("inserting line")
                var uniq = 'ins_line_' + (new Date()).getTime();
                var newline = $( "<div class='inserted_line_div' id='" + uniq + "_div'><span class='inserted_line' id='" + uniq + "' data-manually-confirmed='false' contenteditable='true'></span><button id='" + uniq + "_button' type='button' class='close' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>" )
                   $('.ocr_page').on('click', '.close', function(e) {
-                      console.log(this.id)
-              delete_added_line(this)
-           });
+                    console.log(this.id)
+                    delete_added_line(this)
+                    });
                $(this).parent('.ocr_line').after(newline);
                add_line_below_xmldb(this,e,uniq);
               
                $('.ocr_page').on('keypress', '.inserted_line', function(e) {
-        if (e.which == 13) {
-           e.preventDefault();
-           update_xmldb(this, e);
-           //$(this).attr("data-manually-confirmed", "true");
-        }
-    });
+                   console.log("we get an inserted line keypress")
+                    if (e.which == 13) {
+                        console.log("it's a return")
+                       e.preventDefault();
+                       update_xmldb(this, e);
+                    }
+                });
          
                newline.focus()
              }

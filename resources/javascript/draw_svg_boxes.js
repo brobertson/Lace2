@@ -1,5 +1,5 @@
 const svg = $("#svg");
-console.log("alive!2");
+//console.log("alive!2");
 function screenToSVGCoords(canvas, e) {
   // Read the SVG's bounding rectangle...
   let canvasRect = canvas.getBoundingClientRect();
@@ -12,14 +12,14 @@ function screenToSVGCoords(canvas, e) {
 
 mousemovefunct = function(canvas, e) {
     current_coords = screenToSVGCoords(canvas, e);
-    console.log("moving " + current_coords.x + " " + current_coords.y)
+    //console.log("moving " + current_coords.x + " " + current_coords.y)
     $("#finish_circle").attr('cx',current_coords.x)
     $("#finish_circle").attr('cy',current_coords.y)
 }
 
 mouseupfunct = function(canvas, e) {
     current_coords = screenToSVGCoords(canvas, e);
-    console.log("mouse up " + current_coords.x + " " + current_coords.y)
+    //console.log("mouse up " + current_coords.x + " " + current_coords.y)
     $("#finish_circle").attr('cx',current_coords.x)
     $("#finish_circle").attr('cy',current_coords.y)
 }
@@ -33,7 +33,7 @@ $(document).ready(function() {
   initial_coords = screenToSVGCoords(this, e);
   $("#start_circle").attr('cx',initial_coords.x)
   $("#start_circle").attr('cy',initial_coords.y)
-  console.log("starting " + initial_coords.x + " " + initial_coords.y)
+  //console.log("starting " + initial_coords.x + " " + initial_coords.y)
    $("rect").attr("fill-opacity","0.6");
   $(this).on("mousemove", function(e) {
     current_coords = screenToSVGCoords(this, e);
