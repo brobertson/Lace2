@@ -50,8 +50,9 @@ $("#accuracy_close").click(function(){
     $("#editing_view").click(function(){
         var url = new URL(window.location.href);
         var collectionUri = url.searchParams.get("collectionUri");
+        var positionInCollection = url.searchParams.get("positionInCollection")
         event.preventDefault(); 
-  $.ajax({url: "getEditRatios.xq?collectionUri=" + collectionUri, dataType: "xml",
+  $.ajax({url: "getEditRatios.xq?collectionUri=" + collectionUri + "&positionInCollection=" + positionInCollection, dataType: "xml",
     beforeSend: function() {
         $("#bars3").show();
     },

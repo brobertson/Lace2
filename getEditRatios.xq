@@ -5,8 +5,7 @@ import module namespace functx="http://www.functx.com";
 import module namespace lacesvg="http://heml.mta.ca/Lace2/svg" at "modules/laceSvg.xql";
 
 let $my_collection := xs:string(request:get-parameter('collectionUri', ''))
-let $width := 2 * count(collection($my_collection))
+let $position := xs:int(xs:string(request:get-parameter('positionInCollection', '0')))
 return 
-<svg:svg width="{$width}" height="20" id="svg_edit_report">
-  {lacesvg:getCollectionEditRatios($my_collection)}
-</svg:svg>
+lacesvg:getCollectionEditRatios($my_collection, $position)
+
