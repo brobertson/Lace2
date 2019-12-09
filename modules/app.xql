@@ -531,8 +531,8 @@ let $meAsPng := app:sortCollection($imageCollection)[$positionInCollection]
 let $myImageHeight := image:get-height(util:binary-doc(concat($imageCollection,"/",$meAsPng)))
 let $myImageWidth := image:get-width(util:binary-doc(concat($imageCollection,"/",$meAsPng)))
 let $scaleWidth := 500
-let $heightFactor := $scaleWidth div $myImageWidth
-let $scaledHeight := $myImageHeight * $heightFactor
+let $image_scale := $scaleWidth div $myImageWidth
+let $scaledHeight := $myImageHeight * $image_scale
 let $me := replace($meAsPng,"png","html")
 let $meAsDocumentNode := doc($collectionUri || "/" || $me)
 (: Scale the svg stuff :)
@@ -588,7 +588,7 @@ else
 <!-- you need this div to keep this below the buttons -->
 <xh:div>
 <svg id="svg" width="500" height="{$scaledHeight}">
-    <image id="page_image" x="0" y="0" width="500" height="{$scaledHeight}"
+    <image id="page_image" x="0" y="0" width="500" height="{$scaledHeight}" data-scale="{$image_scale}"
      xlink:href="{concat('/exist/rest',$imageCollection,"/",$meAsPng)}"/>
     <rect id="svg_focus_rect" x="10" y="10" height="130" width="500" fill-opacity="0.4"
         style="fill: #aaffff; stroke: #aaffff; stroke-width: 1; stroke-opacity: 0.5"/>
