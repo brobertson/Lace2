@@ -98,6 +98,7 @@ $("#accuracy_close").click(function(){
     $("#editing_view").click(function() {
         show_editing_report();
     });
+    
     $("a").click(function() {
         old_url = $(this).attr("href")
         url_extension = ""
