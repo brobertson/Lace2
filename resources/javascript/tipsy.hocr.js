@@ -402,8 +402,26 @@ $("#" + uniq_picker+"_kill_button").on('click', function(event) {
             //$(this).attr("data-manually-confirmed", "true");
             var focusables = $(".ocr_word");
             var current = focusables.index(this);
-            var path_array = window.location.pathname.split("/")
-            next = focusables.eq(current + 1).length ? focusables.eq(current + 1) : focusables.eq(0);
+            //var path_array = window.location.pathname.split("/")
+            following_focusables = focusables.slice(current,focusables.length)
+            preceding_focusables = focusables.slice(0,current)
+            preceding_focusables_unedited = preceding_focusables.filter(function(){
+                   return $(this).attr('data-manually-confirmed') == 'false'
+                })
+           // console.log("following length: " + following_focusables.length)
+            following_focusables_unedited = following_focusables.filter(function(){
+                   return $(this).attr('data-manually-confirmed') == 'false'
+                })
+           // console.log("ffuned: " + following_focusables_unedited.length)
+            if (following_focusables_unedited.length > 0) {
+            next = following_focusables_unedited[0]
+            }
+            else if (preceding_focusables_unedited.length > 0) {
+                next = preceding_focusables_unedited[0]
+            }
+            else {
+              next = focusables.eq(current + 1).length ? focusables.eq(current + 1) : focusables.eq(0);
+            }
 /* Not certain this functionality is desired. It rapidly verifies a whole bunch of following words, but I thinnk
    it ends up validating to liberally in practice.
             if (e.shiftKey == true) {
