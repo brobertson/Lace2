@@ -100,17 +100,24 @@ function update_xmldb(element, e) {
 
 function update_all_xmldb(element, e) {
             var data = {};
+            
+            doc = $('.ocr_page').attr('title')
+            var n = doc.lastIndexOf('/');
+            var fileName = doc.substring(n + 1);
+            data['fileName'] = fileName
+            var filePath = doc.substring(0,n);
+            data['filePath'] = filePath
+            
             data['correctedForm'] = $(element).text();
             data['query'] = $(element).attr('data-selected-form');
-            doc = $('.ocr_page').attr('title')
-            data['doc'] = doc
+
             data['id'] = element.id;
-            var n = doc.lastIndexOf('/');
-            var collectionPath = doc.substring(0,n);
-            data['collectionPath'] = collectionPath
             console.log("updated " + data['query'] + " with " + data['correctedForm'] + " in all of " + data['collectionPath']);
             $.post('modules/updateMany.xq',data, function( dataReturned, textStatus, xhr ) {
                 console.log("success!" + xhr.responseText)
+                set_of_blinkers = $(".ocr_word").filter(function() { return ($(this).text() === data['query']) })
+                console.log("blinker count " + set_of_blinkers.length)
+                set_of_blinkers.addClass("blinker");
                 //
                 //this is the 'success' function 
                 //if the update works, it will fire.

@@ -205,3 +205,34 @@ padding-right: 6px; padding-left: 6px;}
 .ctsurn-span {
     width: 5%;
 }
+
+
+/* code to make blinking elements */
+@-webkit-keyframes borderBlink {    
+    from, to {    
+        border-color: transparent    
+    }    
+    50% {    
+        border-color: blue    
+    }    
+}    
+@keyframes borderBlink {    
+    from, to {    
+        border-color: transparent    
+    }    
+    50% {    
+        border-color: blue    
+    }    
+}    
+span.ocr_word{    
+    border:2px solid blue;
+    border-color: transparent  
+}
+
+
+span.blinker{    
+    border:2px solid blue;
+    border-color: transparent;  
+    -webkit-animation: borderBlink 0.5s ease-in-out 3;    
+    animation: borderBlink 0.5s ease-in-out 3;    
+}
