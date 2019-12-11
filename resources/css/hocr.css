@@ -180,8 +180,24 @@ padding-right: 6px; padding-left: 6px;}
 }
 
 
+
+
 #primary_text_button {
     background-color: goldenrod;
+}
+.primary_text_circle {
+    fill: goldenrod;
+    color: goldenrod;
+}
+
+.primary_text_rectangle {
+    fill: goldenrod;
+    color: goldenrod;
+    stroke: goldenrod;
+}
+
+.selected_rectangle {
+    fill-opacity: 20%;
 }
 
 #app_crit_button {
@@ -236,3 +252,4 @@ span.blinker{
     -webkit-animation: borderBlink 0.5s ease-in-out 3;    
     animation: borderBlink 0.5s ease-in-out 3;    
 }
+
