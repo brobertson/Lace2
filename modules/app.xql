@@ -16,6 +16,7 @@ declare namespace svg="http://www.w3.org/2000/svg";
 declare namespace xlink="http://www.w3.org/1999/xlink";
 declare namespace package="http://expath.org/ns/pkg";
 declare namespace xi="http://www.w3.org/2001/XInclude";
+declare namespace map="http://www.w3.org/2005/xpath-functions/map";
 (: 
  : General Helper Functions
  : 
@@ -513,6 +514,27 @@ declare function app:dropdownMenu() {
                 </xh:span>
 };
 
+declare function local:generate-zone-item-from-map($key, $value) {
+  (: deciding what to put here is your problem, not mine :)
+  <xh:li class="dropdown-item" id="{$value}">{$key}</xh:li>
+};
+
+declare function app:makeZoningMenu() {
+    let $zoning_items := map{'Primary Text':'primary_text','App. Crit':'app_crit', 'Title':'title', 'Page Number':'page_number', 'Translation':'translation'}
+    let $items :=
+        for $key in map:keys($zoning_items)
+        return <xh:li class="dropdown-item zoning-dropdown-item" id="{$zoning_items($key)||'_button'}">{$key}</xh:li>
+
+    return
+        <xh:div class="btn-group">
+      <xh:button class="btn btn-secondary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Zone Type
+      </xh:button>
+      <xh:ul id="zoning_choice" class="dropdown-menu">
+    {$items}
+       </xh:ul>
+      </xh:div>
+};
 
 (:  Given an IMAGE position within a Document / Run, provide the editing view 
  : We've swapped over to image positions so that we can easily compare run to run
@@ -578,36 +600,37 @@ else
   <xh:div id="left_side" class="col-sm-6">
     
   <!-- the div for the page image -->
-  
-<!-- radio buttons for zone types -->
-
-<div id="zoning_choice" class="btn-group btn-group-toggle btn-sm" data-toggle="buttons">
-  <label class="btn btn-outline-success active primary_text" id="primary_text_button">
-    <input type="radio" name="options" id="primary_text_option" autocomplete="off" checked="checked"/> Primary Text
-  </label>
-  <label class="btn btn-secondary btn-sm app_crit" id="app_crit_button">
-    <input type="radio" name="options" id="app_crit_option" autocomplete="off"/> App. Crit
-  </label>
-  <label class="btn btn-secondary btn-sm" id="page_number_button">
-    <input type="radio" name="options" id="page_number_option" autocomplete="off"/> Page #
-  </label>
-    <label class="btn btn-secondary btn-sm" id="title_button">
-    <input type="radio" name="options" id="title_option" autocomplete="off"/>Title
-  </label>
+ <div class="col-sm-1">
+      </div>
+<div class="row form-group">
+    <div class="col-sm-3">
+{app:makeZoningMenu()}
 </div>
-
+<div class="col-sm-1">
+<button type="button" class="btn btn-sm">Clear Zones</button>
+</div>
+ <!--div class="col-sm-1">
+      One</div>
+    <div class="col-sm-3">
+      Twho
+    </div>
+        <div class="col-sm-4">
+      three
+    </div-->
+</div>
+<div class="row">
 <!-- svg 'canvas' for the page image -->
-
 <!-- you need this div to keep this below the buttons -->
 <xh:div id="svg_container">
 {$svg_canvas}
 </xh:div>
+</div>
 
 </xh:div>
   <!-- the old, non-svg way of doing things -->
   <!--xh:div class="col-sm-6">{app:getImageLink(concat('/exist/rest',$imageCollection,"/",$meAsPng))}</xh:div-->
 
-  <xh:div class="col-sm-6" id="right_side">
+  <xh:div class="col-sm" id="right_side">
   <!-- The hocr, which is layed out on the right of this page -->
   {app:add-attribute-to-ocrword($hocrPageNode, "contenteditable", 'true')}
   </xh:div>

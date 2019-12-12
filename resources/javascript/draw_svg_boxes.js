@@ -116,12 +116,12 @@ function get_rectangle_type() {
             console.log(zoning_buttons[i].id + "active? " + $(zoning_buttons[i]).hasClass("active"))
             //inner_input = $(zoning_buttons[i]).children()[0]
             if($(zoning_buttons[i]).hasClass("active")){
-                //remove '_button' from the end of the 'id'
+                //remove string '_button' from the end of the 'id'
                 return zoning_buttons[i].id.substring(0,zoning_buttons[i].id.length -7);
             }
 
         }
-     return undefined
+     return zoning_buttons[0].id.substring(0,zoning_buttons[0].id.length -7);
 }
 
 function toggle_selected(a_rectangle) {
@@ -161,7 +161,10 @@ $(document).ready(function() {
         placement: 'top',
         container: 'body' 
         });
-
+  $(".zoning-dropdown-item").mouseup(function(e) {
+      $(".zoning-dropdown-item").removeClass("active")
+      $(this).addClass("active")
+  });
   $(this).on("keyup", function(event) {
       active_id = document.activeElement.id
       const key = event.key; // const {key} = event; ES6+
