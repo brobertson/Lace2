@@ -567,6 +567,8 @@ if (doc-available($meAsSvgFilePath)) then
         <svg xmlns="http://www.w3.org/2000/svg"  id="svg" width="500" height="{$scaledHeight}">
             <image xmlns:xlink="http://www.w3.org/1999/xlink" id="page_image" x="0" y="0" width="500" height="{$scaledHeight}" data-scale="{$image_scale}"
             xlink:href="{concat('/exist/rest',$imageCollection,"/",$meAsPng)}"/>
+            <rect id="svg_focus_rect" x="10" y="10" height="130" width="500" fill-opacity="0.4"
+        style="fill: #aaffff; stroke: #aaffff; stroke-width: 1; stroke-opacity: 0.5"/>
         </svg>
 
 
@@ -607,7 +609,7 @@ else
 {app:makeZoningMenu()}
 </div>
 <div class="col-sm-1">
-<button type="button" class="btn btn-sm">Clear Zones</button>
+<button type="button" id="clear_zones_button" class="btn btn-sm">Clear Zones</button>
 </div>
  <!--div class="col-sm-1">
       One</div>

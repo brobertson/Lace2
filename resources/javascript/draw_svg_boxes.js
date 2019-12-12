@@ -150,8 +150,14 @@ mouseupfunct = function(canvas, e) {
 }
 
 $(document).ready(function() {
+    $("#clear_zones_button").mouseup(function(e) {
+        $('.rectangle').each(function() { 
+    delete_rectangle($(this))
+});
+    });
+    
   $("rect").mousedown(function(e) {
-             console.log("you clicked on the prefab rect, man")
+             //console.log("you clicked on the prefab rect, man")
              toggle_selected($(this))
              console.log("this: " + $(this)[0].tagName)
              $(this).focus()
@@ -249,8 +255,10 @@ $(document).ready(function() {
        //check it isn't overlapping with other rectangles
        total_dimensions = parseFloat($new_rectangle.attr("width")) + parseFloat($new_rectangle.attr("height"))
        console.log("dim: " + total_dimensions)
-       if (rectCollision($new_rectangle) || (total_dimensions < 10)) {
-           console.log("collision between rectangles or too small")
+       has_width = $(this)[0].hasAttribute("width");
+       has_height = $(this)[0].hasAttribute("height");
+       if (rectCollision($new_rectangle) || (total_dimensions < 10) || !has_width || !has_height) {
+           console.log("collision between rectangles or too small or no width/height")
            delete_rectangle($new_rectangle)
        }
        else {//these are things we should only do with a new rectangle
