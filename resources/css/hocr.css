@@ -24,6 +24,11 @@
     --sub-green: #BFCE67;
     --noacc-green: #A6D9A6;
     --split: #D4C26A;
+    --primary-text: goldenrod;
+    --app-crit: chocolate;
+    --page-number: #bdb76b;
+    --translation: #4682B4;
+    --title: #FF6347;
     
 }
 
@@ -183,17 +188,17 @@ padding-right: 6px; padding-left: 6px;}
 
 
 #primary_text_button {
-    background-color: goldenrod;
+    background-color: var(--primary-text);
 }
 .primary_text_circle {
-    fill: goldenrod;
-    color: goldenrod;
+    fill: var(--primary-text);
+    color: var(--primary-text);
 }
 
 .primary_text_rectangle {
-    fill: goldenrod;
-    color: goldenrod;
-    stroke: goldenrod;
+    fill: var(--primary-text);
+    color: var(--primary-text);
+    stroke: var(--primary-text);
 }
 
 .selected_rectangle {
@@ -201,13 +206,47 @@ padding-right: 6px; padding-left: 6px;}
 }
 
 #app_crit_button {
-    background-color: #fffdd0;
+    background-color: var(--app-crit);
+}
+
+.app_crit_circle {
+    fill: var(--app-crit);
+    color: var(--app-crit);
+}
+
+.app_crit_rectangle {
+    fill: var(--app-crit);
+    color: var(--app-crit);
+    stroke: var(--app-crit);
 }
 #page_number_button {
-    background-color: #bdb76b;
+    background-color: var(--page-number);
 }
+
+.page_number_circle {
+    fill: var(--page-number);
+    color: var(--page-number);
+}
+
+.page_number_rectangle {
+    fill: var(--page-number);
+    color: var(--page-number);
+    stroke: var(--page-number);
+}
+
 #title_button {
-    background-color: lightgrey;
+    background-color: var(--title);
+}
+
+.title_circle {
+    fill: var(--title);
+    color: var(--title);
+}
+
+.title_rectangle {
+    fill: var(--title);
+    color: var(--title);
+    stroke: var(--title);
 }
 
 /* Style the form - display items horizontally */

@@ -1,6 +1,39 @@
 const svg = $("#svg");
 
-
+function save_svg() {
+            var data = {};
+            doc = $('.ocr_page').attr('title')
+            data['doc'] = doc
+            var n = doc.lastIndexOf('/');
+            var fileName = doc.substring(n + 1);
+            data['fileName'] = fileName
+            var filePath = doc.substring(0,n);
+            data['filePath'] = filePath
+            doc = $('.ocr_page').attr('title')
+            whole_address = 'modules/updateSVGRects.xq';
+            var serializer = new XMLSerializer();
+            svg_string = serializer.serializeToString(document.getElementById("svg"))
+            data["svg"] = svg_string
+            //console.log(svg_string);
+            //console.log("posting ", data, " to ", whole_address)
+            $.post(whole_address,data,function( data, textStatus, xhr  ) {
+                console.log("svg success!" + xhr.responseText)
+                //this is the 'success' function 
+                //if the update works, it will fire.
+                //We can't use JQuery syntax here, for some reason.
+                
+            })
+            .fail( function(xhr, textStatus, errorThrown) {
+                if ((xhr.status == 404) || (xhr.status === 0)) {
+                    alert("The connection has been lost to the lace server.")
+                } 
+                else {
+                    alert(xhr.responseText + " status" + xhr.status);
+                }
+            });
+          
+}
+    
 function intersectRect(rect1, rect2) {
     //console.log('doing ir3: rect1:')
     //console.log(rect1)
@@ -54,6 +87,8 @@ function rectCollision(my_rectangle) {
 }
 
 function delete_rectangle($my_rectangle) {
+    //fun fact: if you have focus, your tooltip will not get destroyed, no matter what
+    $my_rectangle.blur()
     $my_rectangle.tooltip("destroy");
     $my_rectangle.remove()
     suffix="_rectangle"
@@ -76,14 +111,17 @@ function screenToSVGCoords(canvas, e) {
 
 function get_rectangle_type() {
     var zoning_buttons = $("#zoning_choice").children()
+    console.log("number of children? " + zoning_buttons.length)
         for(var i = 0; i < zoning_buttons.length; i++){
-            inner_input = $(zoning_buttons[i]).children()[0]
-            if(inner_input.checked){
+            console.log(zoning_buttons[i].id + "active? " + $(zoning_buttons[i]).hasClass("active"))
+            //inner_input = $(zoning_buttons[i]).children()[0]
+            if($(zoning_buttons[i]).hasClass("active")){
                 //remove '_button' from the end of the 'id'
                 return zoning_buttons[i].id.substring(0,zoning_buttons[i].id.length -7);
             }
-            return undefined
+
         }
+     return undefined
 }
 
 function toggle_selected(a_rectangle) {
@@ -112,9 +150,22 @@ mouseupfunct = function(canvas, e) {
 }
 
 $(document).ready(function() {
+  $("rect").mousedown(function(e) {
+             console.log("you clicked on the prefab rect, man")
+             toggle_selected($(this))
+             console.log("this: " + $(this)[0].tagName)
+             $(this).focus()
+             e.stopPropagation()
+         });
+         $('rect').tooltip({
+        placement: 'top',
+        container: 'body' 
+        });
+
   $(this).on("keyup", function(event) {
       active_id = document.activeElement.id
       const key = event.key; // const {key} = event; ES6+
+      console.log("key: ", key, " active id " + active_id)
         if ((key === "Backspace" || key === "Delete") && (active_id.includes("rectangle"))) {
          console.log("it was the delete key on a rectangle: " + active_id)
          delete_rectangle($("#" + active_id));
@@ -134,6 +185,7 @@ $(document).ready(function() {
             this_rect.attr("title", this_rect.attr("data-rectangle-type") + " Zone " + new_ordinal)
 
             this_rect.attr("data-original-title", this_rect.attr("data-rectangle-type") + " Zone " + new_ordinal)
+            save_svg();
             // re-enable tooltips
            // $(document).tooltip("enable");
             }
@@ -162,7 +214,6 @@ $(document).ready(function() {
    var $new_rectangle = $(document.createElementNS("http://www.w3.org/2000/svg", "rect")).attr({
         x: initial_coords.x,
         y: initial_coords.y,
-        r: '3',
         id: new_rectangle_id + "_rectangle",
         class: new_rectangle_type + "_rectangle"
     });
@@ -199,6 +250,7 @@ $(document).ready(function() {
            console.log("collision between rectangles or too small")
            delete_rectangle($new_rectangle)
        }
+       else {//these are things we should only do with a new rectangle
        rect_number = $(".rectangle").length
        $new_rectangle.attr("data-rectangle-ordinal", rect_number)
        $new_rectangle.attr("data-rectangle-type", new_rectangle_type)
@@ -206,14 +258,15 @@ $(document).ready(function() {
        $new_rectangle.tooltip({
         placement: 'top',
         container: 'body' 
-  
-        });
 
+        });
          $new_rectangle.mousedown(function(e) {
              console.log("you clicked on the rect, man")
              toggle_selected($new_rectangle)
              e.stopPropagation()
          });
+        save_svg();
+       }
 
   });
   

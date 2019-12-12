@@ -534,7 +534,20 @@ let $scaleWidth := 500
 let $image_scale := $scaleWidth div $myImageWidth
 let $scaledHeight := $myImageHeight * $image_scale
 let $me := replace($meAsPng,"png","html")
+let $me_as_svg := replace($meAsPng,"png","svg")
 let $meAsDocumentNode := doc($collectionUri || "/" || $me)
+let $svg_dir_name := "SVG"
+let $meAsSvgFilePath := $collectionUri || "/" || $svg_dir_name || "/" || $me_as_svg
+let $svg_canvas := 
+if (doc-available($meAsSvgFilePath)) then
+        doc($meAsSvgFilePath)
+    else
+        <svg xmlns="http://www.w3.org/2000/svg"  id="svg" width="500" height="{$scaledHeight}">
+            <image xmlns:xlink="http://www.w3.org/1999/xlink" id="page_image" x="0" y="0" width="500" height="{$scaledHeight}" data-scale="{$image_scale}"
+            xlink:href="{concat('/exist/rest',$imageCollection,"/",$meAsPng)}"/>
+        </svg>
+
+
 (: Scale the svg stuff :)
 
 (:  It is possible that the hocr page corresponding to the JPG file doesn't exist.
@@ -568,11 +581,11 @@ else
   
 <!-- radio buttons for zone types -->
 
-<!--div class="btn-group btn-group-toggle btn-sm" data-toggle="buttons">
-  <label class="btn btn-outline-success active" id="primary_text_button">
+<div id="zoning_choice" class="btn-group btn-group-toggle btn-sm" data-toggle="buttons">
+  <label class="btn btn-outline-success active primary_text" id="primary_text_button">
     <input type="radio" name="options" id="primary_text_option" autocomplete="off" checked="checked"/> Primary Text
   </label>
-  <label class="btn btn-secondary btn-sm" id="app_crit_button">
+  <label class="btn btn-secondary btn-sm app_crit" id="app_crit_button">
     <input type="radio" name="options" id="app_crit_option" autocomplete="off"/> App. Crit
   </label>
   <label class="btn btn-secondary btn-sm" id="page_number_button">
@@ -581,21 +594,13 @@ else
     <label class="btn btn-secondary btn-sm" id="title_button">
     <input type="radio" name="options" id="title_option" autocomplete="off"/>Title
   </label>
-</div-->
+</div>
 
 <!-- svg 'canvas' for the page image -->
 
 <!-- you need this div to keep this below the buttons -->
-<xh:div>
-<svg id="svg" width="500" height="{$scaledHeight}">
-    <image id="page_image" x="0" y="0" width="500" height="{$scaledHeight}" data-scale="{$image_scale}"
-     xlink:href="{concat('/exist/rest',$imageCollection,"/",$meAsPng)}"/>
-    <rect id="svg_focus_rect" x="10" y="10" height="130" width="500" fill-opacity="0.4"
-        style="fill: #aaffff; stroke: #aaffff; stroke-width: 1; stroke-opacity: 0.5"/>
-            <rect id="rect" stroke='#aaffff' style='fill: white;' fill-opacity="0.6"/>
-    <circle id="start_circle" fill='#aaffff' r='3'/>
-    <circle id="finish_circle" fill='#aaffff' r='3' />
-</svg>
+<xh:div id="svg_container">
+{$svg_canvas}
 </xh:div>
 
 </xh:div>
