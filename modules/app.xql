@@ -144,7 +144,9 @@ declare function app:catalog($node as node(), $model as map(*)) {
             else 
                 <xh:tr class="notAvailable">
                     <xh:td>{app:formatCatalogEntry($text)}</xh:td>
-                </xh:tr>
+                </xh:tr>,
+                <xh:tr><xh:td>Other texts can be installed with the <xh:a href="/exist/apps/dashboard/admin#/packagemanager">package manager</xh:a>.</xh:td></xh:tr>
+                
  };
  
  (:
