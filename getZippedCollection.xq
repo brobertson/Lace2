@@ -13,7 +13,7 @@ declare namespace expath="http://expath.org/ns/pkg";
  : This is here to download an actual whole xar library. Unlike my code,
  : it deals with non-xml files and it works recursively.
  : My code, below, namespaced 'local' is for txt and xml output.
- : 
+ :  
  :  :)
 
 declare variable $deploy:app-root := request:get-attribute("app-root");
