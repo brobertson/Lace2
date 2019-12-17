@@ -19,7 +19,16 @@ declare namespace xi="http://www.w3.org/2001/XInclude";
 declare namespace map="http://www.w3.org/2005/xpath-functions/map";
 (: 
  : General Helper Functions
- : 
+ 
+ :)
+
+declare  function app:app-version-number($node as node(), $model as map(*)) as xs:string {
+    let $pkg := collection(repo:get-root())//package:package[@name='http://heml.mta.ca/Lace/application']
+   return $pkg/@abbrev || " v. " || $pkg/@version  
+};
+
+ (: 
+
  : Use a markdown renderer to convert the markdown in a given node into html. 
  : It can be evoked like this:
  : <div class="app:renderMarkdown">
@@ -143,7 +152,7 @@ declare function app:catalog($node as node(), $model as map(*)) {
                 </xh:tr>
             else 
                 <xh:tr class="notAvailable">
-                    <xh:td>{app:formatCatalogEntry($text)}</xh:td>
+                    <xh:td>{app:formatCatalogEntry($text)}  <xh:span class="text-warning"> (Only this text's image package is installed, with no corresponding text packages.)</xh:span></xh:td>
                 </xh:tr>,
                 <xh:tr><xh:td>Other texts can be installed with the <xh:a href="/exist/apps/dashboard/admin#/packagemanager">package manager</xh:a>.</xh:td></xh:tr>
                 
