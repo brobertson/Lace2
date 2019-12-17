@@ -226,6 +226,9 @@ function hilight_corresponding_ocr_words($zone_rectangle) {
         if (intersectRect($zone_rectangle, test_rect)) {
             $(this).addClass("zoning_hilight")
         }
+        if ($(this).hasClass("zoning_hilight") && !intersectRect($zone_rectangle, test_rect)) {
+            $(this).removeClass("zoning_hilight")
+        }
     });
 }
 
