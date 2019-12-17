@@ -1,53 +1,55 @@
 const svg = $("#svg");
 
 function save_svg() {
-            var data = {};
-            doc = $('.ocr_page').attr('title')
-            data['doc'] = doc
-            var n = doc.lastIndexOf('/');
-            var fileName = doc.substring(n + 1);
-            data['fileName'] = fileName
-            var filePath = doc.substring(0,n);
-            data['filePath'] = filePath
-            doc = $('.ocr_page').attr('title')
-            whole_address = 'modules/updateSVGRects.xq';
-            var serializer = new XMLSerializer();
-            svg_string = serializer.serializeToString(document.getElementById("svg"))
-            data["svg"] = svg_string
-            //console.log(svg_string);
-            //console.log("posting ", data, " to ", whole_address)
-            $.post(whole_address,data,function( data, textStatus, xhr  ) {
-                console.log("svg success!" + xhr.responseText)
-                //this is the 'success' function 
-                //if the update works, it will fire.
-                //We can't use JQuery syntax here, for some reason.
-                
-            })
-            .fail( function(xhr, textStatus, errorThrown) {
-                if ((xhr.status == 404) || (xhr.status === 0)) {
-                    alert("The connection has been lost to the lace server.")
-                } 
-                else {
-                    alert(xhr.responseText + " status" + xhr.status);
-                }
-            });
-          
+    /**** 
+     * Interacts with the 'modules/updateSVGRects.xq' xquery file to 
+     * save the state of the svg element in the XML database.
+     ***/
+    var data = {};
+    doc = $('.ocr_page').attr('title')
+    data['doc'] = doc
+    var n = doc.lastIndexOf('/');
+    var fileName = doc.substring(n + 1);
+    data['fileName'] = fileName
+    var filePath = doc.substring(0,n);
+    data['filePath'] = filePath
+    doc = $('.ocr_page').attr('title')
+    whole_address = 'modules/updateSVGRects.xq';
+    var serializer = new XMLSerializer();
+    //we pass the svg as a string
+    svg_string = serializer.serializeToString(document.getElementById("svg"))
+    data["svg"] = svg_string
+    $.post(whole_address,data,function( data, textStatus, xhr  ) {
+       // console.log("svg success!" + xhr.responseText)
+        //this is the 'success' function 
+        //if the update works, it will fire.
+        //We can't use JQuery syntax here, for some reason.
+        
+    })
+    .fail( function(xhr, textStatus, errorThrown) {
+        if ((xhr.status == 404) || (xhr.status === 0)) {
+            alert("The connection has been lost to the lace server.")
+        } 
+        else {
+            alert(xhr.responseText + " status" + xhr.status);
+        }
+    });
 }
-    
+ 
+/*************************************/
+/****
+ * Rectangle helper functions:
+ ****/
+ 
 function intersectRect(rect1, rect2) {
-    //console.log('doing ir3: rect1:')
-    //console.log(rect1)
-    //console.log(rect2)
-// Returns true if two rectangles (l1, r1) and (l2, r2) overlap 
+    /****
+     * Returns 'true' if the two rectangles overlap. 
+     ***/
+
     left_x_of_rect1 = parseFloat(rect1.attr("x"))
     left_x_of_rect2 = parseFloat(rect2.attr("x"))
     right_x_of_rect2 = (left_x_of_rect2 + parseFloat(rect2.attr("width")))
     right_x_of_rect1 = ( left_x_of_rect1 + parseFloat(rect1.attr("width")))
-    
-    console.log("left edge of r1 " + left_x_of_rect1)
-    console.log("left edge of r2: " + left_x_of_rect2)
-    console.log("right edge of r1: " + right_x_of_rect1)
-    console.log("right edge of r2: " + right_x_of_rect2)
     // If one rectangle is on left side of other 
     if ((left_x_of_rect1 > right_x_of_rect2) || (left_x_of_rect2 > right_x_of_rect1)) { 
         
@@ -57,10 +59,6 @@ function intersectRect(rect1, rect2) {
     top_y_of_rect2 = parseFloat(rect2.attr("y"))
     bottom_y_of_rect1 = top_y_of_rect1 + parseFloat(rect1.attr("height"))
     bottom_y_of_rect2 = top_y_of_rect2 + parseFloat(rect2.attr("height"))
-    console.log("top of r1 " + top_y_of_rect1)
-    console.log("top of r2 " + top_y_of_rect2)
-    console.log("bottom of r1 " + bottom_y_of_rect1)
-    console.log("bottom of r2 " + bottom_y_of_rect2)
     // If one rectangle is above other 
    if ((top_y_of_rect1 > bottom_y_of_rect2) || (top_y_of_rect2 > bottom_y_of_rect1))  {
         return false; 
@@ -70,15 +68,18 @@ function intersectRect(rect1, rect2) {
 } 
 
 function rectCollision(my_rectangle) {
-    //console.log("id " + my_rectangle_id)
-   // my_rectangle = $("#" + my_rectangle_id)
+    /****
+     * Compares 'my_rectangle' with all the other elements of class .rectangle
+     * to return 'true' if any of them collide.
+     ***/
     var rectangles = $('.rectangle')
-    console.log("number of rects: " + rectangles.length)
+    //if there's only one rectangle, then it's 'my_rectangle' and we don't need to go
+    //any further.
     if (rectangles.length == 1) {
         return false
     }
     for(var i = 0; i < rectangles.length; i++){
-        console.log(rectangles[i])
+        //check that it isn't this same rectangle that is colliding!
         if (!($(rectangles[i]).attr("id") == my_rectangle.attr("id")) && intersectRect(my_rectangle, $(rectangles[i]))) {
             return true
         }
@@ -87,6 +88,11 @@ function rectCollision(my_rectangle) {
 }
 
 function delete_rectangle($my_rectangle) {
+    /****
+     * Takes a jquery svg rectangle and destroys it and its corresponding 
+     * corner dots and tooltip. It uses the id of the rectangle minus the 
+     * string '_rectangle' as a key to these other elements ids.
+     ***/
     //fun fact: if you have focus, your tooltip will not get destroyed, no matter what
     $my_rectangle.blur()
     $my_rectangle.tooltip("destroy");
@@ -98,8 +104,14 @@ function delete_rectangle($my_rectangle) {
     finish_circle_id = bare_name + "_finish_circle"
     $("#"+finish_circle_id).remove()
     $("#" + start_circle_id).remove()
+    clear_zoning_hilight()
 }
+
+
 function screenToSVGCoords(canvas, e) {
+    /****
+     * Converts mouse coordinates to SVG canvas coordinates
+    ***/
   // Read the SVG's bounding rectangle...
   let canvasRect = canvas.getBoundingClientRect();
   // ...and transform clientX / clientY to be relative to that rectangle
@@ -110,6 +122,11 @@ function screenToSVGCoords(canvas, e) {
 }
 
 function get_rectangle_type() {
+    /***
+     * uses the dropdown menu #zoning_choice to find the one item within it
+     * that has the class 'active', and returns its id, minus the string '_button'
+     * on the end of that id.
+     ****/
     var zoning_buttons = $("#zoning_choice").children()
     console.log("number of children? " + zoning_buttons.length)
         for(var i = 0; i < zoning_buttons.length; i++){
@@ -125,39 +142,109 @@ function get_rectangle_type() {
 }
 
 function toggle_selected(a_rectangle) {
+    /****
+     * Toggles a rectangle between the selected and unselected
+     * states. As a side-effect, it un-selects other selected
+     * rectangles and appropriately establishes the hilighting of
+     * ocr_words in the text.
+     ***/
     is_selected = a_rectangle.hasClass("selected_rectangle")
-    console.log("is it selectd? " + is_selected)
-    $(".rectangle").removeClass("selected_rectangle")
-    if (!is_selected) {
+    if (is_selected) {//we're unselecting it
+        a_rectangle.removeClass("selected_rectangle")
+        clear_zoning_hilight()
+    }
+    else {//we're selecting it
+        //clear the selection of all other rectangles
+        $(".rectangle").removeClass("selected_rectangle")
+        clear_zoning_hilight()
+        //make this rectangle selected
         a_rectangle.addClass("selected_rectangle")
-        console.log("ive added the class")
+        //hilight the corresponding words
+        hilight_corresponding_ocr_words(a_rectangle)
     }
 }
 
+/********************************************/
 
-mousemovefunct = function(canvas, e) {
-    current_coords = screenToSVGCoords(canvas, e);
-    //console.log("moving " + current_coords.x + " " + current_coords.y)
-    $("#finish_circle").attr('cx',current_coords.x)
-    $("#finish_circle").attr('cy',current_coords.y)
+/****
+ * Helper functions for dealing with ocr_word bboxes, comparing them
+ * to SVG rectangles, for instance. 
+ * TODO: cash a map between ocr_word ids and these converted bboxes, since
+ * we calculate these many times on static data.
+ ***/
+
+function bbox_string_to_data(bbox_string) {
+    bbox = bbox_string.split(';')[0];
+    var bbox_array = bbox.split(" ");
+    return {x: bbox_array[1], y: bbox_array[2], width: bbox_array[3] - bbox_array[1], height: bbox_array[4] - bbox_array[2]};
+    
 }
 
-mouseupfunct = function(canvas, e) {
-    current_coords = screenToSVGCoords(canvas, e);
-    //console.log("mouse up " + current_coords.x + " " + current_coords.y)
-    $("#finish_circle").attr('cx',current_coords.x)
-    $("#finish_circle").attr('cy',current_coords.y)
+
+/* debugging function: not needed regularly
+function print_rect(rectangle) {
+    console.log("\tx: " + rectangle.attr("x"))
+    console.log("\ty: " + rectangle.attr("y"))
+    console.log("\twidth: " + rectangle.attr("width"))
+    console.log("\theight: " + rectangle.attr("height"))
+}
+*/
+
+function bbox_string_to_rect(bbox_string) {
+    box_dict = bbox_string_to_data(bbox_string)
+    //console.log(box_dict)
+    var scale = $("#page_image").attr("data-scale")
+    var $new_rectangle = $(document.createElementNS("http://www.w3.org/2000/svg", "rect")).attr({
+        x: box_dict["x"] * scale,
+        y: box_dict["y"] *scale,
+        width: box_dict["width"] *scale,
+        height: box_dict["height"] *scale
+    });
+    return $new_rectangle
+}
+
+/************
+ * Functions relating to hilighting .ocr_word spans that correspond to
+ * a given svg rectangle. The 'zoning_hlight' css class is added or removed
+ * to create the effect.
+ ************/
+
+function clear_zoning_hilight() {
+    /****
+     * Removes all hilighting
+     ***/
+    $(".zoning_hilight").removeClass("zoning_hilight")
+}
+
+function hilight_corresponding_ocr_words($zone_rectangle) {
+    /****
+     * Given a SVG rectangle, this applies the 'zoning_hilight' class to each
+     * .ocr_word element that either is within or intersecting with that rectangle.
+     ***/
+    $(".ocr_word").each(function() {
+        test_rect = bbox_string_to_rect($(this).attr("original-title"))
+        if (intersectRect($zone_rectangle, test_rect)) {
+            $(this).addClass("zoning_hilight")
+        }
+    });
 }
 
 $(document).ready(function() {
+    /****
+     * Binds listeners to objects.
+     ***/
+    
+    /****
+    * 1. The button with id 'clear_zones_button' causes all the 
+    * objects of class '.rectangle' to be deleted.
+    ***/
     $("#clear_zones_button").mouseup(function(e) {
         $('.rectangle').each(function() { 
     delete_rectangle($(this))
-});
+    });
     });
     
-  $("rect").mousedown(function(e) {
-             //console.log("you clicked on the prefab rect, man")
+  $(".rectangle").mousedown(function(e) {
              toggle_selected($(this))
              console.log("this: " + $(this)[0].tagName)
              $(this).focus()
@@ -193,7 +280,7 @@ $(document).ready(function() {
            // $(document).tooltip("disable");
             this_rect.attr("title", this_rect.attr("data-rectangle-type") + " Zone " + new_ordinal)
 
-            this_rect.attr("data-original-title", this_rect.attr("data-rectangle-type") + " Zone " + new_ordinal)
+            this_rect.attr("data-original-title", this_rect.attr("data-rectangle-type") + " zone " + new_ordinal)
             save_svg();
             // re-enable tooltips
            // $(document).tooltip("enable");
@@ -227,6 +314,7 @@ $(document).ready(function() {
         class: new_rectangle_type + "_rectangle"
     });
     //can't do this above because of hyphen!
+    $new_rectangle.attr("data-rectangle-type", new_rectangle_type)
     $new_rectangle.attr("fill-opacity","0.0")
     $new_rectangle.addClass("rectangle")
     $("#svg").append($new_rectangle)
@@ -237,8 +325,6 @@ $(document).ready(function() {
     current_coords = screenToSVGCoords(this, e);
     $new_finish_circle.attr('cx',current_coords.x)
     $new_finish_circle.attr('cy',current_coords.y)
-   // $("#finish_circle").attr('cx',current_coords.x)
-   // $("#finish_circle").attr('cy',current_coords.y)
     let x = Math.min(initial_coords.x, current_coords.x);
     let y = Math.min(initial_coords.y, current_coords.y);
     let width = Math.abs(current_coords.x - initial_coords.x);
@@ -247,35 +333,45 @@ $(document).ready(function() {
     $new_rectangle.attr('y', y);
     $new_rectangle.attr('width', width);
     $new_rectangle.attr('height', height);
+    hilight_corresponding_ocr_words($new_rectangle)
   });
   $(this).on("mouseup", function(e) {
        $(this).unbind("mousemove");
        $(this).unbind("mouseup");
        $new_rectangle.removeClass("selected_rectangle");
+       clear_zoning_hilight();
        //check it isn't overlapping with other rectangles
        total_dimensions = parseFloat($new_rectangle.attr("width")) + parseFloat($new_rectangle.attr("height"))
-       console.log("dim: " + total_dimensions)
+       //apparently rectangles can be made without these properties. If it doesn't have them, we don't want 
+       //it to persist.
        has_width = $(this)[0].hasAttribute("width");
        has_height = $(this)[0].hasAttribute("height");
-       if (rectCollision($new_rectangle) || (total_dimensions < 10) || !has_width || !has_height) {
-           console.log("collision between rectangles or too small or no width/height")
+       if (rectCollision($new_rectangle) || (total_dimensions < 20) || !has_width || !has_height) {
+           console.log("new rect. not kept because of collision between rectangles or too small or no width/height")
            delete_rectangle($new_rectangle)
        }
        else {//these are things we should only do with a new rectangle
+       /****
+        * give the new rectangle a ordinal number
+        ***/
        rect_number = $(".rectangle").length
        $new_rectangle.attr("data-rectangle-ordinal", rect_number)
-       $new_rectangle.attr("data-rectangle-type", new_rectangle_type)
+
        $new_rectangle.attr("title", new_rectangle_type + " Zone " + rect_number)
+       //Give the new rectangle a tooltip
        $new_rectangle.tooltip({
         placement: 'top',
         container: 'body' 
 
         });
+        //bind a mousedown event to this rectangle so that it is selected.
          $new_rectangle.mousedown(function(e) {
              console.log("you clicked on the rect, man")
              toggle_selected($new_rectangle)
              e.stopPropagation()
          });
+        //finally, once the rectangle stops moving and has all its new properties, 
+        //we save the state of the SVG 'canvas'.
         save_svg();
        }
 
