@@ -309,6 +309,14 @@ span.blinker{
 span.zoning_hilight{    
     border:2px solid blue;
 }
+code {
+    color: black;
+}
+section p {
+ /* line-height: 32px;    within paragraph */
+  margin-bottom: 15px; /* between paragraphs */
+  margin-left: 10px;
+  }
 /*****
 div[class="row"] {
     outline: 1px dotted rgba(0, 0, 0, 0.25);

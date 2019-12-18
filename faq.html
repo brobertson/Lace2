@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page-margins.html" data-template-at="container">
     <div class="app:renderMarkdown">
-####1. How do I add a text for editing?
-1. Go to the eXist-db Package Manager. 
+####1. How do I get the Lace app?
+
+_Lace_ is an application that operates on top of the eXist-db database, which is available for all operating systems. 
+
+1. Install and start eXist.
+2. Login to eXist as admin and navigate to its Packge Manager.
+3. Download the latest Lace app package release from [github](https://github.com/brobertson/Lace2/releases). You want the file under 'assets' that ends with the extension `.xar`, such as `Lace-0.5.2.xar`.
+4. Install this _Lace_ app package by dragging and dropping it in the eXist Package Manager.
+
+These steps are illustrated for the MacOS in this [video](https://drive.google.com/open?id=1uw4Swq0_hGGSksvNEwyes1sYwil36UVy).
+
+####2. How do I add a text for editing?
+1. Go to the eXist-db [Package Manager](/exist/apps/dashboard/admin#/packagemanager). 
 2. Click on the three dots at the top right of the screen and select 'Show Libraries'.  (If it says 'Hide Libraries', then you're already showing them and don't need to do anything.)
-3. Click on the 'Available' pane. You'll see OCR output and images. 
-4. Click on the download icon of  the OCR output you want to edit. Patiently wait for it to install in about 5 minutes. (The corresponding images will be downloaded as well if you don't yet have them.)
+3. Click on the 'Available' pane. You'll see OCR output and images. (If you don't, do step #2 again.)
+4. Click on the download icon of the OCR output you want to edit. Patiently wait for it to install in about 5 minutes. (The corresponding images will be downloaded as well if you don't yet have them.)
 5. Click on the Lace application packge, and you should see your text added.
 
-####2. How do I back up my work? 
+####3. How do I back up my work? 
 Everything you do is saved to the exist database as you do it. There's no need to save data regularly. However, occasionally a database can become corrupted. You can save your progress with a given volume thus:
 
 1. Click on 'Lace' at the top left of the screen
@@ -16,11 +27,14 @@ Everything you do is saved to the exist database as you do it. There's no need t
 3. Here you'll see a list of perhaps more than one 'run' for this volume. Find the one you've been working on. (It probably has the greatest percentage of edited words.) 
 4. Then, with its 'Download' menu, select 'Download XAR File'. 
 
-The resulting XAR file is a complete backup of everything that's been done with that run, and can be installed in Lace with the Package Manager if the worst happens. 
+The resulting XAR file is a complete backup of everything that's been done with that run, and can be installed in Lace with the Package Manager if the worst happens. Note that if you upload a package manually, it will overwrite the same package if it is already in your database. In other words, you are responsible for keeping your versions of these backups straight. If you are working with a large team, it might make sense to run eXist on a common server, as outlined in #5 below.
 
-Alternatively, you can back up the entire eXist-db 'data' directory. Its location is OS-dependent.
 
-####3. How do I delete all that I've done on a volume and start fresh?
+Alternatively, you can back up the entire eXist-db 'data' directory. Its location is OS-dependent. On MacOS it is usually at `/Users/$USERNAME/Library/Application Support/org.exist`, where `$USERNAME` is your username. However, MacOS hides these Library files, so it is easiest to manipulate them by using the terminal, such as issuing the command:
+
+`cp /Users/$USERNAME/Library/Application\ Support/org.exist ~/my_backup`.
+
+####4. How do I delete all that I've done on a volume and start fresh?
 
 The database tries to hold on to data as much as possible, so first you need to delete the package before reinstalling the unedited version. 
 
@@ -30,5 +44,13 @@ The database tries to hold on to data as much as possible, so first you need to 
 4. Find the volume you want to delete, and click on its garbage can icon. This will permanently delete all your work.
 5. Go to the 'Available' tab and install the package again by clicking on its 'install' icon.
 6. Click on the Lace application packge in the 'Installed' pane, and you should see your text.
+
+####5. I want to work with a team. Do we all have to run Lace on our own laptops?
+
+The current version of Lace makes it easier to install the applicataion and data both on a local laptop, but it doesn't stop you from using a common server. Because _Lace_ is an eXist-db application, and eXist is a web server, it's quite easy to set up a common server for a team to work on together. Just follow the instructions for installing packages on that server and everything should be available on its port 8080.
+
+####6. I'm operating Lace on a server. Can't I just run it on my own laptop?
+
+Yes, just follow the instructions at #1 and #2 above. Be sure to share your completed texts with the larger community so that we can expand our collection of free and open materials!
 </div>
 </div>
