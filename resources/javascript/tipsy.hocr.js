@@ -364,8 +364,16 @@ $("#" + uniq_picker+"_ok_button").on('click', function(event) {
   event.preventDefault(); // To prevent following the link (optional)
   console.log("sof far so good")
   //add data and tooltip to span
-  composed_urn = $("#"+uniq_picker).attr("data-ctsurn")+$("#"+uniq_picker+"_additional").val()
   the_span = $("#" + uniq_picker+"_span")
+  /***
+   * in the case of a close-reference milestone, trying to use the closed-book emoji, but honestly, this
+   * causes a bunch of side effects, so wait for another day.
+  if ($("#"+uniq_picker).attr("data-ctsurn") === "__end__") {
+     the_span.text("📕")
+  } 
+  ***/
+  composed_urn = $("#"+uniq_picker).attr("data-ctsurn")+$("#"+uniq_picker+"_additional").val()
+  
   the_span.attr("data-ctsurn", composed_urn)
   the_span.attr("data-toggle", "tooltip")
   the_span.attr("data-placement", "top")

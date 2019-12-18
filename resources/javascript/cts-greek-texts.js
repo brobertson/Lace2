@@ -1343,7 +1343,8 @@
 {label: "\"Sextus Julius Africanus\", Charmed Girdles (Fragments)", id : "urn:cts:greekLit:tlg2956.tlg002:" },
 {label: "\"Sextus Julius Africanus\", Letter to Origen", id : "urn:cts:greekLit:tlg2956.tlg003:" },
 {label: "\"Sextus Julius Africanus\", Letter to Aristides", id : "urn:cts:greekLit:tlg2956.tlg004:" },
-{label: "Agathodaimon, ", id : "urn:cts:greekLit:tlg4086.tlg002:" }
+{label: "Agathodaimon, ", id : "urn:cts:greekLit:tlg4086.tlg002:" },
+{label: "*END MILESTONE*", id : "__end__" }
 ]
 ;
 
