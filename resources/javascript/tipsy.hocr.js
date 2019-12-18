@@ -36,6 +36,7 @@ function update_progress_bar() {
     }
 }
 function updateCTSURN(urnpicker_id, my_action) {
+    console.log("updating CTSUrn")
     var data = {};
     picker_span_string = "#" + urnpicker_id + "_span"
     doc = $('.ocr_page').attr('title')
@@ -47,6 +48,7 @@ function updateCTSURN(urnpicker_id, my_action) {
     data['filePath'] = filePath
     picker_span = $(picker_span_string)
     composed_urn = $("#"+urnpicker_id).attr("data-ctsurn")+$("#"+urnpicker_id+"_additional").val()
+    data['name'] = $("#"+urnpicker_id).attr("data-author-name") + " " + $("#"+urnpicker_id+"_additional").val()
     data['id'] = urnpicker_id + "_span"
     //this is unnecessary
     data['label'] = picker_span_string
@@ -357,6 +359,7 @@ $("#" + uniq_picker).typeahead({
         console.log(selectedItem)
         console.log(this.$element)
        this.$element.attr("data-ctsurn", selectedItem["id"])
+       this.$element.attr("data-author-name", selectedItem["label"])
         return item
     }
 });
@@ -373,11 +376,11 @@ $("#" + uniq_picker+"_ok_button").on('click', function(event) {
   } 
   ***/
   composed_urn = $("#"+uniq_picker).attr("data-ctsurn")+$("#"+uniq_picker+"_additional").val()
-  
+  readable_name = $("#"+uniq_picker).attr("data-author-name")+" " + $("#"+uniq_picker+"_additional").val()
   the_span.attr("data-ctsurn", composed_urn)
   the_span.attr("data-toggle", "tooltip")
   the_span.attr("data-placement", "top")
-  the_span.attr("title", composed_urn)
+  the_span.attr("title", readable_name)
   //the_span.tooltip()
   console.log("here, uniq_picker is " + uniq_picker)
   updateCTSURN(uniq_picker, "add")
