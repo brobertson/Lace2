@@ -13,11 +13,11 @@ declare namespace expath="http://expath.org/ns/pkg";
  : This is here to download an actual whole xar library. Unlike my code,
  : it deals with non-xml files and it works recursively.
  : My code, below, namespaced 'local' is for txt and xml output.
- :   
+ : 
  :  :)
 
 declare variable $deploy:app-root := request:get-attribute("app-root");
-
+declare variable $new_line := "&#10;";
 
 
 (: Handle difference between 4.x.x and 5.x.x releases of eXist :)
@@ -343,6 +343,8 @@ declare function local:make-sources( $path as xs:string, $format as xs:string)  
        error(QName('http://heml.mta.ca/Lace2/Error/','HugeZipFile'),'Inappropriate number of subdocuments in path"' || $path || '"')
     else 
         for $page in collection($path)
+            (: only get the html files, not svg and xql, etc :)
+            where (functx:substring-after-last(util:document-name($page),'.') = 'html')
             return
                 if ($format = "xar") then
                     <entry name="{util:document-name($page)}" type='{local:get-datatype(util:document-name($page))}' method='deflate'>
@@ -350,7 +352,8 @@ declare function local:make-sources( $path as xs:string, $format as xs:string)  
                     </entry>
                 else if ($format = "text") then
                     <entry name="{fn:tokenize(util:document-name($page), '\.')[1] || '.txt'}" type='text' method='store'>
-                        {transform:transform($page, doc("resources/xslt/hocr_to_plain_text.xsl"), <parameters/>)}
+                        {transform:transform($page, doc("resources/xslt/hocr_to_plain_text.xsl"), <parameters/>)
+                        }
                     </entry>
                 else
                     <wha/>
