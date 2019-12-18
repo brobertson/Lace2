@@ -48,7 +48,8 @@ declare function lacesvg:sortCollectionByName($my_collection as xs:string) as no
  (: general dimension parameters :)
     let $x_scale_factor := 2
     let $strip_height := 20
-    let $svg_height := 35let $carrot_y_offset := 21
+    let $svg_height := 20
+    let $carrot_y_offset := 21
     let $image_collection := app:imageCollectionFromCollectionUri($my_collection)
     let $svg_width := $x_scale_factor * count(collection($image_collection))
     let $sorted_images := lacesvg:sortCollectionByName($image_collection) 
