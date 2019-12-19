@@ -5,8 +5,36 @@
   <div>
   <label for="search">Search For</label>
   <input data-template="templates:form-control" type="string" name="search" value="καὶ"/>
+  <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#searchInfo">?</button>
 </div>
 </h3>
+<div id="searchInfo" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">x</button>
+        <h4 class="modal-title">Searching Lace</h4>
+      </div>
+      <div class="modal-body">
+       <p>Lace search is accent-sensitive but case-insensitive. So καὶ and καί are different, but καὶ and Καὶ are not.</p>
+        <p>Lace's search is based on the Lucene search engine. It supports:
+            <ul>
+            <li>Single character wildcard searches (a good work-around for accents): <code>ξ?λο?ς</code>
+                                </li>
+            <li>Multiple character wildcard searches: <code>παρακυπτ*</code> and <code>αὐτ*ς</code> (but not <code>*όλεως</code>
+                                </li>
+            <li>Fuzzy searches: <code>εἰδώλων~</code> returns <code>εἰδώλου</code>, e.g.</li>
+            <li>Proximity searches: <code>"εἰδώλων ἱερὰ"~10</code> for these within 10 words of each other</li>
+            </ul>
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</div>
 </form>
-<div class="app:searchAllCollections?search=HI"/>
+<div class="app:searchAllCollections"/>
 </div>
