@@ -339,7 +339,7 @@ $(function() {
        else {//ctrlKey is true, also
        console.log("control-alt-return hit")
         var uniq_picker = 'ins_cts_picker_' + (new Date()).getTime();
-        var cts_picker=$("<span id='" + uniq_picker + "_span'>📖<input class='ctsurn-picker' id='" + uniq_picker + "' type='text' placeholder='author/title'/><input class='ctsurn-span' id='" + uniq_picker + "_additional'/><button id='" + uniq_picker + "_ok_button' class='btn' type='button'>OK</button><button class='kill_button' type='button' id='" + uniq_picker + "_kill_button'> <span>×</span> </button></span>");
+        var cts_picker=$("<span class='cts_picker' id='" + uniq_picker + "_span'>📖<input class='ctsurn-picker' id='" + uniq_picker + "' type='text' placeholder='author/title'/><input class='ctsurn-span' id='" + uniq_picker + "_additional'/><button id='" + uniq_picker + "_ok_button' class='btn' type='button'>OK</button><button class='kill_button' type='button' id='" + uniq_picker + "_kill_button'> <span>×</span> </button></span>");
 $(this).before(cts_picker);
 $("#" + uniq_picker).typeahead({
     source: function (query) {

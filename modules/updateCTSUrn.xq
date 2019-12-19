@@ -18,7 +18,7 @@ let $filePath := concat($filePath, '/', $fileName)
 let $next_sibling := doc($filePath)//html:span[@id = $next_sibling_id]
 
 let $foo3 := if ($action = 'add') then
-update  insert <html:span id="{$span_id}" data-ctsurn="{$value}" title="{$name}">📖<button class="kill_button" type='button' id="{$button_id}"> <span>×</span> </button></html:span> preceding $next_sibling
+update  insert <html:span xmlns:html="http://www.w3.org/1999/xhtml" class="cts_picker" id="{$span_id}" data-ctsurn="{$value}" title="{$name}">📖<button class="kill_button" type='button' id="{$button_id}"> <span>×</span> </button></html:span> preceding $next_sibling
 else (: assuming this is 'remove' :)
     update delete doc($filePath)//html:span[@id = $span_id]
     

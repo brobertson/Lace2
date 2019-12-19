@@ -8,6 +8,7 @@ import module namespace markdown="http://exist-db.org/xquery/markdown";
 import module namespace xmldb="http://exist-db.org/xquery/xmldb";
 import module namespace compression="http://exist-db.org/xquery/compression";
 import module namespace functx="http://www.functx.com";
+import module namespace kwic="http://exist-db.org/xquery/kwic";
 declare namespace dc="http://purl.org/dc/elements/1.1/";
 declare namespace test="http://exist-db.org/xquery/xqsuite";
 declare namespace xh="http://www.w3.org/1999/xhtml";
@@ -657,3 +658,58 @@ else
 </xh:div>
 };
 
+
+(:  
+ : 
+ : Functions related to search 
+ :)
+
+
+declare function app:formatSearchHit($hit as node()) as node() {
+    let $before := $hit/preceding::xh:span[@class="ocr_word"][position() < 5]
+    let $after := $hit/following::xh:span[@class="ocr_word"][position() < 5]
+    let $score as xs:float := ft:score($hit)
+    let $image_position_results := app:getSideBySideViewDataForDocumentElement($hit)
+    let $docCollectionUri := $image_position_results[1]
+    let $position := $image_position_results[2]
+    let $canonical_reference := $hit/preceding::*[@class="cts_picker"][1]
+    let $canonical_reference_text :=
+        if ($canonical_reference) then
+            " (" || string($canonical_reference/@title) || ")"
+            else
+                ""
+        return
+            <xh:div>
+        <xh:div class="search_results">{$before}<xh:span class="hi">{$hit}</xh:span>{$after} <xh:code>p. <xh:a href="side_by_side_view.html?collectionUri={$docCollectionUri}&amp;positionInCollection={$position}#{string($hit/@id)}">{$position}</xh:a></xh:code></xh:div>
+        <xh:div><xh:span> {$canonical_reference_text}</xh:span>
+        </xh:div>
+        </xh:div>
+        
+};
+
+declare function app:search($node as node(), $model as map(*), $search as xs:string, $collectionUri as xs:string) {
+    for $hit in collection($collectionUri)//xh:span[ft:query(.,$search)][@class="ocr_word"]
+    let $score as xs:float := ft:score($hit)
+    order by xs:int($hit/ancestor::xh:div[@class="ocr_page"]/@data-image-position)
+    return (
+        <xh:tr><xh:td>
+        {app:formatSearchHit($hit)}
+        </xh:td>
+        </xh:tr>
+)
+};
+
+declare function app:searchAllCollections($node as node(), $model as map(*), $search as xs:string) {
+    for $run in collection("/db/apps")//lace:run
+    (: TODO: Order these alphabetically, or whatever :)
+    return
+        <xh:div>
+        <xh:h3>{app:formatCatalogEntry(app:getImageIdentifierForDocumentNode($run))}</xh:h3>
+        <xh:div>    <table class="table table-hover table-dark">
+        <tbody>
+            {app:search($node, $model, $search, util:collection-name($run) )}
+        </tbody>
+    </table>
+        </xh:div>
+        </xh:div>
+};
