@@ -318,7 +318,7 @@ declare function app:runs($node as node(), $model as map(*),  $archive_number as
 return
     <xh:tr>
 <xh:td><xh:a href="{concat("side_by_side_view.html?collectionUri=",app:hocrCollectionUriForRunMetadataFile($run),"&amp;positionInCollection=2")}">{$run/dc:date}</xh:a>{app:runDownloadsMenu($run)}</xh:td>
-<xh:td>{app:collectionInfo($node,$model,app:hocrCollectionUriForRunMetadataFile($run))}</xh:td>
+<xh:td>{app:collectionInfo(app:hocrCollectionUriForRunMetadataFile($run))}</xh:td>
 </xh:tr>
 };
 
@@ -666,12 +666,16 @@ else
 
 
 declare function app:formatSearchHit($hit as node()) as node() {
-    let $before := $hit/preceding::xh:span[@class="ocr_word"][position() < 5]
-    let $after := $hit/following::xh:span[@class="ocr_word"][position() < 5]
+    let $expanded := util:expand($hit, "expand-xincludes=no")
+    (:
+    let $before := $hit/preceding-sibling::xh:span[@class="ocr_word"]
+    let $after := $hit/following-sibling::xh:span[@class="ocr_word"]
+    :)
     let $score as xs:float := ft:score($hit)
     let $image_position_results := app:getSideBySideViewDataForDocumentElement($hit)
     let $docCollectionUri := $image_position_results[1]
     let $position := $image_position_results[2]
+    (: there's clearly a problem with namespacing on these cts_picker spans. TODO: FIX :)
     let $canonical_reference := $hit/preceding::*[@class="cts_picker"][1]
     let $canonical_reference_text :=
         if ($canonical_reference) then
@@ -680,7 +684,7 @@ declare function app:formatSearchHit($hit as node()) as node() {
                 ""
         return
             <xh:div>
-        <xh:div class="search_results">{$before}<xh:span class="hi">{$hit}</xh:span>{$after} <xh:code>p. <xh:a href="side_by_side_view.html?collectionUri={$docCollectionUri}&amp;positionInCollection={$position}#{string($hit/@id)}">{$position}</xh:a></xh:code></xh:div>
+        <xh:div class="search_results">{$expanded}<xh:code>p. <xh:a href="side_by_side_view.html?collectionUri={$docCollectionUri}&amp;positionInCollection={$position}#{string($hit/@id)}">{$position}</xh:a></xh:code></xh:div>
         <xh:div><xh:span> {$canonical_reference_text}</xh:span>
         </xh:div>
         </xh:div>
@@ -688,8 +692,7 @@ declare function app:formatSearchHit($hit as node()) as node() {
 };
 
 declare function app:search($node as node(), $model as map(*), $search as xs:string, $collectionUri as xs:string) {
-    for $hit in collection($collectionUri)//xh:span[ft:query(.,$search)][@class="ocr_word"]
-    let $score as xs:float := ft:score($hit)
+    for $hit in collection($collectionUri)//xh:span[ft:query(.,$search)][@class="ocr_line"]
     order by xs:int($hit/ancestor::xh:div[@class="ocr_page"]/@data-image-position)
     return (
         <xh:tr><xh:td>
@@ -701,15 +704,17 @@ declare function app:search($node as node(), $model as map(*), $search as xs:str
 
 declare function app:searchAllCollections($node as node(), $model as map(*), $search as xs:string) {
     for $run in collection("/db/apps")//lace:run
-    (: TODO: Order these alphabetically, or whatever :)
-    return
-        <xh:div>
-        <xh:h3>{app:formatCatalogEntry(app:getImageIdentifierForDocumentNode($run))}</xh:h3>
-        <xh:div>    <table class="table table-hover table-dark">
-        <tbody>
-            {app:search($node, $model, $search, util:collection-name($run) )}
-        </tbody>
-    </table>
-        </xh:div>
-        </xh:div>
+        let $collectionUri := util:collection-name($run)
+        (: TODO: Order these alphabetically, or whatever :)
+        return
+            <xh:div>
+            <xh:h3>{app:formatCatalogEntry(app:getImageIdentifierForDocumentNode($run))}</xh:h3>
+            {app:collectionInfo($collectionUri)}
+            <xh:div>    <table class="table table-hover table-dark">
+            <tbody>
+                {app:search($node, $model, $search, $collectionUri )}
+            </tbody>
+        </table>
+            </xh:div>
+            </xh:div>
 };
