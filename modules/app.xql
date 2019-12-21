@@ -344,6 +344,7 @@ declare function app:runDownloadsMenu($run as node()) {
                 <xh:li><xh:a id="download_xar" href='{concat("getZippedCollection.xq?collectionUri=",$collectionUri, "&amp;format=xar")}'>Download XAR File</xh:a></xh:li>
                 <xh:li><xh:a id="download_txt" href="{concat("getZippedCollection.xq?collectionUri=",app:hocrCollectionUriForRunMetadataFile($run), "&amp;format=text")}">Download Plain Text Zip File</xh:a></xh:li>
                 <xh:li><xh:a id="download_training_csv" href="{concat("get_trainingset.xq?collectionUri=",app:hocrCollectionUriForRunMetadataFile($run), "&amp;format=csv")}">Download Training Set File</xh:a></xh:li>
+                <xh:li><xh:a id="download_training_images" href="{concat("get_trainingset_images.xq?collectionUri=",app:hocrCollectionUriForRunMetadataFile($run))}">Download Training Set Images</xh:a></xh:li>
               </xh:ul>
             </xh:div>
             </xh:span>
@@ -555,11 +556,9 @@ declare function app:makeZoningMenu() {
  :  :)
  
 declare function app:sidebyside($node as node(), $model as map(*), $collectionUri as xs:string, $positionInCollection as xs:integer?) {
-(: 
- let $meAsDocumentNode := app:sortCollection($collectionUri)[$positionInCollection]
- let $me := util:document-name($meAsDocumentNode)
- let $meAsJpeg := replace($me,"html","jpg")
-:)
+(:  The $collectionUri is for the run collection
+ :  The $positionInCollection is an *image* position 
+ :  Sorry for the confusion. :)
 let $imageCollection := app:imageCollectionFromCollectionUri($collectionUri)
 let $meAsPng := app:sortCollection($imageCollection)[$positionInCollection]
 let $myImageHeight := image:get-height(util:binary-doc(concat($imageCollection,"/",$meAsPng)))
@@ -665,6 +664,9 @@ else
  :)
 
 declare function app:convert-match-expanded-to-hocr($node as node()) {
+    (: the util:exand function produces these ugly exist:match tags around the matched text. 
+     : Here, we convert these to <xh:span class="match"/>
+     :)
     typeswitch ($node)
         case $my as element(exist:match) return
             <xh:span class="match">{$my/text()}</xh:span>
