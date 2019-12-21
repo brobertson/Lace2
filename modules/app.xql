@@ -664,13 +664,21 @@ else
  : Functions related to search 
  :)
 
+declare function app:convert-match-expanded-to-hocr($node as node()) {
+    typeswitch ($node)
+        case $my as element(exist:match) return
+            <xh:span class="match">{$my/text()}</xh:span>
+        case $node as element() return
+            element { node-name($node) } {
+                $node/@*, for $child in $node/node() return app:convert-match-expanded-to-hocr($child)
+            }
+        default return
+            $node
+};
+
 
 declare function app:formatSearchHit($hit as node()) as node() {
-    let $expanded := util:expand($hit, "expand-xincludes=no")
-    (:
-    let $before := $hit/preceding-sibling::xh:span[@class="ocr_word"]
-    let $after := $hit/following-sibling::xh:span[@class="ocr_word"]
-    :)
+    let $expanded := app:convert-match-expanded-to-hocr(util:expand($hit, "expand-xincludes=no"))
     let $score as xs:float := ft:score($hit)
     let $image_position_results := app:getSideBySideViewDataForDocumentElement($hit)
     let $docCollectionUri := $image_position_results[1]
@@ -702,7 +710,9 @@ declare function app:search($node as node(), $model as map(*), $search as xs:str
 )
 };
 
-declare function app:searchAllCollections($node as node(), $model as map(*), $search as xs:string) {
+declare function app:searchAllCollections($node as node(), $model as map(*)) {
+    (: TODO make a global variable $search_default, which is used here and in search.html :)
+    let $search:= request:get-parameter('search', 'λαμβ*')
     for $run in collection("/db/apps")//lace:run
         let $collectionUri := util:collection-name($run)
         (: TODO: Order these alphabetically, or whatever :)
