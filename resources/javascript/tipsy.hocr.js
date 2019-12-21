@@ -53,6 +53,7 @@ function updateCTSURN(urnpicker_id, my_action) {
     //this is unnecessary
     data['label'] = picker_span_string
     data['next_sibling_id'] = picker_span.next().attr('id')
+    data['starting-span'] = picker_span.attr("data-starting-span")
     data['value'] = composed_urn
     data['action'] = my_action
 
@@ -341,6 +342,7 @@ $(function() {
         var uniq_picker = 'ins_cts_picker_' + (new Date()).getTime();
         var cts_picker=$("<span class='cts_picker' id='" + uniq_picker + "_span'>📖<input class='ctsurn-picker' id='" + uniq_picker + "' type='text' placeholder='author/title'/><input class='ctsurn-span' id='" + uniq_picker + "_additional'/><button id='" + uniq_picker + "_ok_button' class='btn' type='button'>OK</button><button class='kill_button' type='button' id='" + uniq_picker + "_kill_button'> <span>×</span> </button></span>");
 $(this).before(cts_picker);
+cts_picker.attr("data-starting-span",$(this).attr("id"))
 $("#" + uniq_picker).typeahead({
     source: function (query) {
         var self = this;
