@@ -313,7 +313,8 @@ let $since := xs:dateTime(current-dateTime()) - xs:dayTimeDuration($days_string)
  
 (: For a given $archive_number, chronologically list all the runs, in descending order :)
 declare function app:runs($node as node(), $model as map(*),  $archive_number as xs:string?) {
-    for $run in collection('/db/apps')//lace:run[dc:identifier = $archive_number]
+
+    for $run in collection('/db/apps')//lace:run[dc:identifier/text() = $archive_number]
     order by $run/dc:date descending
 return
     <xh:tr>
