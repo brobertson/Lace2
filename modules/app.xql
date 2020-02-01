@@ -644,7 +644,7 @@ else
   <!-- the old, non-svg way of doing things -->
   <!--xh:div class="col-sm-6">{app:getImageLink(concat('/exist/rest',$imageCollection,"/",$meAsPng))}</xh:div-->
 
-  <xh:div class="col-sm" id="right_side">
+  <xh:div class="col-sm-6" id="right_side">
   <!-- The hocr, which is layed out on the right of this page -->
   {app:add-attribute-to-ocrword($hocrPageNode, "contenteditable", 'true')}
   </xh:div>

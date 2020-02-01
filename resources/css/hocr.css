@@ -82,6 +82,9 @@ span.index_word {
 }
 span.ocr_line {
     display: block;
+    line-height: 1.6em;
+    font-size: 15px;
+    text-align: left;
 }
 
 span.ocr_line + br {
