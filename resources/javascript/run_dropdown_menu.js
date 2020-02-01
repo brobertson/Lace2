@@ -23,10 +23,21 @@ function show_accuracy_report() {
     beforeSend: function() {
         $("#bars3").show();
         },
-        success: function(result){
+    success: function(result){
+        data = $(result.documentElement);
+        console.log(data)
+        var $elements = $('*[href]', data);  // Select all a href attributes inside svg object
+
+        $elements.each(function(index, element) {
+            old_href=$(element).attr('href')
+            new_href=old_href+"&collectionUri=" + collectionUri
+            console.log($(element), old_href)
+            $(element).attr('href', new_href);  // force class attribute
+        });
+
         $("#svg_accuracy_report").replaceWith(result.documentElement);
         $("#bars3").hide();
-         $("#svg_accuracy_report_holder").show();
+        $("#svg_accuracy_report_holder").show();
     }});
 }
 
