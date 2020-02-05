@@ -95,7 +95,7 @@ declare function local:milestones_to_divs_widows($spans as node()+) as node()* {
       let $count_of_all_spans :=count($spans)
       return 
             if (index-of($spans, $last_milestone) ne $count_of_all_spans) then
-                <tei:div>{subsequence($spans,1,index-of($spans, $last_milestone)-1)}</tei:div>
+                <tei:div><tei:p>{subsequence($spans,1,index-of($spans, $last_milestone)-1)}</tei:p></tei:div>
             else
                 ()
 };
@@ -106,11 +106,11 @@ declare function local:milestones_to_divs($spans as node()+) as node()* {
     for $ms at $count in $spans[@class="cts_picker"]
         return
             if ($count ne $count_of_ms) then
-            <tei:div id="{$ms/@data-ctsurn}">{subsequence($spans,index-of($spans, $ms)+1, index-of($spans, $spans[@class='cts_picker'][$count + 1]))}</tei:div>
+            <tei:div type="textpart" n="{$ms/@data-ctsurn}"><tei:p>{subsequence($spans,index-of($spans, $ms)+1, index-of($spans, $spans[@class='cts_picker'][$count + 1]))}</tei:p></tei:div>
             else
                 (: this is the last milestone :)
                 if (index-of($spans, $ms) ne count($spans)) then
-                    <tei:div id="{$ms/@data-ctsurn}">{subsequence($spans,index-of($spans, $ms)+1, count($spans))}</tei:div>
+                    <tei:div type="textpart" n="{$ms/@data-ctsurn}"><tei:p>{subsequence($spans,index-of($spans, $ms)+1, count($spans))}</tei:p></tei:div>
                 else
                     ()
 
@@ -134,7 +134,7 @@ declare function local:make_tei_zone($my_collection as xs:string, $zone as xs:st
     let $raw := local:make_tei_zone_raw($my_collection, $zone)
     return
     if (count($raw[@class="cts_picker"]) eq 0) then
-        $raw
+        <tei:p>{$raw}</tei:p>
     else 
         (local:milestones_to_divs_widows($raw), local:milestones_to_divs($raw))
 };
@@ -150,9 +150,7 @@ declare function local:make_tei_zone_raw($my_collection as xs:string, $zone as x
 };
 
 declare function local:wrap_tei($body as node()) as node() {
-        <TEI xml:space="preserve" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="https://raw.githubusercontent.com/TEIC/TEI-Simple/master/xml.xsd"
- xml:base="ex-epidoctemplate.xml" xmlns="http://www.tei-c.org/ns/1.0">
+        <TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0">
     <teiHeader>
         <fileDesc>
             <titleStmt>
