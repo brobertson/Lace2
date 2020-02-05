@@ -6,9 +6,6 @@ declare namespace tei="http://www.tei-c.org/ns/1.0";
 declare namespace dc="http://purl.org/dc/elements/1.1/";
 declare variable $svg_zone_types := ("primary_text", "translation", "app_crit");
 
-declare option exist:serialize "method=xml media-type=application/tei+xml omit-xml-declaration=no";
-
-
 declare function functx:substring-before-if-contains
   ( $arg as xs:string? ,
     $delim as xs:string )  as xs:string? {
@@ -77,7 +74,11 @@ declare function local:strip_spans($input as node()?) {
 <xsl:template match="html:span">
     <xsl:apply-templates/>
 </xsl:template>
-
+<xsl:template match="*[@data-dehyphenatedform]">
+    <xsl:if test="@data-dehyphenatedform!=''">
+        <xsl:value-of select="concat(normalize-space(@data-dehyphenatedform), ' ')"/>
+    </xsl:if>
+</xsl:template>
 <xsl:template match="node/@TEXT | text()">
   <xsl:if test="normalize-space(.)">
     <xsl:value-of select="concat(normalize-space(.), ' ')"/>
@@ -149,8 +150,8 @@ declare function local:make_tei_zone_raw($my_collection as xs:string, $zone as x
 };
 
 declare function local:wrap_tei($body as node()) as node() {
-
-        <TEI xml:space="preserve" xml:lang="en"
+        <TEI xml:space="preserve" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://raw.githubusercontent.com/TEIC/TEI-Simple/master/xml.xsd"
  xml:base="ex-epidoctemplate.xml" xmlns="http://www.tei-c.org/ns/1.0">
     <teiHeader>
         <fileDesc>
@@ -199,9 +200,11 @@ let $my_collection := xs:string(request:get-parameter('collectionUri', ''))
 
 let $my_collection := "/db/apps/b29006284_2019-07-10-16-32-00"
 let $set-content-type := response:set-header('Content-Type', 'application/tei+xml')
-let $set-file-name := response:set-header('Content-Disposition',  'attachment; filename="bruce.tei"')
 let $collectionName := collection($my_collection)//dc:identifier
-let $streaming_options := ''
+let $set-file-name := response:set-header('Content-Disposition',  'attachment; filename="' || $collectionName ||'.tei"')
+let $complete_tei := local:wrap_tei(local:strip_spans(local:make_all_tei($my_collection)))
+
+let $streaming_options := 'method=xml media-type=application/tei+xml omit-xml-declaration=no indent=yes'
 return
-response:stream(local:wrap_tei(local:strip_spans(local:make_all_tei($my_collection))), $streaming_options)
+response:stream($complete_tei, $streaming_options)
 
