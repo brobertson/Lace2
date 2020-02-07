@@ -17,46 +17,6 @@ else if ($exist:path eq "/") then
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
         <redirect url="index.html"/>
     </dispatch>
-    
-(: a nice try at making a more RESTful interface for editing. 
- : There's a problem, though, if this is done with a 'forward', then no further
- : processing occcurs, meaning that we have to manually, below, list the pipeline
- : for html processing. Restxq is another option, though I haven't got that working,
- : either.
- : 
- : Here, I'm trying 'redirect':)
-else if (contains($exist:path, "editme")) then
-    let $params := tokenize($exist:path,'/')
-    return
-    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-        <!--redirect url="{$exist:controller}/side_by_side_view.html"-->
-        <forward url="side_by_side_view.html">
-            <add-parameter name="collectionUri" value="{concat('/db/Lace2Data/texts',$params[3])}"/>
-            <add-parameter name="positionInCollection" value="{$params[4]}"/>
-        </forward>
-    </dispatch>
-    
-(:  The 'static' path goes back to Lace1 days, and is often used by harvesters. Here, we pass
- : them the edited version of the text 
- : 
- : TODO: import the $textDataPath variable, don't hard-code it here.:)
-else if (contains($exist:path, 'static/Texts')) then
-    let $remaining := substring($exist:path,20)
-    let $route := concat ("/exist/rest/db/Lace2Data/texts/",$remaining)
-    return
-        <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-            <redirect url="{$route}"/>
-        </dispatch>
-     
-(:  This is hard-coded to go to our server, which is nuts.
- : However, $exist:controller goes to localhost:8080, which is not OK :)
-else if (contains($exist:path, 'runs/')) then
-    let $thisId := tokenize($exist:path,'/')[3]
-    let $route := "http://heml.mta.ca/lace" || "/runs.html?archive_number=" || $thisId
-    return
-        <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-            <redirect url="{$route}"/>
-        </dispatch>
 
 else if (ends-with($exist:resource, ".html")) then
     (: the html page is run through view.xql to expand templates :)
