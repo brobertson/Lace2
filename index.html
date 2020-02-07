@@ -1,9 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page-margins.html" data-template-at="container">
-        <p>
-"Greek, sir, is like lace; every man gets as much of it as he can." (<a href="https://archive.org/stream/lifeofsamueljoh04bosw#page/155/mode/1up/search/greek">Samuel Johnson</a>)
-</p>
-    <h3>Installed Texts</h3>
+    <h3>Editable Texts
+          <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#indexInfo">?</button>
+    </h3>
+    
+    <div id="indexInfo" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">x</button>
+        <h4 class="modal-title">Editable Texts</h4>
+      </div>
+      <div class="modal-body">
+      <p>Clicking on one of these links will take you to a list of one or more OCR 'runs' for this set of volume images. Editing is done on one of these runs. Other texts can be installed with the <a href="/exist/apps/dashboard/admin#/packagemanager">package manager</a> by the <code>admin</code> user.</p>
+      </div>
+
+    </div>
+
+  </div>
+</div>
     <table class="table table-hover table-dark">
         <tbody>
             <div class="app:catalog"/>

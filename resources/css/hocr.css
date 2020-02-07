@@ -331,7 +331,9 @@ section p {
     font-weight: bold;  
     background-color: white;
 }
-
+.modal-dialog {
+    text-align: left;
+}
 /*****
 div[class="row"] {
     outline: 1px dotted rgba(0, 0, 0, 0.25);

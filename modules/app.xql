@@ -154,8 +154,7 @@ declare function app:catalog($node as node(), $model as map(*)) {
             else 
                 <xh:tr class="notAvailable">
                     <xh:td>{app:formatCatalogEntry($text)}  <xh:span class="text-warning"> (Only this text's image package is installed, with no corresponding text packages.)</xh:span></xh:td>
-                </xh:tr>,
-                <xh:tr><xh:td>Other texts can be installed with the <xh:a href="/exist/apps/dashboard/admin#/packagemanager">package manager</xh:a>.</xh:td></xh:tr>
+                </xh:tr>
                 
  };
  
@@ -175,12 +174,9 @@ let $percentage_accuracy := format-number($number_of_accurate div  $number_of_sp
 let $number_of_edited := count($coll//xh:span[@data-manually-confirmed = 'true'])
 let $percentage_edit := format-number($number_of_edited div  $number_of_spans, '0.00%')
 return 
-    (: we need to add the trailing %s below because of bug https://github.com/eXist-db/exist/issues/383 
-     : Once is it fixed, we'll need to remove the trailing '%'s.
-    :)
 <xh:div>
-    <xh:div>Dictionary Words: {$percentage_accuracy}%</xh:div>
-    <xh:div>Completion: {$percentage_edit}%</xh:div>
+    <xh:div>Dictionary Words: {$percentage_accuracy}</xh:div>
+    <xh:div>Completion: {$percentage_edit}</xh:div>
     <xh:div>Engine: {$coll//lace:ocrengine/text()}</xh:div>
     <xh:div>Classifier: {$coll//lace:classifier/text()}</xh:div>
     <xh:div>Date: {$coll//dc:date/text()}</xh:div>
@@ -234,10 +230,7 @@ declare function app:hocrPageCompletion($document_node as node()) {
             0
         else
             ( $number_of_edited div  $number_of_spans)
-    (: we need to add the trailing % because of bug https://github.com/eXist-db/exist/issues/383 
-     : Once is it fixed, we'll need to remove the trailing '%'.
-    :)
-    return format-number($percentage, '0.0%') || "%"
+    return format-number($percentage, '0.0%')
 };
 
  declare function app:getDocsAfter($coll as xs:string, $since as xs:dateTime) as node()*
@@ -603,10 +596,35 @@ else
      return
          <xh:div>
          <xh:div class="text-center" >
-             {app:formatCatalogEntryForCollectionUri($imageCollection)} 
+                         
+<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#editingInfo">?</button>{app:formatCatalogEntryForCollectionUri($imageCollection)}
              {app:dropdownMenu()}
-             {app:paginationWidget($collectionUri, $positionInCollection)}
-            <xh:div class="progress">
+             {app:paginationWidget($collectionUri, $positionInCollection)} 
+
+<div id="editingInfo" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">x</button>
+        <h4 class="modal-title">Editing Page</h4>
+      </div>
+      <div class="modal-body">
+      <p>This is one of many editing pages for the OCR run you selected of this volume. Beside the volume title, a drop down menu gives you three bands of information about the run:
+          <ol>
+              <li>Run Info: text describing the run.</li>
+              <li>Run Editing View: A colored band representing the sequence of pages in this volume. Black sections are unedited, blue ones are completely edited, the spectrum of colors from red to blue represent the stages in between. Pages for which there is no output is colored gray. This view is generated dynamically, and represents the current state of the volume. A caret shows this page's position in the volume.</li>
+              <li>Run Accuracy View: Another colored band representing the sequence of pages in this volume, but in this case the colours show how accurate the OCR output in each page is, with accuracy measured by dictionary words per total words.</li>
+        </ol>
+        Mousing over either of the last two views will cause the page number corresponding to the section of the band to appear, and clicking on that part of the band will navigate to a new editing page.
+      </p>
+<p>Below this is a pagination bar with which you can navigate through the text's editing pages. The numbers do not necessarily indicate the printed page number or the number in the image file's name. Rather, they are the ordinal value of this image in the collection.</p>
+<p>There is a separate page <a href="editing.html">explaining</a> how to zone the image and edit the text.</p>
+      </div>
+</div>
+</div>
+</div>
+
+            <xh:div class="progress"> 
   <xh:div id="progress_bar" class="progress-bar" role="progressbar" aria-valuenow="2" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></xh:div>
         </xh:div>
   <xh:div class="row">
