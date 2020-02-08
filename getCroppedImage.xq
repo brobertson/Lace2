@@ -26,6 +26,9 @@ declare function local:scaleDimension($pixel as xs:string) {
          xs:int($float)
 };
 
+(:  this does nothing to the final size of the popup, but it does
+ : change the number of bytes in the payload. So it's a trade off between
+ : server processing power and network snappiness :)
 declare function local:scaleDimensionPostCrop($pixel as xs:string) {
     let $scale := 0.5
      let   $float := xs:float($pixel) * $scale
@@ -63,13 +66,13 @@ let $image_width := image:get-width($croppedImage)
  : Dimensions for scaling are (height, width), not the other way around
  : See: https://exist-db.org/exist/apps/fundocs/view.html?uri=http://exist-db.org/xquery/image&location=java:org.exist.xquery.modules.image.ImageModule
  :   :)
- (:
+ (::)
 let $scaling_dimensions := (local:scaleDimensionPostCrop($image_height), local:scaleDimensionPostCrop($image_width))
 let $scaled_image := image:scale($croppedImage, $scaling_dimensions, "image/jpeg")
-:)
+(:  ::)
 return
 if(request:get-method() eq "GET") then
-    response:stream-binary($croppedImage, "image/jpeg", "cropped_image.jpg")
+    response:stream-binary($scaled_image, "image/jpeg", "cropped_image.jpg")
 else
             (
                 response:set-status-code($response:NOT-FOUND),
