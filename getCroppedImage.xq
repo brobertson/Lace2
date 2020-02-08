@@ -34,7 +34,7 @@ declare function local:scaleDimensionPostCrop($pixel as xs:string) {
 };
 
 declare function local:fudge($in as xs:float, $right as xs:boolean) {
-    let $factor := 20.0 (: not 5.0 :)
+    let $factor := 10.0 (: not 5.0 :)
      return 
          if (not($right)) then
              $in + ($factor * -1.0)
@@ -63,12 +63,13 @@ let $image_width := image:get-width($croppedImage)
  : Dimensions for scaling are (height, width), not the other way around
  : See: https://exist-db.org/exist/apps/fundocs/view.html?uri=http://exist-db.org/xquery/image&location=java:org.exist.xquery.modules.image.ImageModule
  :   :)
+ (:
 let $scaling_dimensions := (local:scaleDimensionPostCrop($image_height), local:scaleDimensionPostCrop($image_width))
 let $scaled_image := image:scale($croppedImage, $scaling_dimensions, "image/jpeg")
-
+:)
 return
 if(request:get-method() eq "GET") then
-    response:stream-binary($scaled_image, "image/jpeg", "cropped_image.jpg")
+    response:stream-binary($croppedImage, "image/jpeg", "cropped_image.jpg")
 else
             (
                 response:set-status-code($response:NOT-FOUND),

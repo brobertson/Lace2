@@ -441,13 +441,12 @@ function app:getImageLink($imageFile as xs:string?) {
   </nav>
 };
 
-
+(:  TODO: handle the case where this does not return a collection :)
 declare function app:imageCollectionFromCollectionUri($collectionUri as xs:string) {
-    let $identifier := collection($collectionUri)//dc:identifier
-    let $imageMetadata := collection('/db/apps')//lace:imagecollection[dc:identifier = $identifier]/dc:title
-    let $imageCollection := util:collection-name($imageMetadata)
-    (: let $imageCollection := $imageMetadata/.. :)
-    return $imageCollection
+        let $identifier := collection($collectionUri)//dc:identifier
+        let $imageMetadata := collection('/db/apps')//lace:imagecollection[dc:identifier = $identifier]/dc:title
+        let $imageCollection := util:collection-name($imageMetadata)
+        return $imageCollection
 };
 
 declare function app:imageCollectionFromCollectionUriPublic($node as node(), $model as map(*), $collectionUri as xs:string) {

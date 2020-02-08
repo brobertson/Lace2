@@ -117,7 +117,7 @@ function update_all_xmldb(element, e) {
             data['id'] = element.id;
             console.log("updated " + data['query'] + " with " + data['correctedForm'] + " in all of " + data['collectionPath']);
             $.post('modules/updateMany.xq',data, function( dataReturned, textStatus, xhr ) {
-                console.log("success!" + xhr.responseText)
+                //console.log("success!" + xhr.responseText)
                 set_of_blinkers = $(".ocr_word").filter(function() { return ($(this).text() === data['query']) })
                 console.log("blinker count " + set_of_blinkers.length)
                 set_of_blinkers.addClass("blinker");
@@ -200,11 +200,15 @@ function add_index_after(element, e,uniq) {
             a = $.post(exist_server_address +  '/exist/apps/laceApp/addIndexWordAfter.xq',data)
 }
 
-function generate_image_tag_call(collectionUri, page_file, bbox) {
+function generate_image_tag_call(collectionUri, page_file, bbox, width, height) {
     //book_name = "490021999brucerob"
     //page_file = "490021999brucerob_0100.jpg"
-        var request = "<img src=\"" + "getCroppedImage.xq?collectionUri=" + encodeURIComponent(collectionUri) + "&amp;file=" + encodeURIComponent(page_file) + "&amp;bbox=" + encodeURIComponent(bbox) + "\" alt='a word image'/>"
+    width = width * 0.5
+    height = height * 0.5
+        var request = "<img width='" + width + "' height='" + height + "' src=\"" + "getCroppedImage.xq?collectionUri=" + encodeURIComponent(collectionUri) + "&amp;file=" + encodeURIComponent(page_file) + "&amp;bbox=" + encodeURIComponent(bbox) + "\" alt='a word image'/>"
         //console.log(request);
+    
+        //var request = "<p>This is the stupidist thing I've done in a long time, billy.</p>"
 	return request
 }
 
@@ -234,63 +238,46 @@ $(function() {
 });  
     //The actual dynamic generation of the tooltip 
     $('.ocr_word').on({
-    'focus mouseover': function() {
-        
-
+    'focus': function() {
         $(this).tooltip({
-                //container: 'body',
-                html: true,
-                trigger: 'manual',
-                placement: 'bottom',
-                title: function() 
-              { //console.log("Hi there " + this.nodeName)
-                
-                var prev_bbox = ""; 
-                var page_path = $(this).closest('.ocr_page').attr("title");
-                var bbox = $(this).attr('original-title');
-                bbox = bbox.split(';')[0];
-                //console.log("listen up: this is bbox: " + bbox)
-                var bbox_array = bbox.split(" ");
-                //Strip following, additional data in this
-                if (bbox.includes(';')) {
-                    //console.log("theres additional data, that we'll strip")
-                    bbox = bbox.substr(0, bbox.indexOf(';'));
+            //container: 'body',
+            html: true,
+            trigger: 'manual',
+            placement: 'bottom',
+            title: function() 
+          { //console.log("Hi there " + this.nodeName)
+            
+            var prev_bbox = ""; 
+            var page_path = $(this).closest('.ocr_page').attr("title");
+            var bbox = $(this).attr('original-title');
+            bbox = bbox.split(';')[0];
+            //console.log("listen up: this is bbox: " + bbox)
+            var bbox_array = bbox.split(" ");
+            //Strip following, additional data in this
+            if (bbox.includes(';')) {
+                //console.log("theres additional data, that we'll strip")
+                bbox = bbox.substr(0, bbox.indexOf(';'));
+            }
 
-                }
-                //console.log("using bbox array: " + bbox)
-               //In the case of the last one in a line, the image spans both the second-to-last
-               //and last word, so we cut the image for the last at the end of the second-to-last.
-               //However, this tooltip widget puts itself in previous position, so we need to ask for 
-               //the first previous element that is a span.ocr_word.
-	if($(this).is(':last-child') && $(this).prevAll("span.ocr_word:first").length)
-		{
-		        prev_ocrword = $(this).prevAll("span.ocr_word:first");
-		        //console.log("the previous is: " + prev_ocrword.get(0).nodeName + " and has class: " +  prev_ocrword.get(0).className + " and its text is " + prev_ocrword.get(0).nodeName.text)
-		        prev_bbox = prev_ocrword.attr('original-title')
-		        //console.log("previous box: " + prev_bbox)
-                prev_end = prev_bbox.split(" ")[3]
-                bbox_array = bbox.split(" ")
-                bbox_array[1] = prev_end
-                bbox = bbox_array.join(" ")
-                //console.log("for end word, using bbox array: " + bbox)
-		}
-                            var url = new URL(window.location.href);
-                            var collectionUri = url.searchParams.get("collectionUri");
-                            //collectionUri = $.urlParam('collectionUri');
-                            var path_array = page_path.split('/');
-                            var page_file = path_array[path_array.length - 1];
-                            var scale = $("#page_image").attr("data-scale")
-                            console.log("bbox_array: " + bbox_array[1] + "; scale: " + scale)
-                            console.log("bbox_array[4]: " + bbox_array[4])
-                            $("#svg_focus_rect").attr("x",bbox_array[1]*scale)
-                            $("#svg_focus_rect").attr("y",bbox_array[2]*scale)
-                            $("#svg_focus_rect").attr("width",(bbox_array[3]-bbox_array[1])*scale)
-                            $("#svg_focus_rect").attr("height",(bbox_array[4]-bbox_array[2])*scale)
-                            $('#svg_focus_rect').attr('visibility','visible');
-                            return generate_image_tag_call(collectionUri, page_file, bbox)},
-            }).tooltip('show');
+            var url = new URL(window.location.href);
+            var collectionUri = url.searchParams.get("collectionUri");
+            //collectionUri = $.urlParam('collectionUri');
+            var path_array = page_path.split('/');
+            var page_file = path_array[path_array.length - 1];
+            var scale = $("#page_image").attr("data-scale")
+            width = (bbox_array[3]-bbox_array[1]) + 10
+            height = (bbox_array[4]-bbox_array[2])
+            //console.log("bbox_array: " + bbox_array[1] + "; scale: " + scale)
+            //console.log("bbox_array[4]: " + bbox_array[4])
+            $("#svg_focus_rect").attr("x",bbox_array[1]*scale)
+            $("#svg_focus_rect").attr("y",bbox_array[2]*scale)
+            $("#svg_focus_rect").attr("width",width*scale)
+            $("#svg_focus_rect").attr("height",height*scale)
+            $('#svg_focus_rect').attr('visibility','visible');
+            return generate_image_tag_call(collectionUri, page_file, bbox, width, height)},
+}).tooltip('show');
     },
-    'focusout mouseout': function() {
+    'focusout': function() {
         $(this).tooltip('hide');
         $('#svg_focus_rect').attr('visibility','hidden');
     }
