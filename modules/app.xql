@@ -278,7 +278,7 @@ declare function app:getSideBySideViewDataForDocumentElement($c as node()) {
     let $image_name :=  replace(util:document-name($c),"html","png")
     let $imageNode := util:binary-doc($image_collection || "/" || $image_name)
     let $document-number := app:page-number-from-document-name(util:document-name($c))
-    let $sortedImageCollection := app:sortCollection($image_collection)
+    let $sortedImageCollection := app:sortPngCollection($image_collection)
     let $positionInCollection := index-of($sortedImageCollection, $image_name) 
     return ( $collectionUri, $positionInCollection)
 };
@@ -454,20 +454,33 @@ declare function app:imageCollectionFromCollectionUriPublic($node as node(), $mo
 };
 
 
+
 (: 
  : Because the sequence of filenames that comes from the 'collection' function
  : is unordered, we use this function to make sure it is ordered by the names
  : of the files, which should be standardized to something like volumeidentifier_0123.html
  :)
 
-declare function app:sortCollection($collectionUri as xs:string) {
+declare function app:sortCollection($collectionUri as xs:string, $requiredSuffix as xs:string) {
     for $item in collection($collectionUri)
+    (: There are other files in this collection, including repo.xml, etc. 
+    :  So we filter it to include only the images. They must be pngs.
+    :)
+    where (functx:substring-after-last(util:document-name($item), '.') = $requiredSuffix) 
     order by util:document-name($item)
     return util:document-name($item)
     
 };
 
-(: 
+declare function app:sortPngCollection($collectionUri as xs:string) {
+    app:sortCollection($collectionUri,'png')
+};
+
+declare function app:sortHtmlCollection($collectionUri as xs:string) {
+    app:sortCollection($collectionUri,'html')
+};
+
+ (: 
  : generate html for a page which contains, on its left side, an image of the page, and on the right, the 
  : editable content of this run/hocrtype
  : Additionally, the page has a pagination widget on the top.
@@ -560,7 +573,7 @@ declare function app:sidebyside($node as node(), $model as map(*), $collectionUr
  :  The $positionInCollection is an *image* position 
  :  Sorry for the confusion. :)
 let $imageCollection := app:imageCollectionFromCollectionUri($collectionUri)
-let $meAsPng := app:sortCollection($imageCollection)[$positionInCollection]
+let $meAsPng := app:sortPngCollection($imageCollection)[$positionInCollection]
 let $myImageHeight := image:get-height(util:binary-doc(concat($imageCollection,"/",$meAsPng)))
 let $myImageWidth := image:get-width(util:binary-doc(concat($imageCollection,"/",$meAsPng)))
 let $scaleWidth := 500
