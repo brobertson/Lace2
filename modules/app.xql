@@ -23,6 +23,13 @@ declare namespace map="http://www.w3.org/2005/xpath-functions/map";
  
  :)
 
+declare function functx:substring-after-last
+  ( $arg as xs:string? ,
+    $delim as xs:string )  as xs:string {
+
+   replace ($arg,concat('^.*',functx:escape-for-regex($delim)),'')
+ } ;
+
 declare  function app:app-version-number($node as node(), $model as map(*)) as xs:string {
     let $pkg := collection(repo:get-root())//package:package[@name='http://heml.mta.ca/Lace/application']
    return $pkg/@abbrev || " v. " || $pkg/@version  
@@ -210,7 +217,7 @@ declare function app:latest($node as node(), $model as map(*), $count as xs:stri
 };
 
  declare function app:page-number-from-document-name($document-name as xs:string) as xs:string? {
-       xs:string(xs:int(substring-before(substring-after($document-name, '_'), '.')))
+       xs:string(xs:int(substring-before(functx:substring-after-last($document-name, '_'), '.')))
 };
 
 declare function app:image-identifier-node-for-doc-identifier-node($doc_identifier_node as node()) {
