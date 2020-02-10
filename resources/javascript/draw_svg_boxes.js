@@ -243,8 +243,9 @@ $(document).ready(function() {
     ***/
     $("#clear_zones_button").mouseup(function(e) {
         $('.rectangle').each(function() { 
-    delete_rectangle($(this))
-    });
+            delete_rectangle($(this))
+        });
+        save_svg();
     });
     
   $(".rectangle").mousedown(function(e) {
