@@ -221,7 +221,7 @@ function hilight_corresponding_ocr_words($zone_rectangle) {
      * Given a SVG rectangle, this applies the 'zoning_hilight' class to each
      * .ocr_word element that either is within or intersecting with that rectangle.
      ***/
-    $(".ocr_word").each(function() {
+    $(".ocr_word, .inserted_line, .index_word").each(function() {
         test_rect = bbox_string_to_rect($(this).attr("original-title"))
         if (intersectRect($zone_rectangle, test_rect)) {
             $(this).addClass("zoning_hilight")
@@ -284,10 +284,10 @@ $(document).ready(function() {
             this_rect.attr("title", this_rect.attr("data-rectangle-type") + " Zone " + new_ordinal)
 
             this_rect.attr("data-original-title", this_rect.attr("data-rectangle-type") + " zone " + new_ordinal)
-            save_svg();
             // re-enable tooltips
            // $(document).tooltip("enable");
             }
+        save_svg();
         }
   });
   
@@ -341,15 +341,18 @@ $(document).ready(function() {
   $(this).on("mouseup", function(e) {
        $(this).unbind("mousemove");
        $(this).unbind("mouseup");
+       console.log("it was mouseup")
        $new_rectangle.removeClass("selected_rectangle");
        clear_zoning_hilight();
        //check it isn't overlapping with other rectangles
        total_dimensions = parseFloat($new_rectangle.attr("width")) + parseFloat($new_rectangle.attr("height"))
        //apparently rectangles can be made without these properties. If it doesn't have them, we don't want 
        //it to persist.
+       console.log("dim: " + total_dimensions)
        has_width = $(this)[0].hasAttribute("width");
+       console.log("width? " + has_width)
        has_height = $(this)[0].hasAttribute("height");
-       if (rectCollision($new_rectangle) || (total_dimensions < 20) || !has_width || !has_height) {
+       if (rectCollision($new_rectangle) || (total_dimensions < 10) || !has_width || !has_height || isNaN(total_dimensions)) {
            console.log("new rect. not kept because of collision between rectangles or too small or no width/height")
            delete_rectangle($new_rectangle)
        }

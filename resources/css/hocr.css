@@ -32,12 +32,6 @@
     
 }
 
-/*
-span.ocr_word {
-    margin:0 0.1em;
-     background:#faf; 
-}
-*/
 
 #footer {
     font-size: 12px;
@@ -63,11 +57,11 @@ body {
   height:40px;
 }
 
-span.ocr_word, span.index_word:first-of-type {
+span.ocr_word:first-of-type {
     margin-left:0;
 }
 
-span.ocr_word, span.index_word:last-of-type {
+span.ocr_word:last-of-type {
     margin-right:0;
 }
 
@@ -75,13 +69,15 @@ span.index_word {
 
   border-style: dashed;
     border-width: 2px;
-  border-color: red;
+  border-color: green;
   margin-left: 5px;
-  min-width: 25px;/* This doesn't seem to work for some reason */
-  color: #C0C0C0;
+  margin-right: 5px;
+  display: inline-block;
+  min-width: 25px;/* This will only work with inline-block */
+  color: #777777;
 }
 span.ocr_line {
-    display: block;
+    display: inline-block;
     line-height: 1.6em;
     font-size: 15px;
     text-align: left;
@@ -100,6 +96,7 @@ p{
     border-width: 2px;
   border-color: green;
   display: inline-block;
+  text-align: left;
   min-width:200px;
 }
 
@@ -154,31 +151,13 @@ span[data-manually-confirmed="true"] {
     background-color: var(--imperceptable-blue);
 }
 
-#download {
-  display: block;
-  width: 115px;
-  height: 25px;
-  background: #4E9CAF;
-  padding: 10px;
-  text-align: center;
-  border-radius: 5px;
-  color: white;
-  font-weight: bold;
-}
-
+/* puts vertical bars alongside text that has been 
+identified as app-crit
+*/
 span.ocr_line[data-app-crit=true] { border-right-color: #341BFF; border-left-color: #341BFF;
 border-left-style: solid; border-right-style: solid;
 border-right-width: 2px; border-left-width: 2px;
-padding-right: 6px; padding-left: 6px;}
-
-/*.ocr_word:not([data-spellcheck-mode]) {
-    background-color: #FFAAAA;
-}
-*/
-/* other colours:
-#FFF0AA
-#D4C26A
-*/
+padding-right: 6px; padding-left: 0px;}
 
 .complete_text 
 { 
@@ -186,8 +165,6 @@ padding-right: 6px; padding-left: 6px;}
   border-width:3px; 
   border-style:solid; 
 }
-
-
 
 #translation_button:hover {
     background-color: var(--translation);
@@ -312,16 +289,17 @@ span.blinker{
 span.zoning_hilight{    
     border:2px solid blue;
 }
+
 code {
     color: black;
 }
 
 /* For Markdown */
 section p {
- /* line-height: 32px;    within paragraph */
   margin-bottom: 15px; /* between paragraphs */
   margin-left: 10px;
   }
+  
 /* For KWIC search return */
 
 .search_results .ocr_word {
@@ -334,13 +312,3 @@ section p {
 .modal-dialog {
     text-align: left;
 }
-/*****
-div[class="row"] {
-    outline: 1px dotted rgba(0, 0, 0, 0.25);
-}
-
-div[class^="col-"] {
-    background-color: rgba(255, 0, 0, 0.2);
-    outline: 1px dotted rgba(0, 0, 0, 0.5);
-}
-****/

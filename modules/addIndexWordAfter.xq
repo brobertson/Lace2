@@ -12,13 +12,12 @@ let $new := request:get-parameter('value', '')
 let $fileName := request:get-parameter('fileName', '')
 let $filePath := request:get-parameter('filePath', '')
 let $uniq :=  request:get-parameter('uniq','')
-let $original-title := request:get-parameter('original-title','')
 
 let $foo1 := response:set-header("Access-Control-Allow-Origin", "*")
 let $word := doc(concat($filePath, '/', $fileName))//html:span[@id = $id]
+let $original-title := request:get-parameter('original-title','')
 
-let $line := $word/..
-let $foo3 := update  insert <html:div id='{$uniq}_holder'  classs='inserted_line_holder'><html:span id='{$uniq}' class='inserted_line' data-manually-confirmed='false' original-title='{$original-title}' contenteditable='true'/><html:button type='button' id='{$uniq}_button' class='delete_element' aria-label='Close' ><html:span aria-hidden='true'>x</html:span></html:button></html:div> following $line
+let $foo3 := update  insert <html:span id='{$uniq}_holder' classs='inserted_word'><html:span id='{$uniq}' original-title='{$original-title}'  class='index_word' data-manually-confirmed='false' contenteditable='true'/><html:button type='button' id='{$uniq}_button' class='delete_element' aria-label='Close' ><html:span aria-hidden='true'>x</html:span></html:button></html:span> following $word
 
 return
     <html>

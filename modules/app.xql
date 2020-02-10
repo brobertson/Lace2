@@ -371,6 +371,8 @@ declare function app:add-attribute-to-ocrword($input as node()?, $attributeName 
             <xsl:apply-templates select="node()"/>
         </xsl:copy>
     </xsl:template>
+    <!-- delete the breaks. They just mess up formatting -->
+    <xsl:template match="xh:br"/>
     <xsl:template match="@*|node()">
         <xsl:copy>
             <xsl:apply-templates select="@*|node()"/>
@@ -681,7 +683,7 @@ else
   <!-- the old, non-svg way of doing things -->
   <!--xh:div class="col-sm-6">{app:getImageLink(concat('/exist/rest',$imageCollection,"/",$meAsPng))}</xh:div-->
 
-  <xh:div class="col-sm-6" id="right_side">
+  <xh:div class="col-sm-6 text-left" id="right_side">
   <!-- The hocr, which is layed out on the right of this page -->
   {app:add-attribute-to-ocrword($hocrPageNode, "contenteditable", 'true')}
   </xh:div>
