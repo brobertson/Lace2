@@ -77,15 +77,13 @@ span.index_word {
   color: #777777;
 }
 span.ocr_line {
-    display: inline-block;
-    line-height: 1.6em;
+    display: block;
+    line-height: 1.9em;
     font-size: 15px;
     text-align: left;
 }
 
-span.ocr_line + br {
-    display: none;
-}
+
 p{
     margin: 0;
     padding: 0;
