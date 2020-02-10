@@ -2,47 +2,47 @@
 <div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page-margins.html" data-template-at="container">
     <h1>Guide To Editing with Lace</h1>
     <h3>Image Zoning</h3>
-    <p>Zoning allows Lace to match sections of text across pages and to note in what order the page should be read or if sections should be omitted in output. For instance, a digital edition usually should not have page titles or page numbers intrude on the primary text, nor is it likely to be desired that the translation and text should alternate, in the case of volumes with facing translation. This information will be especially useful in generating TEI-encoded structured text.</p>
-    <p>Use the <code>Zone Type</code> dropdown button to chose the zone type, such as 'Page Number' or 'Primary Text'. Proceding in reading order, draw a rectangle around the text to be identified as an instance of that zone type, and then repeat, selecting a new zone type if necessary. Separate columns of the same zone type should be identified separately, again in reading order. Note that the words on the right side of the web page that are enclosed in a zone will be hilighted when that zone is highlighted. Note also that words are included if the zoning rectangle touches any part of the word's bounding box: the zoning rectangle does not need to fully enclose it.</p>
-    <p>Clicking on a zone hilights it and reveals a popup label for the zone, indicating its type and its position in the reading order. Pressing the <code>delete</code> key when a zone is highlighted cases it to be deleted and the reading order to be adjusted. Therefore you cannot delete a zone early in a long reading order and then simply re-draw the zone, since the newly drawn zone always comes at the end of the reading order. In this case, it is best to used the <code>Clear Zones</code> button to erase all zones and start over.</p>
+    <p class="documentation">Zoning allows Lace to match sections of text across pages and to note in what order the page should be read or if sections should be omitted in output. For instance, a digital edition usually should not have page titles or page numbers intrude on the primary text, nor is it likely to be desired that the translation and text should alternate, in the case of volumes with facing translation. This information will be especially useful in generating TEI-encoded structured text.</p>
+    <p class="documentation">Use the <code>Zone Type</code> dropdown button to chose the zone type, such as 'Page Number' or 'Primary Text'. Proceding in reading order, draw a rectangle around the text to be identified as an instance of that zone type, and then repeat, selecting a new zone type if necessary. Separate columns of the same zone type should be identified separately, again in reading order. Note that the words on the right side of the web page that are enclosed in a zone will be hilighted when that zone is highlighted. Note also that words are included if the zoning rectangle touches any part of the word's bounding box: the zoning rectangle does not need to fully enclose it.</p>
+    <p class="documentation">Clicking on a zone hilights it and reveals a popup label for the zone, indicating its type and its position in the reading order. Pressing the <code>delete</code> key when a zone is highlighted cases it to be deleted and the reading order to be adjusted. Therefore you cannot delete a zone early in a long reading order and then simply re-draw the zone, since the newly drawn zone always comes at the end of the reading order. In this case, it is best to used the <code>Clear Zones</code> button to erase all zones and start over.</p>
     <h3>Text Colour Codes</h3>
-    <p>
+    <p class="documentation">
 When the OCR output is post-processed by the computer, it indicates the spellcheck status of the word and what spellchecking strategies were applied to it. In the display, these attributes are indicated with different colours. Spellcheck is performed with dictionaries, large lists of known-good words. Here are how the OCR words relate to dictionary words and the corresponding colour codes:
 </p>
 <ul>
         <li>
-            <p>
+            <p class="documentation">
                 <span class="ocr_word" data-spellcheck-mode="True">¹²παρελθεῖν</span>: this word has passed spellcheck. I.e., it matches one of the words in the spellcheck dictionary. Notice that there are characters allowed to be before and after the dictionary word, such as the '¹²' here, which do not disrupt the spellchecking.
 </p>
         </li>
         <li>
-            <p>
+            <p class="documentation">
                 <span class="ocr_word" data-spellcheck-mode="TrueLower">Κυρίου</span>: this word passed spellcheck when it was transformed to its lowercase form.</p>
         </li>
         <li>
-            <p>
+            <p class="documentation">
                 <span class="ocr_word" data-spellcheck-mode="Numerical">(11)</span>: this word comprises numbers or punctuation.</p>
         </li>
         <li>
-            <p>
+            <p class="documentation">
                 <span class="ocr_word" data-spellcheck-mode="Sub α-&gt;ο">κατοικήσομεν</span>: this word has been corrected by substituting one character for another. In this case, a 'α' was replaced with a 'ο'. (The exact substitution is encoded in the html attribute, but not visible to the reader).</p>
         </li>
         <li>
-            <p>
+            <p class="documentation">
                 <span class="ocr_word" title="bbox 1197 3138 1534 3212" id="_47251541264864" data-spellcheck-mode="Dedup" data-pre-spellcheck="εὑρήμματα" data-manually-confirmed="false" data-selected-form="εὑρήματα" contenteditable="true">εὑρήματα</span>: this word was matched to a dictionary word when a pair of the same letter was replaced with only one instance of that letter. In this case, εὑρήμματα was the OCR output, a word that is not in the dictionary. </p>
         </li>
         <li>
-            <p>
+            <p class="documentation">
                 <span class="ocr_word" title="bbox 399 1663 861 1733" id="_47251534608648" data-spellcheck-mode="SplitOnPunct" data-pre-spellcheck="besides,-five" data-manually-confirmed="false" data-selected-form="besides, -five" contenteditable="true">besides, -five</span>: in this case, there was no space between the punctuation separating two dictionary words.
 </p>
         </li>
         <li>
-            <p>
+            <p class="documentation">
                 <span class="ocr_word" title="bbox 1526 1753 2277 1834" id="_47251534608936" data-spellcheck-mode="Split" data-pre-spellcheck="τῆςαὐλητρίδος"> τῆς αὐλητρίδος</span>: these words passed spellcheck only when a space was inserted between them. The original OCR output was τῆςαὐλητρίδος.
 </p>
         </li>
         <li>
-            <p>
+            <p class="documentation">
                 <span class="ocr_word" data-spellcheck-mode="None">ὥμοσεν</span>: this word cannot be matched with a dictionary word by any of the strategies.</p>
         </li>
     </ul>
@@ -79,55 +79,61 @@ When the OCR output is post-processed by the computer, it indicates the spellche
         <span class="ocr_word" title="bbox 1417 3042 1652 3087" id="_47251571595888" data-spellcheck-mode="None" data-selected-form="2ᵇᵃ)" contenteditable="true">2ᵇᵃ)</span>
     </span-->
     <h3>Simple Text Editing</h3>
-    <p>To edit the OCR output, click on a word. The content of that word is now editable: you can type additional characters or use the backspace key to delete; alternatively you can select and delete a range of characters in the usual manner. When a word is clicked on, a tooltip pops up with the corresponding image range from the OCR'd page. It is usually easier to compare the text with this image than it is to scan the page image on the left side of the screen for the word, which is also highlighted in blue.</p>
-    <p>Once the editor is assured that the text in the word is what is in the pop-up image, he or she should press the <code>Return</code> (or <code>Enter</code>) key. This action is all that is required to save the edit in the underlying database. The editor will note that the colour of the word changes to light-blue, indicating that the word has been manually verified. The editing cursor now moves to the next word on the page.</p>
-    <p>In the case where a text is highly accurate, editing will simply entail clicking on the first word, checking that the word text corresponds to the pop-up image and then pressing <code>Return</code>. The process is repeated again and again, the text being changed only when necessary.</p>
-    <p>A progress bar above the text indicates how much of the page has been verified.</p>
+    <p class="documentation">To edit the OCR output, click on a word. The content of that word is now editable: you can type additional characters or use the backspace key to delete; alternatively you can select and delete a range of characters in the usual manner. When a word is clicked on, a tooltip pops up with the corresponding image range from the OCR'd page. It is usually easier to compare the text with this image than it is to scan the page image on the left side of the screen for the word, which is <span data-spellcheck-mode="Manual">highlighted</span>.</p>
+    <p class="documentation">Once the editor is assured that the text in the word is what is in the pop-up image, he or she should press the <code>Return</code> (or <code>Enter</code>) key. This action is all that is required to save the edit in the underlying database. The editor will note that the colour of the word changes to <span data-spellcheck-mode="Manual">light-blue</span>, indicating that the word has been manually verified. The editing cursor now moves to the next word on the page.</p>
+    <p class="documentation">In the case where a text is highly accurate, editing will simply entail clicking on the first word, checking that the word text corresponds to the pop-up image and then pressing <code>Return</code>. The process is repeated again and again, the text being changed only when necessary.</p>
+    <p class="documentation">A progress bar above the text indicates how much of the page has been verified.</p>
     <h3>Advanced Text Editing</h3>
-The following advanced editing functions are available:
+<p class="documentation">The following advanced editing functions are available:</p>
 <ol>
         <li>
-            <p>If an editor verifies a word with the <code>Control</code> key held down while pressing <code>Return</code>, the edit function is applied to all applicable words on this page of the text. So, if the word is unchanged and verified, all words that contain that string are similarly verified. They will flash and then will also appear coloured as light-blue. This is a very powerful function and should be used sparingly, especially at first. However, it may become clear that a word like Ἰσραήλ is very unlikely to be incorrectly identified. In which case, verifying all of these words at once saves time.
-If a word has been changed, all words in all pages of the text that had the original form of the word will be changed to the edited form. Note that by 'original form' it is mean the very first form outputted. Thus if all words reading ἐπ’ are changed to ἐπ' (with a different final character) and then, using this function, one of those words is used to do a global change to ἐφ', this will not change words that originally were output as ἐπ’.
+            <p class="documentation">If an editor verifies a word with the <code>Control</code> key held down while pressing <code>Return</code>, the edit function is applied to all applicable words on this page of the text. So, if the word is unchanged and verified, all words that contain that string are similarly verified. They will flash and then will also appear coloured as light-blue. This is a very powerful function and should be used sparingly, especially at first. However, it may become clear that a word like Ἰσραήλ is very unlikely to be incorrectly identified. In which case, verifying all of these words at once saves time.</p>
+<p class="documentation">(If a word has been changed with this function, all words in all pages of the text that had the original form of the word will be changed to the edited form. Note that by 'original form' it is mean the very first form outputted. Thus if all words reading ἐπ’ are changed to ἐπ' (with a different final character) and then, using this function, one of those words is used to do a global change to ἐφ', this will not change words that originally were output as ἐπ’.)
 </p>
         </li>
         <li>
-            <p>Holding the <code>Control</code> key down while also holding <code>Alt</code> key down (<code>Option</code> key in MacOS) while pressing <code>Return</code> causes a new work dialog box to be created.
+            <p class="documentation">Holding the <code>Control</code> key down while also holding <code>Alt</code> key down (<code>Option</code> key in MacOS) and pressing <code>Return</code> causes two fields to be generated inline whereby you indicate the beginning of a new work or the new section of a work in progress.</p> 
+<p class="documentation">The field on the left side is for the author and title. Type any keyword from these and a list of matching works will appear in a menu below. Select one of these. (At present, an extensive list of Greek works is provided, and it is not possible to type in a work yourself. It is possible for an administrator to add other works to this list modifying the file at <code>$LACE_APP/resources/javascript/cts-greek-texts.js</code>.) This field must always be completed, even in the middle of a work. The field on the right is used to indicate the section of the work, according to your sectioning syntax. For instance, you might use <code>10.2</code> to indicate "book 10, section 2."</p>
+<p class="documentation">
+When the page is refreshed, this dialog collapses to a book emoji milestone, 📖, in order to conserve space. The stored text title and section can still be seen by mousing over the emoji, as can the URN used by the computer to formally identify this section.
 </p>
-        </li>
-        <!--li>
-            <p>Holding the <code>Alt</code> key down while pressing <code>Return</code> causes the creation of a space to indicate a new section of text.
-</p>
-        </li-->
-        <li>
-            <p>Holding <code>Shift</code> down while pressing <code>Return</code> causes a new blank line to be inserted into the document, directly following the current one. This is editable, but its content is not broken into words. Pressing <code>Return</code> in this line will save its content as expected. This allows one to add content to the page which has been missed by the OCR engine. At any time, the line may be deleted by clicking on the <code>x</code> at the right hand edge of the page.
-</p>
+<p class="documentation">At any point, the dialog or its milestone can be deleted with the 'x' to its right.</p>
         </li>
         <li>
-            <p>If a word is split in the editor, meaning that it apears in multiple boxes rather than altogether in a single box, you may correct this error by completing the word as it appears in the text in the first editing box and deleting the content of the subsequent box(es). If multiple words are detected as a single word, you may solve this by simply separating them by a <code>Space</code> as the computer will detect this as being seprate words.
+            <p class="documentation">Holding the <code>Alt</code> (MacOS: <code>Option</code>) key down while pressing <code>Return</code> causes a manually entered word to be added to the line to deal with the instance where the OCR engine omitted a word. This word can be deleted with the <code>x</code> button following it. It word begins without any letters in it. Type what it should contain and press <code>Return</code> to save this word. Like the others, it will then be highlighted in <span data-spellcheck-mode="Manual">blue</span>. Manually entered words and lines (see below) have a <span class="index_word">dashed green outline</span>.
+</p>
+<p class="documentation">For the purpose of alignment with the page zones, the manually added word is positioned just to the right of the word on its left and represented by a narrow vertical strip the height of the enclosing line. Thus in most cases this word will be included in any zoning of this area. (Note that as of version 0.5.9 it is not possible to generate manually a word at the leftmost position of a line.)</p>
+        </li>
+        <li>
+            <p class="documentation">Holding <code>Shift</code> down while pressing <code>Return</code> causes a new blank line to be inserted into the document, directly following the current one. This is editable, but its content is not broken into words. Pressing <code>Return</code> in this line will save its content as expected. This allows one to add content to the page which has been missed by the OCR engine. At any time, the line may be deleted by clicking on the <code>x</code> at the right hand edge of the page.
+</p>
+<p class="documentation">This word will be assigned a position on the page just below the line above it, and is represented by a narrow horizontal strip the same width of that line. Thus in most cases it will be included in any zoning of this area. (Note that as of version 0.5.9 it is not possible to generate manually a line at the topmost position of a page.)</p>
+        </li>
+        <li>
+            <p class="documentation">If a word is split in the editor, meaning that it apears in multiple boxes rather than altogether in a single box, you may correct this error by completing the word as it appears in the text in the first editing box and deleting the content of the subsequent box(es). If multiple words are detected as a single word, you may solve this by simply separating them by a <code>Space</code> as the computer will detect this as being seprate words.
 </p>
         </li>
     </ol>
     <h3>Using Unicode</h3>
 Special reminders regarding character use in the editor:
 <ol>
-        <p>
+        <p class="documentation">
             <li>Unicode is a universal set of characters meant to act as a consistent method for encoding plain-text. It standardizes text by assigning every character a universal and unique numeric value and name. This means that unicode creates a unification of characters, making them dynamic to use and simple to convert.
 </li>
         </p>
-        <p>
+        <p class="documentation">
             <li>The use of unicode characters is imperative to creating a convertable, searchable document. When using Greek characters, and especially a Greek keyboard, you must remember that the keys you use may not be the correct symbols which unicode requires. For example, when inserting left or right-angle brackets, you must use that specific symbol (ex. U+2329, Ps.) rather than the <code>less than</code> or <code>greater than</code> symbols found on your keyboard. Due to the nature of unicode characters formatting bold or italic words is unnecessary.
 </li>
         </p>
-        <p>
+        <p class="documentation">
             <li>When a character is unavalible on the standard keyboard, it is likely to be found in the index of Unicode characters which can be found via online search engine.
 </li>
         </p>
-        <p>
+        <p class="documentation">
             <li> Font is irrelivent when using unicode, so if a character must be pasted into the editing environment, although likely apearing on a different coloured background, the character, provided it is unicode, will be detectable to the OCR engine.
 </li>
         </p>
-        <p>
+        <p class="documentation">
             <li>In order to transfer your keyboard to Greek there are various resources avalible online for both Mac and PC users to help with the creation of accents, breathing marks, and iota subscripts.
 </li>
         </p>

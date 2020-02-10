@@ -101,6 +101,10 @@ p{
     color: #CCCCCC;
 }
 
+.documentation {
+    margin-bottom: 1em;
+}
+
 p span:first-child {
 	text-indent: 2em;
 }
