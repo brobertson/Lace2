@@ -351,7 +351,7 @@ declare function local:make-sources( $path as xs:string, $format as xs:string)  
                         {$page}
                     </entry>
                 else if ($format = "text") then
-                    <entry name="{fn:tokenize(util:document-name($page), '\.')[1] || '.txt'}" type='text' method='store'>
+                    <entry name="{functx:substring-after-last(util:document-name($page), '\.')[1] || '.txt'}" type='text' method='store'>
                         {transform:transform($page, doc("resources/xslt/hocr_to_plain_text.xsl"), <parameters/>)
                         }
                     </entry>
