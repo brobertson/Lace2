@@ -1,6 +1,7 @@
 xquery version "3.1";
 declare namespace html="http://www.w3.org/1999/xhtml";
 declare namespace functx = "http://www.functx.com";
+declare namespace dc="http://purl.org/dc/elements/1.1/";
 declare option exist:serialize "method=text media-type=text/csv omit-xml-declaration=yes";
 
 
@@ -58,12 +59,12 @@ declare function local:clean_line_string($div as node())  as xs:string {
     return $out
 };
 
-declare function local:make_trainingset($my_collection as xs:string) as xs:string* {
-    if ($my_collection = '')
+declare function local:make_trainingset($collectionUri as xs:string) as xs:string* {
+    if ($collectionUri = '')
         then
-           error(QName('http://heml.mta.ca/Lace2/Error/','HugeZipFile'),'Inappropriate number of subdocuments in path"' || $my_collection || '"')
+           error(QName('http://heml.mta.ca/Lace2/Error/','HugeZipFile'),'Inappropriate number of subdocuments in path"' || $collectionUri || '"')
         else 
-        for $hit in collection($my_collection)//html:span[@class="ocr_line"][not (html:span/@data-manually-confirmed = 'false')]
+        for $hit in collection($collectionUri)//html:span[@class="ocr_line"][not (html:span/@data-manually-confirmed = 'false')]
             let $tab := "&#x9;"
             let $newline := "&#10;"
             let $clean_line := local:clean_line_string($hit)
@@ -73,16 +74,12 @@ declare function local:make_trainingset($my_collection as xs:string) as xs:strin
             )  
 };
 
-let $my_collection := xs:string(request:get-parameter('collectionUri', ''))
+let $collectionUri := xs:string(request:get-parameter('collectionUri', ''))
 let $format := xs:string(request:get-parameter('format','csv'))
-
-let $set-content-type := response:set-header('Content-Type', 'text/csv')
-let $set-file-name := response:set-header('Content-Disposition',  'attachment; filename="training.csv"')
-(:  
-let $my_collection := concat($dbroot, "632874144/2019-05-30-10-58_wells_2019-05-28-08-22-00025400.pyrnn.gz_selected_hocr_output")
-:)
+let $collectionName := collection($collectionUri)//dc:identifier
+let $set-content-type := response:set-header('Content-Type', 'text/tab-separated-values')
+let $filename := $collectionName || '_training.tsv'
+let $set-file-name := response:set-header('Content-Disposition',  'attachment; filename="' || $filename || '"')
 let $streaming_options := ''
 return 
-    response:stream(local:make_trainingset($my_collection),$streaming_options)
-
-
+    response:stream(local:make_trainingset($collectionUri),$streaming_options)
