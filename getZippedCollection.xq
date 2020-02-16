@@ -272,14 +272,19 @@ declare function deploy:download($app-collection as xs:string, $expathConf as el
                         ()
                     else
                         <entry type="collection" name="{$collection-relative-path}"/>
+                
                 else if (util:binary-doc-available($resource)) then
-                    <entry type="uri" name="{$resource-relative-path}">{$resource}</entry>
+                    (:
+                    There is no reason we should have binary resources in the xar packages for this project. A wholly empty file comes up as binary and will jam up the zip routine below, so we filter them out here.
+                    :)
+                    ()
                 else
                     <entry type="xml" name="{$resource-relative-path}">{
                         util:declare-option("exist:serialize", "expand-xincludes=" || (if ($expand-xincludes) then "yes" else "no")),
                         doc($resource)
                     }</entry>
         })
+             
     let $xar := compression:zip($entries, true())
     return (
         response:set-header("Content-Disposition", concat("attachment; filename=", $name)),
@@ -298,24 +303,21 @@ declare function deploy:deploy($collection as xs:string, $expathConf as element(
 };
 
 declare function deploy:downloadPackage($collectionUri as xs:string) {
-
-
-let $expathConf := xmldb:xcollection($collectionUri)/expath:package
-
-return
-try {
-            deploy:download($collectionUri, $expathConf, true())
-}
-         catch exerr:EXXQDY0003 {
-        response:set-status-code(403),
-        <span>You don't have permissions to access or write the application archive.
-            Please correct the location or log in as a different user.</span>
-    } catch exerr:EXREPOINSTALL001 {
-        response:set-status-code(404),
-        <p>Failed to install application.</p>
-    } catch * {
-        response:set-status-code(501)
+    let $expathConf := xmldb:xcollection($collectionUri)/expath:package
+    return
+    try {
+                deploy:download($collectionUri, $expathConf, true())
     }
+             catch exerr:EXXQDY0003 {
+            response:set-status-code(403),
+            <span>You don't have permissions to access or write the application archive.
+                Please correct the location or log in as a different user.</span>
+        } catch exerr:EXREPOINSTALL001 {
+            response:set-status-code(404),
+            <p>Failed to install application.</p>
+        } catch * {
+            response:set-status-code(501)
+        }
 };
 
 (: :::::::::::::::::::
