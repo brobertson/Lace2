@@ -55,13 +55,25 @@ declare function local:make_trainingset($my_collection as xs:string) as node()* 
             )  
 };
 
+declare function local:send_error_message($message as xs:string) {
+    let $a := response:set-status-code(500)
+    return response:stream($message, "method=text media-type=text/plain")
+};
+
 let $collectionUri := xs:string(request:get-parameter('collectionUri', ''))
 (:  
 let $my_collection := concat($dbroot, "632874144/2019-05-30-10-58_wells_2019-05-28-08-22-00025400.pyrnn.gz_selected_hocr_output")
 :)
 let $collectionName := collection($collectionUri)//dc:identifier
-let $col :=  local:make_trainingset($collectionUri)
+let $col :=  
+try {local:make_trainingset($collectionUri)}
+catch * {
+    local:send_error_message("Caught error " || $err:code || $err:description || ". Data: " || $err:value)
+}
 return
-    response:stream-binary(
-        xs:base64Binary(compression:zip($col, true()) ),
-        'application/zip',$collectionName || "_training_images.zip")
+    if (empty($col)) then
+        local:send_error_message("No training data can be downloaded: there are not yet any corrected lines in this volume.")
+    else
+        response:stream-binary(
+            xs:base64Binary(compression:zip($col, true()) ),
+            'application/zip',$collectionName || "_training_images.zip")
