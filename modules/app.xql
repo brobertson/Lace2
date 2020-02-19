@@ -344,7 +344,7 @@ declare function app:runDownloadsMenu($run as node()) {
             )
         else
             (<xh:li><xh:a onclick="error_message('A training set cannot be generated because there are no corrected lines')" href="#">Download Training Set File</xh:a></xh:li>,
-            <xh:li><xh:a href="#">Download Training Set Images</xh:a></xh:li>)
+            <xh:li><xh:a onclick="error_message('A training set cannot be generated because there are no corrected lines')" href="#">Download Training Set Images</xh:a></xh:li>)
         
     return
     <xh:span id="downloadsMenu">
