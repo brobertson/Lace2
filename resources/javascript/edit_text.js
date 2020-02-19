@@ -1,3 +1,8 @@
+function error_message(message) {
+     $("#error_message").text(message)
+     $("#myModal").modal()
+}
+
 function get_filename() {
     var path_array = window.location.pathname.split("/")
     return path_array[path_array.length - 1]
