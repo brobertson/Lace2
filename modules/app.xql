@@ -336,6 +336,16 @@ declare function app:hocrCollectionUriForRunMetadataFile($run as node()) {
 
 declare function app:runDownloadsMenu($run as node()) {
     let $collectionUri :=   util:collection-name( $run )
+    let $conditional_items :=
+        if (exists(collection($collectionUri)//xh:span[@class="ocr_line"][not (xh:span/@data-manually-confirmed = 'false')])) then
+            (
+            <xh:li><xh:a id="download_training_csv" href="{concat("get_trainingset.xq?collectionUri=",app:hocrCollectionUriForRunMetadataFile($run), "&amp;format=csv")}">Download Training Set File</xh:a></xh:li>,
+            <xh:li><xh:a id="download_training_images" href="{concat("get_trainingset_images.xq?collectionUri=",app:hocrCollectionUriForRunMetadataFile($run))}">Download Training Set Images</xh:a></xh:li>
+            )
+        else
+            (<xh:li><xh:a onclick="error_message('A training set cannot be generated because there are no corrected lines')" href="#">Download Training Set File</xh:a></xh:li>,
+            <xh:li><xh:a href="#">Download Training Set Images</xh:a></xh:li>)
+        
     return
     <xh:span id="downloadsMenu">
                 <xh:div class="btn-group">
@@ -344,8 +354,7 @@ declare function app:runDownloadsMenu($run as node()) {
               <xh:ul class="dropdown-menu">
                 <xh:li><xh:a id="download_xar" href='{concat("getZippedCollection.xq?collectionUri=",$collectionUri, "&amp;format=xar")}'>Download XAR File</xh:a></xh:li>
                 <xh:li><xh:a id="download_txt" href="{concat("getZippedCollection.xq?collectionUri=",app:hocrCollectionUriForRunMetadataFile($run), "&amp;format=text")}">Download Plain Text Zip File</xh:a></xh:li>
-                <xh:li><xh:a id="download_training_csv" href="{concat("get_trainingset.xq?collectionUri=",app:hocrCollectionUriForRunMetadataFile($run), "&amp;format=csv")}">Download Training Set File</xh:a></xh:li>
-                <xh:li><xh:a id="download_training_images" href="{concat("get_trainingset_images.xq?collectionUri=",app:hocrCollectionUriForRunMetadataFile($run))}">Download Training Set Images</xh:a></xh:li>
+                {$conditional_items}
               </xh:ul>
             </xh:div>
             </xh:span>
