@@ -1,11 +1,12 @@
 xquery version "3.1";
 declare namespace html="http://www.w3.org/1999/xhtml";
 declare namespace svg="http://www.w3.org/2000/svg";
-declare namespace functx = "http://www.functx.com";
+import module namespace functx="http://www.functx.com";
 declare namespace tei="http://www.tei-c.org/ns/1.0";
 declare namespace dc="http://purl.org/dc/elements/1.1/";
 declare variable $svg_zone_types := ("primary_text", "translation", "app_crit");
 
+(:  
 declare function functx:substring-before-if-contains
   ( $arg as xs:string? ,
     $delim as xs:string )  as xs:string? {
@@ -14,7 +15,8 @@ declare function functx:substring-before-if-contains
    then substring-before($arg,$delim)
    else $arg
  };
- 
+:)
+
 declare function local:clear_extra_bbox_data($in as xs:string) as xs:string {
   let $out := replace(functx:substring-before-if-contains($in,";"),'"','')
   return
@@ -90,12 +92,13 @@ return transform:transform($input, $xslt, ())
 
 declare function local:milestones_to_divs_widows($spans as node()+) as node()* {
       let $miles := $spans[@class="cts_picker"]
+      let $first_milestone := $miles[1]
       let $count_of_ms := count($miles)
       let $last_milestone := $miles[$count_of_ms]
       let $count_of_all_spans :=count($spans)
       return 
-            if (index-of($spans, $last_milestone) ne $count_of_all_spans) then
-                <tei:div><tei:p>{subsequence($spans,1,index-of($spans, $last_milestone)-1)}</tei:p></tei:div>
+            if ($spans[1] !=  $first_milestone) then
+                <tei:div type="widow"><tei:p n="">{subsequence($spans,1,functx:index-of-node($spans, $first_milestone)-1)}</tei:p></tei:div>
             else
                 ()
 };
@@ -106,11 +109,11 @@ declare function local:milestones_to_divs($spans as node()+) as node()* {
     for $ms at $count in $spans[@class="cts_picker"]
         return
             if ($count ne $count_of_ms) then
-            <tei:div type="textpart" n="{$ms/@data-ctsurn}"><tei:p>{subsequence($spans,index-of($spans, $ms)+1, index-of($spans, $spans[@class='cts_picker'][$count + 1]))}</tei:p></tei:div>
+            <tei:div type="textpart" n="{$ms/@data-ctsurn}"><tei:p>{subsequence($spans,functx:index-of-node($spans, $ms)+1, functx:index-of-node($spans, $spans[@class='cts_picker'][$count + 1]))}</tei:p></tei:div>
             else
-                (: this is the last milestone :)
-                if (index-of($spans, $ms) ne count($spans)) then
-                    <tei:div type="textpart" n="{$ms/@data-ctsurn}"><tei:p>{subsequence($spans,index-of($spans, $ms)+1, count($spans))}</tei:p></tei:div>
+                (: this is the last milestone, dealing with 'orphans':)
+                if (functx:index-of-node($spans, $ms) ne count($spans)) then
+                    <tei:div type="textpart" n="{$ms/@data-ctsurn}"><tei:p>{subsequence($spans,functx:index-of-node($spans, $ms)+1, count($spans))}</tei:p></tei:div>
                 else
                     ()
 
@@ -136,6 +139,7 @@ declare function local:make_tei_zone($my_collection as xs:string, $zone as xs:st
     if (count($raw[@class="cts_picker"]) eq 0) then
         <tei:p>{$raw}</tei:p>
     else 
+
         (local:milestones_to_divs_widows($raw), local:milestones_to_divs($raw))
 };
 
@@ -147,6 +151,26 @@ declare function local:make_tei_zone_raw($my_collection as xs:string, $zone as x
                        where local:intersect_bbox_and_rect($rect, $element)
                         return 
                            $element
+};
+
+
+
+declare function local:make_tei($my_collection as xs:string) as node()* {
+    if ($my_collection = '')
+        then
+           error(QName('http://heml.mta.ca/Lace2/Error/','HugeZipFile'),'Inappropriate number of subdocuments in path"' || $my_collection || '"')
+        else 
+        for $type in $svg_zone_types
+            order by index-of($svg_zone_types, $type)
+        for $rect in collection($my_collection)//svg:rect[@data-rectangle-type=$type]
+            order by util:document-name($rect), $rect/@data-rectangle-ordinal 
+                return (
+                        for $element in local:html_node_corresponding_to_svg_node($rect, $my_collection)//html:span[@class="ocr_word" or @class="cts_picker"]
+                       where local:intersect_bbox_and_rect($rect, $element)
+                        return 
+                           $element
+                    
+            )  
 };
 
 declare function local:wrap_tei($body as node()) as node() {
@@ -176,24 +200,6 @@ declare function local:wrap_tei($body as node()) as node() {
         </TEI>
 };
 
-declare function local:make_tei($my_collection as xs:string) as node()* {
-    if ($my_collection = '')
-        then
-           error(QName('http://heml.mta.ca/Lace2/Error/','HugeZipFile'),'Inappropriate number of subdocuments in path"' || $my_collection || '"')
-        else 
-        for $type in $svg_zone_types
-            order by index-of($svg_zone_types, $type)
-        for $rect in collection($my_collection)//svg:rect[@data-rectangle-type=$type]
-            order by util:document-name($rect), $rect/@data-rectangle-ordinal 
-                return (
-                        for $element in local:html_node_corresponding_to_svg_node($rect, $my_collection)//html:span[@class="ocr_word" or @class="cts_picker"]
-                       where local:intersect_bbox_and_rect($rect, $element)
-                        return 
-                           $element
-                    
-            )  
-};
-
 let $my_collection := xs:string(request:get-parameter('collectionUri', ''))
 
 let $my_collection := "/db/apps/b29006284_2019-07-10-16-32-00"
@@ -201,7 +207,6 @@ let $set-content-type := response:set-header('Content-Type', 'application/tei+xm
 let $collectionName := collection($my_collection)//dc:identifier
 let $set-file-name := response:set-header('Content-Disposition',  'attachment; filename="' || $collectionName ||'.tei"')
 let $complete_tei := local:wrap_tei(local:strip_spans(local:make_all_tei($my_collection)))
-
 let $streaming_options := 'method=xml media-type=application/tei+xml omit-xml-declaration=no indent=yes'
 return
 response:stream($complete_tei, $streaming_options)
