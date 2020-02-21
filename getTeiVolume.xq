@@ -6,17 +6,6 @@ declare namespace tei="http://www.tei-c.org/ns/1.0";
 declare namespace dc="http://purl.org/dc/elements/1.1/";
 declare variable $svg_zone_types := ("primary_text", "translation", "app_crit");
 
-(:  
-declare function functx:substring-before-if-contains
-  ( $arg as xs:string? ,
-    $delim as xs:string )  as xs:string? {
-
-   if (contains($arg,$delim))
-   then substring-before($arg,$delim)
-   else $arg
- };
-:)
-
 declare function local:clear_extra_bbox_data($in as xs:string) as xs:string {
   let $out := replace(functx:substring-before-if-contains($in,";"),'"','')
   return
@@ -62,32 +51,61 @@ declare function local:intersect_bbox_and_rect($rect as node(), $bbox as node())
         true()
 };
 
+(: for a CTS URN like urn:cts:greekLit:tlg0282.tlg001:5.1.2, return the integer at the 
+ : given ref level. For instance, level 1 will give 5, and level 2 will give 1.
+ : Only basic error checking is here, wherein if a non-integer is used as a ref level, 
+ : it will return -1, which is our signal for a bad eval.
+ : 
+ :  We should also check for there being no refs or 
+ : the refs being negative values :)
+declare function local:get_ref_at_level($urn as xs:string, $ref_level as xs:int) as xs:int {
+    try {
+    xs:int(fn:tokenize(functx:substring-after-last($urn,":"),"\.")[$ref_level])
+    }
+    catch * {
+        -1
+    }
+};
 
-declare function local:strip_spans($input as node()?) {
-    let $xslt := <xsl:stylesheet version="1.0" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-<xsl:output method="xml" version="1.0" encoding="UTF-8"/>
-<!--Identity template,
-        provides default behavior that copies all content into the output -->
-    <xsl:template match="@*|node()">
-        <xsl:copy>
-            <xsl:apply-templates select="@*|node()"/>
-        </xsl:copy>
-    </xsl:template>
-<xsl:template match="html:span">
-    <xsl:apply-templates/>
-</xsl:template>
-<xsl:template match="*[@data-dehyphenatedform]">
-    <xsl:if test="@data-dehyphenatedform!=''">
-        <xsl:value-of select="concat(normalize-space(@data-dehyphenatedform), ' ')"/>
-    </xsl:if>
-</xsl:template>
-<xsl:template match="node/@TEXT | text()">
-  <xsl:if test="normalize-space(.)">
-    <xsl:value-of select="concat(normalize-space(.), ' ')"/>
-  </xsl:if>
-</xsl:template>
-</xsl:stylesheet>
-return transform:transform($input, $xslt, ())
+declare function local:get_milestones_that_change_ref_level($spans as node()+, $ref_level as xs:int) as node()* {
+    try {
+    for $ms at $count in $spans[@class="cts_picker"]
+    where (($count = 1) or (local:get_ref_at_level($ms/@data-ctsurn,$ref_level) !=  local:get_ref_at_level($spans[@class='cts_picker'][$count -1]/@data-ctsurn, $ref_level)))
+        return $ms
+    }
+    catch * {
+        ()
+    }
+};
+
+declare function local:get_length_to_next_mile_or_last($spans as node()+, $miles as node()+, $count as xs:int, $start_index as xs:int) as xs:int {
+        if ($count = count($miles)) then
+          count($spans)
+        else
+           functx:index-of-node($spans, $miles[$count+1])-$start_index
+            
+};
+
+
+declare function local:make_divs_from_changed_ref_level($spans as node()+, $ref_level as xs:int) as node()* {
+    let $lowest_level := 2
+    let $miles := local:get_milestones_that_change_ref_level($spans, $ref_level)
+    let $count_of_ms := count($miles)
+    for $ms at $count in $miles
+        let $ref := local:get_ref_at_level($ms/@data-ctsurn,$ref_level)
+        let $start_index := functx:index-of-node($spans, $ms)+1
+        return
+            if ($ref_level = $lowest_level) then
+            <tei:div  type="textpart"  subtype="{$ref_level}" n="{$ref}" >
+            <tei:p>
+            {subsequence($spans,$start_index, local:get_length_to_next_mile_or_last($spans , $miles, $count, $start_index))}
+            </tei:p>
+            </tei:div>
+        else
+            <tei:div type="textpart" subtype="{$ref_level}" n="{$ref}" >
+            {local:make_divs_from_changed_ref_level(subsequence($spans,functx:index-of-node($spans, $ms), local:get_length_to_next_mile_or_last($spans , $miles, $count, $start_index)), $ref_level + 1)}
+            </tei:div>
+            
 };
 
 declare function local:milestones_to_divs_widows($spans as node()+) as node()* {
@@ -107,13 +125,20 @@ declare function local:milestones_to_divs($spans as node()+) as node()* {
     let $count_of_ms := count($spans[@class="cts_picker"])
     return
     for $ms at $count in $spans[@class="cts_picker"]
+        let $start_index := functx:index-of-node($spans, $ms)+1
         return
             if ($count ne $count_of_ms) then
-            <tei:div type="textpart" n="{$ms/@data-ctsurn}"><tei:p>{subsequence($spans,functx:index-of-node($spans, $ms)+1, functx:index-of-node($spans, $spans[@class='cts_picker'][$count + 1]))}</tei:p></tei:div>
+            (: subsequence's last argument is 'length', not 'end position', so 
+             : we have to subtract the start_index from the end position.
+             :)
+            <tei:div type="textpart" subtype="urn" n="{$ms/@data-ctsurn}"><tei:p>{subsequence($spans,$start_index, functx:index-of-node($spans, $spans[@class='cts_picker'][$count + 1])-$start_index)}</tei:p></tei:div>
             else
                 (: this is the last milestone, dealing with 'orphans':)
                 if (functx:index-of-node($spans, $ms) ne count($spans)) then
-                    <tei:div type="textpart" n="{$ms/@data-ctsurn}"><tei:p>{subsequence($spans,functx:index-of-node($spans, $ms)+1, count($spans))}</tei:p></tei:div>
+                    (: if no 'length' is passed to subsequence, it gives all to the end
+                     : of the sequence
+                     :)
+                    <tei:div type="textpart" n="{$ms/@data-ctsurn}"><tei:p>{subsequence($spans,$start_index)}</tei:p></tei:div>
                 else
                     ()
 
@@ -139,8 +164,10 @@ declare function local:make_tei_zone($my_collection as xs:string, $zone as xs:st
     if (count($raw[@class="cts_picker"]) eq 0) then
         <tei:p>{$raw}</tei:p>
     else 
-
-        (local:milestones_to_divs_widows($raw), local:milestones_to_divs($raw))
+(:  :
+        (local:milestones_to_divs_widows($raw), local:milestones_to_divs($raw),<changems>{local:make_divs_from_changed_ref_level($raw,1)}</changems>)
+     :)
+      (local:milestones_to_divs_widows($raw),local:make_divs_from_changed_ref_level($raw,1))
 };
 
 declare function local:make_tei_zone_raw($my_collection as xs:string, $zone as xs:string) as node()* {
@@ -173,6 +200,34 @@ declare function local:make_tei($my_collection as xs:string) as node()* {
             )  
 };
 
+
+declare function local:strip_spans($input as node()?) {
+    let $xslt := <xsl:stylesheet version="1.0" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:output method="xml" version="1.0" encoding="UTF-8"/>
+<!--Identity template,
+        provides default behavior that copies all content into the output -->
+    <xsl:template match="@*|node()">
+        <xsl:copy>
+            <xsl:apply-templates select="@*|node()"/>
+        </xsl:copy>
+    </xsl:template>
+<xsl:template match="html:span">
+    <xsl:apply-templates/>
+</xsl:template>
+<xsl:template match="*[@data-dehyphenatedform]">
+    <xsl:if test="@data-dehyphenatedform!=''">
+        <xsl:value-of select="concat(normalize-space(@data-dehyphenatedform), ' ')"/>
+    </xsl:if>
+</xsl:template>
+<xsl:template match="node/@TEXT | text()">
+  <xsl:if test="normalize-space(.)">
+    <xsl:value-of select="concat(normalize-space(.), ' ')"/>
+  </xsl:if>
+</xsl:template>
+</xsl:stylesheet>
+return transform:transform($input, $xslt, ())
+};
+
 declare function local:wrap_tei($body as node()) as node() {
         <TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0">
     <teiHeader>
@@ -202,7 +257,9 @@ declare function local:wrap_tei($body as node()) as node() {
 
 let $my_collection := xs:string(request:get-parameter('collectionUri', ''))
 
+(:  
 let $my_collection := "/db/apps/b29006284_2019-07-10-16-32-00"
+:)
 let $set-content-type := response:set-header('Content-Type', 'application/tei+xml')
 let $collectionName := collection($my_collection)//dc:identifier
 let $set-file-name := response:set-header('Content-Disposition',  'attachment; filename="' || $collectionName ||'.tei"')
