@@ -557,9 +557,11 @@ declare function local:generate-zone-item-from-map($key, $value) {
 };
 
 declare function app:makeZoningMenu() {
-    let $zoning_items := map{'Primary Text':'primary_text','App. Crit':'app_crit', 'Title':'title', 'Page Number':'page_number', 'Translation':'translation'}
+    let $zoning_items := map{ 'Title':'title', 'Page Number':'page_number', 'Primary Text':'primary_text','App. Crit.':'app_crit', 'Commentary':'commentary', 'Translation':'translation'}
+    let $zoning_items_order := map{'Title':1, 'Page Number':2, 'Primary Text':3, 'App. Crit.':4, 'Commentary':5, 'Translation':6}
     let $items :=
         for $key in map:keys($zoning_items)
+        order by $zoning_items_order($key)
         return <xh:li class="dropdown-item zoning-dropdown-item" id="{$zoning_items($key)||'_button'}">{$key}</xh:li>
 
     return

@@ -29,6 +29,7 @@
     --page-number: #bdb76b;
     --translation: #4682B4;
     --title: #FF6347;
+    --commentary: #E1DABB;
     
 }
 
@@ -244,6 +245,21 @@ padding-right: 6px; padding-left: 0px;}
     stroke: var(--title);
 }
 
+
+#commentary_button:hover {
+    background-color: var(--commentary);
+}
+
+.commentary_circle {
+    fill: var(--commentary);
+    color: var(--commentary);
+}
+
+.commentary_rectangle {
+    fill: var(--commentary);
+    color: var(--commentary);
+    stroke: var(--commentary);
+}
 /* Style the form - display items horizontally */
 #edits-since-form {
   display: inline;
