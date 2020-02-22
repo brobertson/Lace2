@@ -9,6 +9,14 @@ let $collectionPath := request:get-parameter('filePath', '')
 let $svgDirName := "SVG"
 let $SvgCollectionPath := $collectionPath || "/" || $svgDirName
 let $fullPath := $collectionPath || '/' || $fileName
+(:  If someone logs in as admin and then edits, they end up doing all
+ : the work in this script as 'admin', and the permissions for the files and
+ : collection are set to that level. So we are logging in here as 'guest'
+ : to avoid this problem. This is not terribly elegant, and a more sensible
+ : login system should be implemented eventually.
+ : This also assumes that nobody has assigned a password to 'guest'.
+ :  :)
+let $try := xmldb:login('/db', 'guest', 'guest', true()) 
 (:  convert svg parameter, which is  string, into xml :)
 let $svg_in_xml := fn:parse-xml(request:get-parameter('svg',''))
 (:  check if the SVG directory in this collection actually exists
