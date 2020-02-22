@@ -375,7 +375,7 @@ $(function() {
                 } else { //ctrlKey is true, also
                     console.log("control-alt-return hit")
                     var uniq_picker = 'ins_cts_picker_' + (new Date()).getTime();
-                    var cts_picker = $("<span class='cts_picker' id='" + uniq_picker + "_span'>📖<input class='ctsurn-picker' id='" + uniq_picker + "' type='text' placeholder='author/title'/><input class='ctsurn-span' id='" + uniq_picker + "_additional'/><button id='" + uniq_picker + "_ok_button' class='btn' type='button'>OK</button><button class='kill_button' type='button' id='" + uniq_picker + "_kill_button'> <span>×</span> </button></span>");
+                    var cts_picker = $("<span class='cts_picker' id='" + uniq_picker + "_span'>📖<input class='ctsurn-picker' id='" + uniq_picker + "' type='text' placeholder='author/title'/><input class='ctsurn-span' id='" + uniq_picker + "_additional'/><button class='kill_button' type='button' id='" + uniq_picker + "_kill_button'> <span>×</span> </button></span>");
                     $(this).before(cts_picker);
                     cts_picker.attr("data-starting-span", $(this).attr("id"))
                     $("#" + uniq_picker).typeahead({
@@ -393,44 +393,50 @@ $(function() {
                         updater: function(item) {
                             var selectedItem = this.map[item];
                             this.$element.data('selected', selectedItem);
-                            console.log(selectedItem)
+                            console.log("updater function called on: " + selectedItem)
                             console.log(this.$element)
                             this.$element.attr("data-ctsurn", selectedItem["id"])
                             this.$element.attr("data-author-name", selectedItem["label"])
+                            $("#" + uniq_picker + "_additional").focus()
                             return item
                         }
                     });
-                    $("#" + uniq_picker + "_ok_button").on('click', function(event) {
-                        event.preventDefault(); // To prevent following the link (optional)
-                        console.log("sof far so good")
-                        //add data and tooltip to span
-                        the_span = $("#" + uniq_picker + "_span")
-                        /***
-                         * in the case of a close-reference milestone, trying to use the closed-book emoji, but honestly, this
-                         * causes a bunch of side effects, so wait for another day.
-                        if ($("#"+uniq_picker).attr("data-ctsurn") === "__end__") {
-                           the_span.text("📕")
-                        } 
-                        ***/
-                        composed_urn = $("#" + uniq_picker).attr("data-ctsurn") + $("#" + uniq_picker + "_additional").val()
-                        readable_name = $("#" + uniq_picker).attr("data-author-name") + " " + $("#" + uniq_picker + "_additional").val()
-                        the_span.attr("data-ctsurn", composed_urn)
-                        the_span.attr("data-toggle", "tooltip")
-                        the_span.attr("data-placement", "top")
-                        the_span.attr("title", readable_name)
-                        //the_span.tooltip()
-                        console.log("here, uniq_picker is " + uniq_picker)
-                        updateCTSURN(uniq_picker, "add")
-                        //now delete all the inner inputs and this button
-                        $("#" + uniq_picker).remove()
-                        $("#" + uniq_picker + "_additional").remove()
-                        $("#" + uniq_picker + "_ok_button").remove()
+                    $("#" + uniq_picker + "_additional").on('keypress', function(event) {
+                        //console.log("we get an inserted line keypress")
+                        if (event.which == 13) {
+                            event.preventDefault(); // To prevent actually entering return
+                            console.log("return in picker_additional: " + uniq_picker)
+                            //add data and tooltip to span
+                            the_span = $("#" + uniq_picker + "_span")
+                            /***
+                             * in the case of a close-reference milestone, trying to use the closed-book emoji, but honestly, this
+                             * causes a bunch of side effects, so wait for another day.
+                            if ($("#"+uniq_picker).attr("data-ctsurn") === "__end__") {
+                               the_span.text("📕")
+                            } 
+                            ***/
+                            composed_urn = $("#" + uniq_picker).attr("data-ctsurn") + $("#" + uniq_picker + "_additional").val()
+                            readable_name = $("#" + uniq_picker).attr("data-author-name") + " " + $("#" + uniq_picker + "_additional").val()
+                            the_span.attr("data-ctsurn", composed_urn)
+                            the_span.attr("data-toggle", "tooltip")
+                            the_span.attr("data-placement", "top")
+                            the_span.attr("title", readable_name)
+                            //the_span.tooltip()
+                            console.log("here, uniq_picker is " + uniq_picker)
+                            updateCTSURN(uniq_picker, "add")
+                            //now delete all the inner inputs and this button
+                            $("#" + uniq_picker).remove()
+                            $("#" + uniq_picker + "_additional").remove()
+                            $("#" + uniq_picker + "_ok_button").remove()
+                        }
                     });
                     $("#" + uniq_picker + "_kill_button").on('click', function(event) {
                         //remove the entire picker span
                         updateCTSURN(uniq_picker, "remove")
                         $(this).parent().remove()
                     });
+                    //set focus to picker here
+                    $("#" + uniq_picker).focus()
                     return; //this is the trick to short-circuiting the function.
                 } //end ctrl key is true
             } // end alt key is true
