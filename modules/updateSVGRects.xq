@@ -14,7 +14,7 @@ let $fullPath := $collectionPath || '/' || $fileName
  : collection are set to that level. So we are logging in here as 'guest'
  : to avoid this problem. This is not terribly elegant, and a more sensible
  : login system should be implemented eventually.
- : This also assumes that nobody has assigned a password to 'guest'.
+ : This also assumes that nobody has assigned a different password to 'guest'.
  :  :)
 let $try := xmldb:login('/db', 'guest', 'guest', true()) 
 (:  convert svg parameter, which is  string, into xml :)
