@@ -157,7 +157,7 @@ function update_all_xmldb(element, e) {
         set_of_blinkers = $(".ocr_word").filter(function() {
             return ($(this).text() === data['query'])
         })
-        console.log("blinker count " + set_of_blinkers.length)
+        //console.log("blinker count " + set_of_blinkers.length)
         set_of_blinkers.addClass("blinker");
         //
         //this is the 'success' function 
@@ -374,6 +374,12 @@ $(function() {
                     return; //this is the trick to short-circuiting the function.
                 } else { //ctrlKey is true, also
                     console.log("control-alt-return hit")
+                    if( typeof cts_tags === 'undefined' || cts_tags === null ){
+                        //cts_tags is defined in a separate file, so it could be 
+                        //undefined, unassigned, etc.
+                        alert("The cts tag list is corrupted and so a URN picker can't be set.");
+                        return;//this ensures that nothing further happens 
+                    }
                     var uniq_picker = 'ins_cts_picker_' + (new Date()).getTime();
                     var cts_picker = $("<span class='cts_picker' id='" + uniq_picker + "_span'>📖<input class='ctsurn-picker' id='" + uniq_picker + "' type='text' placeholder='author/title'/><input class='ctsurn-span' id='" + uniq_picker + "_additional'/><button class='kill_button' type='button' id='" + uniq_picker + "_kill_button'> <span>×</span> </button></span>");
                     $(this).before(cts_picker);

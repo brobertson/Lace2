@@ -265,7 +265,6 @@ $(document).ready(function() {
   $(this).on("keyup", function(event) {
       active_id = document.activeElement.id
       const key = event.key; // const {key} = event; ES6+
-      console.log("key: ", key, " active id " + active_id)
         if ((key === "Backspace" || key === "Delete") && (active_id.includes("rectangle"))) {
          console.log("it was the delete key on a rectangle: " + active_id)
          delete_rectangle($("#" + active_id));
