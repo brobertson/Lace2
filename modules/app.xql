@@ -228,6 +228,10 @@ declare function app:image-identifier-node-for-doc-identifier-node($doc_identifi
  :  It should be faster to just poll the numbers in the running totals,
  :  but it isn't. Maybe they aren't properly indexed.  :)
 declare function app:hocrPageCompletion($document_node as node()) {
+    format-number(app:hocrPageCompletionFloat($document_node), '0.0%')
+};
+
+declare function app:hocrPageCompletionFloat($document_node as node()) {
     let $spans : = $document_node//*[@data-spellcheck-mode]
     let $number_of_spans := count($spans)
     let $edited : = $document_node//*[@data-manually-confirmed = 'true']
@@ -237,7 +241,7 @@ declare function app:hocrPageCompletion($document_node as node()) {
             0
         else
             ( $number_of_edited div  $number_of_spans)
-    return format-number($percentage, '0.0%')
+    return $percentage
 };
 
  declare function app:getDocsAfter($coll as xs:string, $since as xs:dateTime) as node()*
@@ -355,6 +359,7 @@ declare function app:runDownloadsMenu($run as node()) {
                 <xh:li><xh:a id="download_xar" href='{concat("getZippedCollection.xq?collectionUri=",$collectionUri, "&amp;format=xar")}'>Download XAR File</xh:a></xh:li>
                 <xh:li><xh:a id="download_txt" href="{concat("getZippedCollection.xq?collectionUri=",app:hocrCollectionUriForRunMetadataFile($run), "&amp;format=text")}">Download Plain Text Zip File</xh:a></xh:li>
                 {$conditional_items}
+                <xh:li><xh:a id="download_tei" href='{concat("getTeiVolume.xq?collectionUri=",$collectionUri)}'>Download TEI File</xh:a></xh:li>
               </xh:ul>
             </xh:div>
             </xh:span>
