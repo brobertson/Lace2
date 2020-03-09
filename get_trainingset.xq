@@ -1,28 +1,9 @@
 xquery version "3.1";
 declare namespace html="http://www.w3.org/1999/xhtml";
-declare namespace functx = "http://www.functx.com";
+import module namespace functx="http://www.functx.com";
 declare namespace dc="http://purl.org/dc/elements/1.1/";
 declare option exist:serialize "method=text media-type=text/csv omit-xml-declaration=yes";
 
-
-declare function functx:substring-before-if-contains
-  ( $arg as xs:string? ,
-    $delim as xs:string )  as xs:string? {
-
-   if (contains($arg,$delim))
-   then substring-before($arg,$delim)
-   else $arg
- };
- 
- declare function functx:substring-after-if-contains
-  ( $arg as xs:string? ,
-    $delim as xs:string )  as xs:string? {
-
-   if (contains($arg,$delim))
-   then substring-after($arg,$delim)
-   else $arg
- };
- 
 declare function local:clear_extra_bbox_data($in as xs:string) as xs:string {
   let $out := replace(functx:substring-before-if-contains($in,";"),'"','')
   return
