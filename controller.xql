@@ -39,5 +39,5 @@ else if (contains($exist:path, "/$shared/")) then
 else
     (: everything else is passed through :)
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-        <cache-control cache="yes"/>
+        <cache-control cache="max-age=3600, must-revalidate"/>
     </dispatch>

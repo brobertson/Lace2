@@ -277,6 +277,7 @@ $(function() {
         if ($e.attr('title') || typeof($e.attr('original-title')) != 'string') {
             $e.attr('original-title', $e.attr('title') || '').removeAttr('title');
         }
+
     });
     //make all kill buttons for urn spans kill their related data
     //when built from the database

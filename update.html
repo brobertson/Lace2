@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div data-template="templates:surround" data-template-with="templates/page-margins.html" data-template-at="container">
+    <h3>
+        <span class="laceupdate:formatTitle"/>
+    </h3>
+<div id="updateInfo" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">x</button>
+        <h4 class="modal-title">Update</h4>
+      </div>
+      <div class="modal-body">
+      <p>Listed below are links to one or more set of OCR results or 'runs' corresponding to the images of this volume. Each is editable, but usually it is preferable to choose the best results and edit them. Sometimes a poorer result is used to produce a small amount of new training data, which is then used to make a better 'run', which makes a much better basis for editing the entire text. For this reason, it is very important to observe the percentage of dictionary words in a run and how complete its editing is.</p>
+      <p>Each run also can be downloaded in various formats, using the <code>Downloads</code> link. These are: 
+        <ul>
+            <li>XAR File: A complete collection of all data, including editing and zoning rectangles, useful for installing in this or another instance of Lace. This is one option for backing up your data.</li>
+            <li>Plain Text Zip File: A zipped archive of all the texts converted to plain text. The corrected text is formatted according to the original OCR text, without the zoning information being applied.</li>
+            <li>Training Set File: This is a single page tab-separated data table representing the image file name, bounding box and corrected text of all lines in this run, all of whose words have been validated by a user. From this a python script generates the line image and text pairs used to retrain an OCR engine like Ocropus or Kraken.</li>
+            <li>Training Set Images: This is a zipped archive comprising similarly-named pairs of line images and text files used to train OCR engines like Ocropus or Kraken. Thus unlike the data above, no intermediary program needs to be run to use this training data. However, these images are set at the binarization level of the collection installed in Lace; whereas the tab-separated table can be used to work with the original colour pages if necessary.</li>
+        </ul>
+        
+      </p>
+      </div>
+</div>
+</div>
+</div>
+<div>Updated files:</div>
+<div class="laceupdate:update"/>
+</div>

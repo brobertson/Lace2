@@ -93,7 +93,7 @@ declare function app:formatCatalogEntry($text as node()) {
     return 
         $creator/text() || " "
     return
-    <xh:span class="catalogueEntry">{$creator_string} ({$text/../dc:date/text()}). <xh:i>{fn:substring($text/../dc:title/text(),1,80)}</xh:i>.</xh:span>
+    <xh:span title="{$text}">{$creator_string} ({$text/../dc:date/text()}). <xh:i>{fn:substring($text/../dc:title/text(),1,80)}</xh:i>.</xh:span>
 };
 
 (:  Variant of above for use in templates :)
@@ -104,7 +104,7 @@ declare function app:formatCatalogEntry($node as node(), $model as map(*), $arch
     return 
         $creator/text() || " "
     return
-    <xh:span class="catalogueEntry">{$creator_string} ({$text/../dc:date/text()}). <xh:i>{fn:substring($text/../dc:title/text(),1,80)}</xh:i>.</xh:span>
+    <xh:span class="catalogueEntry" title="{$text}">{$creator_string} ({$text/../dc:date/text()}). <xh:i>{fn:substring($text/../dc:title/text(),1,80)}</xh:i>.</xh:span>
 };
 (: 
  : for a given dc:identifier node, format the contents and link to 
@@ -322,7 +322,7 @@ declare function app:runs($node as node(), $model as map(*),  $archive_number as
     order by $run/dc:date descending
 return
     <xh:tr>
-<xh:td><xh:a href="{concat("side_by_side_view.html?collectionUri=",app:hocrCollectionUriForRunMetadataFile($run),"&amp;positionInCollection=2")}">{$run/dc:date}</xh:a>{app:runDownloadsMenu($run)}</xh:td>
+<xh:td><xh:a href="{concat("side_by_side_view.html?collectionUri=",app:hocrCollectionUriForRunMetadataFile($run),"&amp;positionInCollection=2")}">{$run/dc:date}</xh:a>{app:runActionsMenu($run)}</xh:td>
 <xh:td>{app:collectionInfo(app:hocrCollectionUriForRunMetadataFile($run))}</xh:td>
 </xh:tr>
 };
@@ -338,7 +338,7 @@ declare function app:hocrCollectionUriForRunMetadataFile($run as node()) {
  : This function formats these types with hocrTypeStringForNumber and, if files are indeed available for
  : that run, it makes a link to the side-by-side view of that hocr type's pages. :)
 
-declare function app:runDownloadsMenu($run as node()) {
+declare function app:runActionsMenu($run as node()) {
     let $collectionUri :=   util:collection-name( $run )
     let $conditional_items :=
         if (exists(collection($collectionUri)//xh:span[@class="ocr_line"][not (xh:span/@data-manually-confirmed = 'false')])) then
@@ -353,9 +353,10 @@ declare function app:runDownloadsMenu($run as node()) {
     return
     <xh:span id="downloadsMenu">
                 <xh:div class="btn-group">
-              <xh:button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Downloads<xh:span class="caret"></xh:span>
+              <xh:button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions<xh:span class="caret"></xh:span>
               </xh:button>
               <xh:ul class="dropdown-menu">
+              <xh:li><xh:a id="update" href='{concat("update.html?collectionUri=",$collectionUri)}'>Update with Editing from Previous Runs</xh:a></xh:li>
                 <xh:li><xh:a id="download_xar" href='{concat("getZippedCollection.xq?collectionUri=",$collectionUri, "&amp;format=xar")}'>Download XAR File</xh:a></xh:li>
                 <xh:li><xh:a id="download_txt" href="{concat("getZippedCollection.xq?collectionUri=",app:hocrCollectionUriForRunMetadataFile($run), "&amp;format=text")}">Download Plain Text Zip File</xh:a></xh:li>
                 {$conditional_items}
@@ -629,6 +630,10 @@ else
     let $innerAddress := replace($innerAddressWithHead,'db/apps', "")
     return app:fixHocrPageNode($meAsDocumentNode, $innerAddressWithHead)
 (:  Done getting $hocrPageNode variable :)
+
+let $foo := (response:set-header( "Cache-Control",  'no-cache, no-store, max-age=0, must-revalidate' ),
+response:set-header( "X-Content-Type-Options", 'nosniff' ))
+
  (: Here's the output of the actual function :)    
      return
          <xh:div>

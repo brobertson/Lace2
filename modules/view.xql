@@ -13,7 +13,7 @@ import module namespace templates="http://exist-db.org/xquery/templates" ;
  :)
 import module namespace config="http://heml.mta.ca/Lace2/config" at "config.xqm";
 import module namespace app="http://heml.mta.ca/Lace2/templates" at "app.xql";
-
+import module namespace laceupdate="http://heml.mta.ca/Lace2/update" at "update.xql";
 declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 
 declare option output:method "xhtml";

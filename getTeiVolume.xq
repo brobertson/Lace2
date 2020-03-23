@@ -71,6 +71,7 @@ declare function local:get_milestones_that_change_ref_level($spans as node()+, $
     try {
     for $ms at $count in $spans[@class="cts_picker"]
     where (($count = 1) or (local:get_ref_at_level($ms/@data-ctsurn,$ref_level) !=  local:get_ref_at_level($spans[@class='cts_picker'][$count -1]/@data-ctsurn, $ref_level)))
+    order by $ms/@data-ctsurn
         return $ms
     }
     catch * {
@@ -87,25 +88,28 @@ declare function local:get_length_to_next_mile_or_last($spans as node()+, $miles
 };
 
 
-declare function local:make_divs_from_changed_ref_level($spans as node()+, $ref_level as xs:int) as node()* {
-    let $lowest_level := 2
-    let $miles := local:get_milestones_that_change_ref_level($spans, $ref_level)
-    let $count_of_ms := count($miles)
-    for $ms at $count in $miles
-        let $ref := local:get_ref_at_level($ms/@data-ctsurn,$ref_level)
-        let $start_index := functx:index-of-node($spans, $ms)+1
-        return
-            if ($ref_level = $lowest_level) then
-            <tei:div  type="textpart"  subtype="{$ref_level}" n="{$ref}" >
-            <tei:p>
-            {subsequence($spans,$start_index, local:get_length_to_next_mile_or_last($spans , $miles, $count, $start_index))}
-            </tei:p>
-            </tei:div>
+declare function local:make_divs_from_changed_ref_level($spans as node()*, $ref_level as xs:int) as node()* {
+    (: not sure the following is necessary :)
+        if (count($spans) = 0) then
+            <empty/>
         else
-            <tei:div type="textpart" subtype="{$ref_level}" n="{$ref}" >
-            {local:make_divs_from_changed_ref_level(subsequence($spans,functx:index-of-node($spans, $ms), local:get_length_to_next_mile_or_last($spans , $miles, $count, $start_index)), $ref_level + 1)}
-            </tei:div>
-            
+            let $lowest_level := 1
+            let $miles := local:get_milestones_that_change_ref_level($spans, $ref_level)
+            let $count_of_ms := count($miles)
+            for $ms at $count in $miles
+                let $ref := local:get_ref_at_level($ms/@data-ctsurn,$ref_level)
+                let $start_index := functx:index-of-node($spans, $ms)+1
+                return
+                    if ($ref_level = $lowest_level) then
+                    <tei:div  type="textpart"  subtype="{$ref_level}" n="{$ref}" >
+                    <tei:p>
+                    {subsequence($spans,$start_index, local:get_length_to_next_mile_or_last($spans , $miles, $count, $start_index))}
+                    </tei:p>
+                    </tei:div>
+                else
+                    <tei:div type="textpart" subtype="{$ref_level}" n="{$ref}" >
+                    {local:make_divs_from_changed_ref_level(subsequence($spans,functx:index-of-node($spans, $ms), local:get_length_to_next_mile_or_last($spans , $miles, $count, $start_index)), $ref_level + 1)}
+                    </tei:div>
 };
 
 declare function local:milestones_to_divs_widows($spans as node()+) as node()* {
@@ -263,7 +267,9 @@ let $my_collection := "/db/apps/b29006284_2019-07-10-16-32-00"
 let $set-content-type := response:set-header('Content-Type', 'application/tei+xml')
 let $collectionName := collection($my_collection)//dc:identifier
 let $set-file-name := response:set-header('Content-Disposition',  'attachment; filename="' || $collectionName ||'.tei"')
+ 
 let $complete_tei := local:wrap_tei(local:strip_spans(local:make_all_tei($my_collection)))
+
 let $streaming_options := 'method=xml media-type=application/tei+xml omit-xml-declaration=no indent=yes'
 return
 response:stream($complete_tei, $streaming_options)
