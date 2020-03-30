@@ -423,7 +423,7 @@ $(function() {
                             } 
                             ***/
                             composed_urn = $("#" + uniq_picker).attr("data-ctsurn") + $("#" + uniq_picker + "_additional").val()
-                            readable_name = $("#" + uniq_picker).attr("data-author-name") + " " + $("#" + uniq_picker + "_additional").val()
+                            readable_name = $("#" + uniq_picker).attr("data-author-name") + " " + $("#" + uniq_picker + "_additional").val() + " = " + composed_urn
                             the_span.attr("data-ctsurn", composed_urn)
                             the_span.attr("data-toggle", "tooltip")
                             the_span.attr("data-placement", "top")

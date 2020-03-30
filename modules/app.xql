@@ -327,7 +327,11 @@ return
 </xh:tr>
 };
 
-
+declare function app:formatRunTitle($node as node(), $model as map(*),  $collectionUri as xs:string)  {
+    (app:formatCatalogEntryForCollectionUri(app:imageCollectionFromCollectionUri($collectionUri)),
+    ' ',
+    <xh:a href="{concat("side_by_side_view.html?collectionUri=",$collectionUri,"&amp;positionInCollection=2")}">{collection($collectionUri)//dc:date}</xh:a>)
+};
 
 declare function app:hocrCollectionUriForRunMetadataFile($run as node()) {
   util:collection-name($run)
@@ -360,7 +364,7 @@ declare function app:runActionsMenu($run as node()) {
                 <xh:li><xh:a id="download_xar" href='{concat("getZippedCollection.xq?collectionUri=",$collectionUri, "&amp;format=xar")}'>Download XAR File</xh:a></xh:li>
                 <xh:li><xh:a id="download_txt" href="{concat("getZippedCollection.xq?collectionUri=",app:hocrCollectionUriForRunMetadataFile($run), "&amp;format=text")}">Download Plain Text Zip File</xh:a></xh:li>
                 {$conditional_items}
-                <xh:li><xh:a id="download_tei" href='{concat("getTeiVolume.xq?collectionUri=",$collectionUri)}'>Download TEI File</xh:a></xh:li>
+                <xh:li><xh:a id="preflight_tei" href='{concat("teiPreflight.html?collectionUri=",$collectionUri)}'>Precheck TEI File</xh:a></xh:li>
               </xh:ul>
             </xh:div>
             </xh:span>
