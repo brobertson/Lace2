@@ -54,20 +54,11 @@ declare function teigeneration:intersect_bbox_and_rect($rect as node(), $bbox as
         true()
 };
 
-(: for a CTS URN like urn:cts:greekLit:tlg0282.tlg001:5.1.2, return the integer at the 
- : given ref level. For instance, level 1 will give 5, and level 2 will give 1.
- : Only basic error checking is here, wherein if a non-integer is used as a ref level, 
- : it will return -1, which is our signal for a bad eval.
- : 
- :  We should also check for there being no refs or 
- : the refs being negative values :)
-declare function teigeneration:get_ref_at_level($urn as xs:string, $ref_level as xs:int) as xs:int {
-    try {
-    xs:int(fn:tokenize(functx:substring-after-last($urn,":"),"\.")[$ref_level])
-    }
-    catch * {
-        -1
-    }
+declare function teigeneration:get_ref_at_level($urn as xs:string, $ref_level as xs:int) as xs:string {
+        let $first_part := functx:substring-before-last($urn,":")
+        let $last_part : = fn:string-join(fn:subsequence(fn:tokenize(functx:substring-after-last($urn,":"),"\."),1, $ref_level),".")
+        return $first_part || ":" || $last_part
+
 };
 
 declare function teigeneration:get_milestones_that_change_ref_level($spans as node()+, $ref_level as xs:int) as node()* {
@@ -158,8 +149,8 @@ declare function teigeneration:make_all_tei($my_collection as xs:string) as node
         else 
             <tei:body>
                 {
-        for $type in $svg_zone_types
-            order by index-of($svg_zone_types, $type)
+        for $type in $teigeneration:svg_zone_types
+            order by index-of($teigeneration:svg_zone_types, $type)
             return <tei:div type="{$type}">{teigeneration:make_tei_zone($my_collection, $type)}</tei:div>
                 }
             </tei:body>
@@ -194,8 +185,8 @@ declare function teigeneration:make_tei($my_collection as xs:string) as node()* 
         then
            error(QName('http://heml.mta.ca/Lace2/Error/','HugeZipFile'),'Inappropriate number of subdocuments in path"' || $my_collection || '"')
         else 
-        for $type in $svg_zone_types
-            order by index-of($svg_zone_types, $type)
+        for $type in $teigeneration:svg_zone_types
+            order by index-of($teigeneration:svg_zone_types, $type)
         for $rect in collection($my_collection)//svg:rect[@data-rectangle-type=$type]
             order by util:document-name($rect), $rect/@data-rectangle-ordinal 
                 return (
