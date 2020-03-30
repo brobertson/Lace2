@@ -146,7 +146,7 @@ declare function teipreflight:reportGoodUri($node as node(), $model as map(*),  
         else
             ($title,
             <html:div><html:p>✅Your editing passes tests and is ready to be transformed to TEI by pressing this button:</html:p></html:div>,
-        <html:div><html:button type="button" class="btn btn-success"><html:a id="download_tei" href='{concat("getTeiVolume.xq?collectionUri=",$collectionUri)}'>Download TEI File</html:a></html:button>
+        <html:div><html:button type="button" class="btn btn-success"><html:a id="download_tei" href='{concat("modules/getTeiVolume.xq?collectionUri=",$collectionUri)}'>Download TEI File</html:a></html:button>
             </html:div>
             )
 };   
