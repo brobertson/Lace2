@@ -69,6 +69,11 @@ declare function teipreflight:depthTestReport($ordered_pickers as node()*) {
 declare function teipreflight:zoneReport($zone as xs:string, $raw_elements) {
     let $enclosed := <here>{$raw_elements}</here>
     let $ordered_pickers := $enclosed//*[@class='cts_picker']
+    let $warning :=
+        if (fn:count($ordered_pickers) = 0 or fn:count($raw_elements) = 0) then
+            <html:div>⚠️️Zone <html:code>{$zone}</html:code> either has no references or no zoned text. Therefore it will have no TEI output. It has {fn:count($ordered_pickers)} references and {fn:count($raw_elements)} zoned words.</html:div>
+            else
+                <html:div>✅ Zone<html:code>{$zone}</html:code> has {fn:count($ordered_pickers)} references and {fn:count($raw_elements)} zoned words.</html:div>
     let $allReports :=
     (
     teipreflight:depthTestReport($ordered_pickers),
@@ -81,7 +86,7 @@ declare function teipreflight:zoneReport($zone as xs:string, $raw_elements) {
                     <html:div>{$allReports}</html:div>
             )
         else 
-            ()
+            $warning
 };          
 
 declare function teipreflight:reportGoodUri($node as node(), $model as map(*),  $collectionUri as xs:string) {
@@ -97,6 +102,7 @@ declare function teipreflight:reportGoodUri($node as node(), $model as map(*),  
             $reports)
         else
             ($title,
+            $reports,
             <html:div><html:p>✅Your editing passes tests and is ready to be transformed to TEI by pressing this button:</html:p></html:div>,
         <html:div><html:button type="button" class="btn btn-success"><html:a id="download_tei" href='{concat("modules/getTeiVolume.xq?collectionUri=",$collectionUri)}'>Download TEI File</html:a></html:button>
             </html:div>
