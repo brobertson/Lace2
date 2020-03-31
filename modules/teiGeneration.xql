@@ -1,12 +1,13 @@
 xquery version "3.1";
 
 module namespace teigeneration="http://heml.mta.ca/Lace2/teigeneration";
-
+import module namespace ctsurns="http://heml.mta.ca/Lace2/ctsurns" at "ctsUrns.xql";
 declare namespace html="http://www.w3.org/1999/xhtml";
 declare namespace svg="http://www.w3.org/2000/svg";
 import module namespace functx="http://www.functx.com";
 declare namespace tei="http://www.tei-c.org/ns/1.0";
 declare namespace dc="http://purl.org/dc/elements/1.1/";
+
 declare variable $teigeneration:svg_zone_types := ("primary_text", "translation", "app_crit",  "commentary");
 
 declare function teigeneration:clear_extra_bbox_data($in as xs:string) as xs:string {
@@ -61,10 +62,10 @@ declare function teigeneration:get_ref_at_level($urn as xs:string, $ref_level as
 
 };
 
-declare function teigeneration:get_milestones_that_change_ref_level($spans as node()+, $ref_level as xs:int) as node()* {
+declare function teigeneration:get_milestones_that_change_ref_level($spans as node()+, $ref_level as xs:int, $doc_ref as xs:string) as node()* {
     try {
     for $ms at $count in $spans[@class="cts_picker"]
-    where (($count = 1) or (teigeneration:get_ref_at_level($ms/@data-ctsurn,$ref_level) !=  teigeneration:get_ref_at_level($spans[@class='cts_picker'][$count -1]/@data-ctsurn, $ref_level)))
+    where (ctsurns:ctsUrnReference($ms/@data-ctsurn/string()) = $doc_ref) and (($count = 1) or (teigeneration:get_ref_at_level($ms/@data-ctsurn,$ref_level) !=  teigeneration:get_ref_at_level($spans[@class='cts_picker'][$count -1]/@data-ctsurn, $ref_level)))
     order by $ms/@data-ctsurn
         return $ms
     }
@@ -82,13 +83,13 @@ declare function teigeneration:get_length_to_next_mile_or_last($spans as node()+
 };
 
 
-declare function teigeneration:make_divs_from_changed_ref_level($spans as node()*, $ref_level as xs:int) as node()* {
+declare function teigeneration:make_divs_from_changed_ref_level($spans as node()*, $ref_level as xs:int, $doc_ref as xs:string) as node()* {
     (: not sure the following is necessary :)
         if (count($spans) = 0) then
             <empty/>
         else
             let $lowest_level := 1
-            let $miles := teigeneration:get_milestones_that_change_ref_level($spans, $ref_level)
+            let $miles := teigeneration:get_milestones_that_change_ref_level($spans, $ref_level, $doc_ref)
             let $count_of_ms := count($miles)
             for $ms at $count in $miles
                 let $ref := teigeneration:get_ref_at_level($ms/@data-ctsurn,$ref_level)
@@ -102,7 +103,7 @@ declare function teigeneration:make_divs_from_changed_ref_level($spans as node()
                     </tei:div>
                 else
                     <tei:div type="textpart" subtype="{$ref_level}" n="{$ref}" >
-                    {teigeneration:make_divs_from_changed_ref_level(subsequence($spans,functx:index-of-node($spans, $ms), teigeneration:get_length_to_next_mile_or_last($spans , $miles, $count, $start_index)), $ref_level + 1)}
+                    {teigeneration:make_divs_from_changed_ref_level(subsequence($spans,functx:index-of-node($spans, $ms), teigeneration:get_length_to_next_mile_or_last($spans , $miles, $count, $start_index) ), $ref_level + 1, $doc_ref)}
                     </tei:div>
 };
 
@@ -142,8 +143,8 @@ declare function teigeneration:milestones_to_divs($spans as node()+) as node()* 
 
 };
 
-declare function teigeneration:make_all_tei($my_collection as xs:string) as node()* {
-        if ($my_collection = '')
+declare function teigeneration:make_all_tei($my_collection as xs:string, $ref as xs:string) as node()* {
+        if ($my_collection = '' or $ref = '')
         then
            error(QName('http://heml.mta.ca/Lace2/Error/','HugeZipFile'),'Inappropriate number of subdocuments in path"' || $my_collection || '"')
         else 
@@ -151,21 +152,22 @@ declare function teigeneration:make_all_tei($my_collection as xs:string) as node
                 {
         for $type in $teigeneration:svg_zone_types
             order by index-of($teigeneration:svg_zone_types, $type)
-            return <tei:div type="{$type}">{teigeneration:make_tei_zone($my_collection, $type)}</tei:div>
+            return <tei:div type="{$type}">{teigeneration:make_tei_zone($my_collection, $type, $ref)}</tei:div>
                 }
             </tei:body>
 };
 
-declare function teigeneration:make_tei_zone($my_collection as xs:string, $zone as xs:string) as node()* {
-    let $raw := teigeneration:make_tei_zone_raw($my_collection, $zone)
+declare function teigeneration:make_tei_zone($my_collection as xs:string, $zone as xs:string, $ref as xs:string) as node()* {
+    let $raw := teigeneration:strip_zone_of_following_other_doc(teigeneration:make_tei_zone_raw($my_collection, $zone), $ref)
     return
     if (count($raw[@class="cts_picker"]) eq 0) then
-        <tei:p>{$raw}</tei:p>
+        ()
     else 
-(:  :
-        (teigeneration:milestones_to_divs_widows($raw), teigeneration:milestones_to_divs($raw),<changems>{teigeneration:make_divs_from_changed_ref_level($raw,1)}</changems>)
-     :)
-      (teigeneration:milestones_to_divs_widows($raw),teigeneration:make_divs_from_changed_ref_level($raw,1))
+      teigeneration:make_divs_from_changed_ref_level($raw,1, $ref)
+};
+
+declare function teigeneration:strip_zone_of_following_other_doc($raw as node()*, $this_doc_ref as xs:string) {
+  <wrap>{$raw}</wrap>/html:span[@data-ctsurn][not(ctsurns:ctsUrnReference(@data-ctsurn/string())=$this_doc_ref)]/preceding-sibling::*
 };
 
 declare function teigeneration:make_tei_zone_raw($my_collection as xs:string, $zone as xs:string) as node()* {

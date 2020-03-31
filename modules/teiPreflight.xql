@@ -6,60 +6,12 @@ declare namespace html="http://www.w3.org/1999/xhtml";
 import module namespace functx="http://www.functx.com";
 import module namespace app="http://heml.mta.ca/Lace2/templates" at "app.xql";
 import module namespace teigeneration="http://heml.mta.ca/Lace2/teigeneration" at "teiGeneration.xql";
+import module namespace ctsurns="http://heml.mta.ca/Lace2/ctsurns" at "ctsUrns.xql";
 
-declare function teipreflight:ctsUrnReference($urn as xs:string) {
-    functx:substring-before-last($urn,':') || ":"
-};
-
-declare function teipreflight:uniqueCtsUrnReferences($ordered_pickers as node()*) {
-        let $runRefsOnly :=
-            for $picker in $ordered_pickers
-            return
-                teipreflight:ctsUrnReference($picker//@data-ctsurn/string())
-        return fn:distinct-values($runRefsOnly)
-};
-
-
-
-declare function teipreflight:getPickerNodesForCtsUrnReference($ordered_pickers as node()*, $ref as xs:string) as node()* {
-    for $picker in $ordered_pickers
-    where teipreflight:ctsUrnReference($picker/@data-ctsurn/string()) = $ref
-    return $picker
-};
-
-
-
-declare function teipreflight:ctsUrnReferencesSame($urn1 as xs:string, $urn2 as xs:string) as xs:boolean {
-  (teipreflight:ctsUrnReference($urn1) = teipreflight:ctsUrnReference($urn2))  
-};
-
-declare function teipreflight:ctsUrnPassageCitation($urn as xs:string) {
-    functx:substring-after-last($urn,':')
-};
-
-declare function teipreflight:ctsUrnPassageCitationParts($passageCitation) {
-    fn:tokenize(teipreflight:ctsUrnPassageCitation($passageCitation),'\.')
-};
-
-declare function teipreflight:ctsUrnPassageCitationDepth($urn as xs:string) {
-    count(teipreflight:ctsUrnPassageCitationParts(teipreflight:ctsUrnPassageCitation($urn)))
-};
 
 declare function teipreflight:ctsPickerPassageCitationDepth($picker as node()) {
-    teipreflight:ctsUrnPassageCitationDepth(teipreflight:ctsUrnPassageCitation($picker/@data-ctsurn/string()))
+    ctsurns:ctsUrnPassageCitationDepth(ctsurns:ctsUrnPassageCitation($picker/@data-ctsurn/string()))
 };
-
-(:  
-declare function teipreflight:getOrderedUrnPickers($my_collection as xs:string) as node()* {
-let $col := collection($my_collection)
-for $doc in $col
-let $seq := ()
-let $name := util:document-name($doc)
-    order by util:document-name($doc)
-where (functx:substring-after-last($name,'.') = 'html')
-    return ($seq, $doc//html:span[@class='cts_picker'])
-};
-:)
 
 
 declare function teipreflight:testPassageCitationDepths($pickers as node()*) {
@@ -76,7 +28,7 @@ declare function teipreflight:testPassageCitationDepths($pickers as node()*) {
         let $docCollectionUri := $image_position_results[1]
         let $position := $image_position_results[2]
         :)
-        <html:div class="tei_error">❌The depth of the first reference for the work <html:code>{teipreflight:ctsUrnReference($picker/@data-ctsurn/string())}</html:code> is {$first_depth}, but for another it is {$this_depth} with a citation that reads <html:code>{teipreflight:ctsUrnPassageCitation($picker/@data-ctsurn/string())}</html:code>. To generate a TEI text, all references for a work have to have the same depth.</html:div>
+        <html:div class="tei_error">❌The depth of the first reference for the work <html:code>{ctsurns:ctsUrnReference($picker/@data-ctsurn/string())}</html:code> is {$first_depth}, but for another it is {$this_depth} with a citation that reads <html:code>{ctsurns:ctsUrnPassageCitation($picker/@data-ctsurn/string())}</html:code>. To generate a TEI text, all references for a work have to have the same depth.</html:div>
     else
         ()
 };
@@ -99,7 +51,7 @@ declare function teipreflight:interleavedUrnReferencesTest($ordered_pickers) {
     let $refs :=
             for $picker in $ordered_pickers
             return
-                teipreflight:ctsUrnReference($picker//@data-ctsurn/string())
+                ctsurns:ctsUrnReference($picker//@data-ctsurn/string())
     for $ref at $pos in $refs
        where ($refs[$pos + 1] != $ref) and ($ref = subsequence($refs, ($pos + 2), count($refs))) 
     return
@@ -107,9 +59,9 @@ declare function teipreflight:interleavedUrnReferencesTest($ordered_pickers) {
 };
 
 declare function teipreflight:depthTestReport($ordered_pickers as node()*) {
-    for $ref in teipreflight:uniqueCtsUrnReferences($ordered_pickers)
+    for $ref in ctsurns:uniqueCtsUrnReferences($ordered_pickers)
         return 
-        teipreflight:testPassageCitationDepths(teipreflight:getPickerNodesForCtsUrnReference($ordered_pickers, $ref))
+        teipreflight:testPassageCitationDepths(ctsurns:getPickerNodesForCtsUrnReference($ordered_pickers, $ref))
 };
 
 
