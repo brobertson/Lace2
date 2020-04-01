@@ -18,9 +18,14 @@ declare function ctsurns:ctsUrnPassageCitationParts($passageCitation) {
     fn:tokenize(ctsurns:ctsUrnPassageCitation($passageCitation),'\.')
 };
 
-declare function ctsurns:ctsUrnPassageCitationDepth($urn as xs:string) {
-    count(ctsurns:ctsUrnPassageCitationParts(ctsurns:ctsUrnPassageCitation($urn)))
-};
+declare function ctsurns:ctsUrnPassageCitationDepth($urn as xs:string*) as xs:int {
+        try {
+            count(ctsurns:ctsUrnPassageCitationParts(ctsurns:ctsUrnPassageCitation($urn)))
+        }
+        catch * {
+            -1
+        }
+    };
 
 declare function ctsurns:getPickerNodesForCtsUrnReference($ordered_pickers as node()*, $ref as xs:string) as node()* {
     for $picker in $ordered_pickers

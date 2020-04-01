@@ -9,8 +9,8 @@ declare function local:allTeiVolumes($my_collection as xs:string) as node()* {
     for $vol in $volume_refs
     return 
          <entry name="{fn:replace($vol, ':', '_') || '.tei'}" type='xml' method='store'>
-         <zoneA><zoneRaw>{teigeneration:make_tei_zone_raw($my_collection, 'primary_text')}</zoneRaw>
-         <zonePruned>{teigeneration:strip_zone_of_following_other_doc(teigeneration:make_tei_zone_raw($my_collection, 'primary_text'),'urn:cts:greekLit:tlg0081.tlg003.1st1K-grc1:')}</zonePruned>
+         <zoneA><Raw>{teigeneration:make_tei_zone_raw($my_collection, 'primary_text')}</Raw>
+         <Pruned>{teigeneration:strip_zone_of_following_other_doc(teigeneration:make_tei_zone_raw($my_collection, 'primary_text'),'urn:cts:greekLit:tlg0081.tlg005.1st1K-grc1:')}</Pruned>
          {teigeneration:wrap_tei(teigeneration:strip_spans(teigeneration:make_all_tei($my_collection, $vol)))}
          </zoneA>
          </entry>

@@ -19,7 +19,13 @@ declare function teigeneration:clear_extra_bbox_data($in as xs:string) as xs:str
 declare function teigeneration:get_bbox($node as node()) as xs:string {
     let $node_out :=
         if ($node[@class='cts_picker']) then 
+            (: this tries to chose the following one to which it is bound. The problem 
+            with this is that it's maybe not in the bounds. You almost certainly want a picker to be 
+            selected, so we'll use the bbox of the *line* instead
+            
             $node/following::*[@id=$node/@data-starting-span]
+            :)
+            $node/..[@class="ocr_line"]
         else
             $node
     let $out := substring(teigeneration:clear_extra_bbox_data($node_out/@title), 6)
@@ -83,19 +89,18 @@ declare function teigeneration:get_length_to_next_mile_or_last($spans as node()+
 };
 
 
-declare function teigeneration:make_divs_from_changed_ref_level($spans as node()*, $ref_level as xs:int, $doc_ref as xs:string) as node()* {
+declare function teigeneration:make_divs_from_changed_ref_level($spans as node()*, $ref_level as xs:int, $doc_ref as xs:string, $ref_depth) as node()* {
     (: not sure the following is necessary :)
         if (count($spans) = 0) then
             <empty/>
         else
-            let $lowest_level := 1
             let $miles := teigeneration:get_milestones_that_change_ref_level($spans, $ref_level, $doc_ref)
             let $count_of_ms := count($miles)
             for $ms at $count in $miles
                 let $ref := teigeneration:get_ref_at_level($ms/@data-ctsurn,$ref_level)
                 let $start_index := functx:index-of-node($spans, $ms)+1
                 return
-                    if ($ref_level = $lowest_level) then
+                    if ($ref_level = $ref_depth) then
                     <tei:div  type="textpart"  subtype="{$ref_level}" n="{$ref}" >
                     <tei:p>
                     {subsequence($spans,$start_index, teigeneration:get_length_to_next_mile_or_last($spans , $miles, $count, $start_index))}
@@ -103,7 +108,7 @@ declare function teigeneration:make_divs_from_changed_ref_level($spans as node()
                     </tei:div>
                 else
                     <tei:div type="textpart" subtype="{$ref_level}" n="{$ref}" >
-                    {teigeneration:make_divs_from_changed_ref_level(subsequence($spans,functx:index-of-node($spans, $ms), teigeneration:get_length_to_next_mile_or_last($spans , $miles, $count, $start_index) ), $ref_level + 1, $doc_ref)}
+                    {teigeneration:make_divs_from_changed_ref_level(subsequence($spans,functx:index-of-node($spans, $ms), teigeneration:get_length_to_next_mile_or_last($spans , $miles, $count, $start_index) ), $ref_level + 1, $doc_ref, $ref_depth)}
                     </tei:div>
 };
 
@@ -160,14 +165,31 @@ declare function teigeneration:make_all_tei($my_collection as xs:string, $ref as
 declare function teigeneration:make_tei_zone($my_collection as xs:string, $zone as xs:string, $ref as xs:string) as node()* {
     let $raw := teigeneration:strip_zone_of_following_other_doc(teigeneration:make_tei_zone_raw($my_collection, $zone), $ref)
     return
-    if (count($raw[@class="cts_picker"]) eq 0) then
-        ()
-    else 
-      teigeneration:make_divs_from_changed_ref_level($raw,1, $ref)
+        if (count($raw[@class="cts_picker"]) eq 0) then
+            ()
+        else 
+            let $reference_depth := ctsurns:ctsUrnPassageCitationDepth($raw[@class="cts_picker"][1]/@data-ctsurn/string())
+            return
+                teigeneration:make_divs_from_changed_ref_level($raw,1, $ref, $reference_depth)
 };
 
 declare function teigeneration:strip_zone_of_following_other_doc($raw as node()*, $this_doc_ref as xs:string) {
-  <wrap>{$raw}</wrap>/html:span[@data-ctsurn][not(ctsurns:ctsUrnReference(@data-ctsurn/string())=$this_doc_ref)]/preceding-sibling::*
+    (: According to the teiPreflight check, all doc refs within a given zone have to come in blocks.
+    That is, they cant be interleaved, like AABBA. So we can get the pertinent matter for this zone by 
+    pruning what is comes before the first doc ref that matches this and by optionally pruning all that comes 
+    after that *doesn't* match this.
+    
+    This strips all content before the first doc ref that matches. :)
+    let $strip_preceding := <wrap>{$raw}</wrap>/html:span[@data-ctsurn][ctsurns:ctsUrnReference(@data-ctsurn/string())=$this_doc_ref][1]/(self::*, following-sibling::*)
+    (: this removes all material following the first non-this doc_ref. In the case that there is no 
+    non-this following doc_ref, though, it returns nothing, so we need the conditional that follows it
+    :)
+    let $strip_following := <wrap>{$strip_preceding}</wrap>/html:span[@data-ctsurn][not(ctsurns:ctsUrnReference(@data-ctsurn/string())=$this_doc_ref)][1]/preceding-sibling::*
+    return
+        if ($strip_following) then
+            $strip_following
+        else
+            $strip_preceding
 };
 
 declare function teigeneration:make_tei_zone_raw($my_collection as xs:string, $zone as xs:string) as node()* {
