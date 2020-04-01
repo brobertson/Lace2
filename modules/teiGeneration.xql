@@ -43,22 +43,30 @@ declare function teigeneration:html_node_corresponding_to_svg_node($node as node
 
 
 declare function teigeneration:intersect_bbox_and_rect($rect as node(), $bbox as node()) as xs:boolean {
-    let $bbox_string := teigeneration:get_bbox($bbox)
-    let $scale := xs:float($rect/preceding::svg:image/@data-scale)
-    let $bbox_tokens := fn:tokenize($bbox_string,'\s+')
-    let $bULx := xs:float($bbox_tokens[1])
-    let $bULy := xs:float($bbox_tokens[2])
-    let $bLRx := xs:float($bbox_tokens[3])
-    let $bLRy := xs:float($bbox_tokens[4])
-    let $rULx := xs:float($rect/@x) div $scale
-    let $rULy := xs:float($rect/@y)  div $scale
-    let $rLRx := $rULx + (xs:float($rect/@width) div $scale)
-    let $rLRy := $rULy + (xs:float($rect/@height) div $scale)
-    return
-    if (($bULx gt $rLRx) or ($rULx gt $bLRx) or ($bULy gt $rLRy) or ($rULy gt $bLRy)) then
+    try {
+        let $bbox_string := teigeneration:get_bbox($bbox)
+        let $scale := xs:float($rect/preceding::svg:image/@data-scale)
+        let $bbox_tokens := fn:tokenize($bbox_string,'\s+')
+        let $bULx := xs:float($bbox_tokens[1])
+        let $bULy := xs:float($bbox_tokens[2])
+        let $bLRx := xs:float($bbox_tokens[3])
+        let $bLRy := xs:float($bbox_tokens[4])
+        let $rULx := xs:float($rect/@x) div $scale
+        let $rULy := xs:float($rect/@y)  div $scale
+        let $rLRx := $rULx + (xs:float($rect/@width) div $scale)
+        let $rLRy := $rULy + (xs:float($rect/@height) div $scale)
+        return
+        if (($bULx gt $rLRx) or ($rULx gt $bLRx) or ($bULy gt $rLRy) or ($rULy gt $bLRy)) then
+            false()
+        else 
+            true()
+    }
+    (: deal with cases where either are null, for instance if an element has no @title attribute.
+    :)
+    catch * {
         false()
-    else 
-        true()
+    }
+
 };
 
 declare function teigeneration:get_ref_at_level($urn as xs:string, $ref_level as xs:int) as xs:string {
@@ -196,14 +204,15 @@ declare function teigeneration:make_tei_zone_raw($my_collection as xs:string, $z
             for $rect in collection($my_collection)//svg:rect[@data-rectangle-type=$zone]
             order by util:document-name($rect), $rect/@data-rectangle-ordinal 
                 return 
-                        for $element in teigeneration:html_node_corresponding_to_svg_node($rect, $my_collection)//html:span[@class="ocr_word" or @class="cts_picker"]
+                        for $element in teigeneration:html_node_corresponding_to_svg_node($rect, $my_collection)//html:span[@class="ocr_word" or @class="cts_picker" or @class="index_word" or @class="inserted_line"]
                        where teigeneration:intersect_bbox_and_rect($rect, $element)
                         return 
                            $element
 };
 
 
-
+(:
+ : This has been factored out into functions above.  
 declare function teigeneration:make_tei($my_collection as xs:string) as node()* {
     if ($my_collection = '')
         then
@@ -214,7 +223,7 @@ declare function teigeneration:make_tei($my_collection as xs:string) as node()* 
         for $rect in collection($my_collection)//svg:rect[@data-rectangle-type=$type]
             order by util:document-name($rect), $rect/@data-rectangle-ordinal 
                 return (
-                        for $element in teigeneration:html_node_corresponding_to_svg_node($rect, $my_collection)//html:span[@class="ocr_word" or @class="cts_picker"]
+                        for $element in teigeneration:html_node_corresponding_to_svg_node($rect, $my_collection)//html:span[@class="ocr_word" or @class="cts_picker" or @class="index_word" or @class="inserted_line"]
                        where teigeneration:intersect_bbox_and_rect($rect, $element)
                         return 
                            $element
@@ -222,6 +231,7 @@ declare function teigeneration:make_tei($my_collection as xs:string) as node()* 
             )  
 };
 
+:)
 
 declare function teigeneration:strip_spans($input as node()?) {
     let $xslt := <xsl:stylesheet version="1.0" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">

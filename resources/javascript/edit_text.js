@@ -175,6 +175,7 @@ function add_line_below_xmldb(element, e, uniq) {
     data['shift'] = e.shiftKey
     data['value'] = $(element).text();
     data['original-title'] = $(element).attr('original-title')
+    data['title'] = $(element).attr('original-title')
     data['id'] = element.id;
     data['uniq'] = uniq;
     doc = $('.ocr_page').attr('title')
@@ -226,14 +227,16 @@ function delete_added_element(buttonElement) {
     });
 }
 
-function add_index_after(element, e, uniq) {
+function add_index_after(element, e, uniq, dimensions) {
     var data = {};
     data['shift'] = e.shiftKey
     data['value'] = $(element).text();
     data['id'] = element.id;
     data['uniq'] = uniq;
     doc = $('.ocr_page').attr('title')
-    data['original-title'] = $(element).attr('original-title')
+    data['original-title'] = dimensions
+    console.log("posting dimensions: " + dimensions)
+    data['title'] = dimensions
     data['doc'] = doc
     var n = doc.lastIndexOf('/');
     var fileName = doc.substring(n + 1);
@@ -360,11 +363,15 @@ $(function() {
                 if (e.ctrlKey == false) {
                     console.log("ctrl is off")
                     //Inserting a word inline
+                    parent_line = $(this).parent('.ocr_line')
                     var uniq = 'ins_word_' + (new Date()).getTime();
                     var index_word = $("<span class='index_word_holder' id='" + uniq + "_holder'><span class='index_word' id='" + uniq + "' data-manually-confirmed='false' contenteditable='true'></span><button id='" + uniq + "_button' type='button' class='delete_element' aria-label='Close'><span aria-hidden='true'>&times;</span></button></span>")
                     $(this).after(index_word)
-                    $("#"+uniq).attr("original-title", tall_bbox_beside_string($(this), 4))
-                    add_index_after(this, e, uniq);
+                    var pixel_shift_down = 0
+                    dimensions = narrow_bbox_below_string(parent_line, pixel_shift_down)
+                    $("#"+uniq).attr("original-title", dimensions)
+                    $("#"+uniq).attr("title", dimensions)
+                    add_index_after(this, e, uniq, dimensions);
                     $('.ocr_page').on('keypress', '.index_word', function(e) {
                         if (e.which == 13) {
                             e.preventDefault();
@@ -500,6 +507,7 @@ $(function() {
                     var newline = $("<div class='inserted_line_holder' id='" + uniq + "_holder'><span class='inserted_line' id='" + uniq + "' data-manually-confirmed='false' contenteditable='true'></span><button id='" + uniq + "_button' type='button' class='delete_element' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>")
                     parent_line.after(newline);
                     $("#"+uniq).attr("original-title", narrow_bbox_below_string(parent_line, 4))
+                    $("#"+uniq).attr("title", narrow_bbox_below_string(parent_line, 4))
                     add_line_below_xmldb(this, e, uniq);
                     $('.ocr_page').on('keypress', '.inserted_line', function(e) {
                         //console.log("we get an inserted line keypress")
