@@ -80,7 +80,6 @@ declare function teigeneration:get_milestones_that_change_ref_level($spans as no
     try {
     for $ms at $count in $spans[@class="cts_picker"]
     where (ctsurns:ctsUrnReference($ms/@data-ctsurn/string()) = $doc_ref) and (($count = 1) or (teigeneration:get_ref_at_level($ms/@data-ctsurn,$ref_level) !=  teigeneration:get_ref_at_level($spans[@class='cts_picker'][$count -1]/@data-ctsurn, $ref_level)))
-    order by $ms/@data-ctsurn
         return $ms
     }
     catch * {

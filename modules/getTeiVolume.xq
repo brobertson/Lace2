@@ -8,7 +8,9 @@ declare function local:allTeiVolumes($my_collection as xs:string) as node()* {
     let $volume_refs := ctsurns:uniqueCtsUrnReferences(collection($my_collection)//xh:span[@data-ctsurn])
     for $vol in $volume_refs
     return 
-         {teigeneration:wrap_tei(teigeneration:strip_spans(teigeneration:make_all_tei($my_collection, $vol)))}
+        <entry type="xml" name="{fn:replace($vol,':','_') || '.tei'}">
+            {(teigeneration:wrap_tei(teigeneration:strip_spans(teigeneration:make_all_tei($my_collection, $vol))))}
+         </entry>
 };
 
 let $my_collection := xs:string(request:get-parameter('collectionUri', ''))
