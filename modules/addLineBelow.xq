@@ -19,7 +19,7 @@ let $foo1 := response:set-header("Access-Control-Allow-Origin", "*")
 let $word := doc(concat($filePath, '/', $fileName))//html:span[@id = $id]
 
 let $line := $word/..
-let $foo3 := update  insert <html:div id='{$uniq}_holder'  classs='inserted_line_holder'><html:span id='{$uniq}' class='inserted_line' data-manually-confirmed='false' original-title='{$original-title}' title='{$title}' contenteditable='true'/><html:button type='button' id='{$uniq}_button' class='delete_element' aria-label='Close' ><html:span aria-hidden='true'>x</html:span></html:button></html:div> following $line
+let $foo3 := update  insert <html:div id='{$uniq}_holder'  class='inserted_line_holder'><html:span id='{$uniq}' class='inserted_line' data-manually-confirmed='false' original-title='{$original-title}' title='{$title}' contenteditable='true'/><html:button type='button' id='{$uniq}_button' class='delete_element' aria-label='Close' ><html:span aria-hidden='true'>x</html:span></html:button></html:div> following $line
 
 return
     <html>
