@@ -16,7 +16,6 @@ declare function local:allTeiVolumes($my_collection as xs:string) as node()* {
 let $my_collection := xs:string(request:get-parameter('collectionUri', ''))
 let $collectionName := collection($my_collection)//dc:identifier
 
-
 return
     response:stream-binary(
         xs:base64Binary(compression:zip(local:allTeiVolumes($my_collection), false()) ),
