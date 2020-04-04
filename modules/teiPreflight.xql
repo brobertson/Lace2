@@ -99,12 +99,22 @@ declare function teipreflight:reportGoodUri($node as node(), $model as map(*),  
     return
         if ($reports//@class="tei_error") then
             ($title,
-            $reports)
+            <html:div class="row"><html:div class="col-md-8">{$reports}</html:div></html:div>)
         else
             ($title,
-            $reports,
-            <html:div><html:p>✅Your editing passes tests and is ready to be transformed to TEI by pressing this button:</html:p></html:div>,
-        <html:div><html:button type="button" class="btn btn-success"><html:a id="download_tei" href='{concat("modules/getTeiVolume.xq?collectionUri=",$collectionUri)}'>Download TEI File</html:a></html:button>
+            <html:div class="row announcement"><html:div class="col-md-8">{$reports}</html:div></html:div>,
+            <html:div class="row announcement">
+                <html:div class="col-md-8">
+                    <html:p>✅Your editing passes tests and is ready to be transformed to TEI or validated:</html:p>
+                </html:div>
+            </html:div>,
+            <html:div class="row announcement">
+                <html:div class="col-md-2">
+                    <html:button type="button" class="btn btn-success"><html:a id="download_tei" href='{concat("modules/getTeiVolume.xq?collectionUri=",$collectionUri)}'>Download TEI File</html:a></html:button>
+                </html:div>
+                <html:div class="col-md-2">
+                    <html:button type="button" class="btn btn-success"><html:a id="validate_tei" href='{concat("teiValidation.html?collectionUri=",$collectionUri)}'>Validate TEI File</html:a></html:button>
+                </html:div>
             </html:div>
             )
 };   

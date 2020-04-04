@@ -329,3 +329,11 @@ section p {
 .modal-dialog {
     text-align: left;
 }
+
+button a {
+    color: black;
+}
+
+.announcement {
+    padding: 10px;
+}

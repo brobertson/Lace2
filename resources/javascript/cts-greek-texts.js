@@ -1034,6 +1034,7 @@
 {label: "Acta Petri, Martyrium Petri", id : "urn:cts:greekLit:tlg0389.tlg001.1st1K-grc1:" },
 {label: "Martyrium sanctorum Carpi, Papyli et Agathonicae, Martyrium sanctorum Carpi, Papyli et Agathonicae", id : "urn:cts:greekLit:tlg0390.tlg001.1st1K-grc1:" },
 {label: "Acta Scillitanorum Martyrum, Acta Scillitanorum martyrum sive Passio Sperati et sociorum", id : "urn:cts:greekLit:tlg0391.tlg001.1st1K-grc1:" },
+{label: "Martyrium Perpetuae Et Felicitatis, Passio Perpetuae et Felicitatis", id : "urn:cts:greekLit:tlg2016.tlg001.1st1K-grc1:" },
 {label: "Comica Adespota (FCG), Fragmenta incertorum poetarum", id : "urn:cts:greekLit:tlg0408.tlg001.1st1K-grc1:" },
 {label: "Myia, Pythagorica 6./5. bzw. 3./2. Jh. v. Chr, Epistula ad Phyllidem", id : "urn:cts:greekLit:tlg0509.tlg001.1st1K-grc1:" },
 {label: "Epicharmus, 5th cent. B.C., Fragmenta Epicharmi", id : "urn:cts:greekLit:tlg0521.tlg001.1st1K-grc1:" },

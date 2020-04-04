@@ -364,7 +364,8 @@ declare function app:runActionsMenu($run as node()) {
                 <xh:li><xh:a id="download_xar" href='{concat("getZippedCollection.xq?collectionUri=",$collectionUri, "&amp;format=xar")}'>Download XAR File</xh:a></xh:li>
                 <xh:li><xh:a id="download_txt" href="{concat("getZippedCollection.xq?collectionUri=",app:hocrCollectionUriForRunMetadataFile($run), "&amp;format=text")}">Download Plain Text Zip File</xh:a></xh:li>
                 {$conditional_items}
-                <xh:li><xh:a id="preflight_tei" href='{concat("teiPreflight.html?collectionUri=",$collectionUri)}'>Precheck TEI File</xh:a></xh:li>
+                <xh:li><xh:a id="preflight_tei" href='{concat("teiValidation.html?collectionUri=",$collectionUri)}'>Validate TEI File</xh:a></xh:li>
+                <xh:li><xh:a id="preflight_tei" href='{concat("teiPreflight.html?collectionUri=",$collectionUri)}'>Precheck and Download TEI File</xh:a></xh:li>
               </xh:ul>
             </xh:div>
             </xh:span>
