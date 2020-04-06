@@ -187,16 +187,20 @@ declare function teigeneration:strip_zone_of_following_other_doc($raw as node()*
     after that *doesn't* match this.
     
     This strips all content before the first doc ref that matches. :)
-    let $strip_preceding := <wrap>{$raw}</wrap>/html:span[@data-ctsurn][ctsurns:ctsUrnReference(@data-ctsurn/string())=$this_doc_ref][1]/(self::*, following-sibling::*)
+    let $the_doc_ref := <wrap>{$raw}</wrap>/html:span[@data-ctsurn][ctsurns:ctsUrnReference(@data-ctsurn/string())=$this_doc_ref][1]
+    let $pb_just_before := <wrap>{$raw}</wrap>/html:span[@data-ctsurn][ctsurns:ctsUrnReference(@data-ctsurn/string())=$this_doc_ref][1]/preceding-sibling::tei:pb[1]
+    let $strip_preceding := <wrap>{$raw}</wrap>/html:span[@data-ctsurn][ctsurns:ctsUrnReference(@data-ctsurn/string())=$this_doc_ref][1]/(following-sibling::*)
+
     (: this removes all material following the first non-this doc_ref. In the case that there is no 
     non-this following doc_ref, though, it returns nothing, so we need the conditional that follows it
     :)
     let $strip_following := <wrap>{$strip_preceding}</wrap>/html:span[@data-ctsurn][not(ctsurns:ctsUrnReference(@data-ctsurn/string())=$this_doc_ref)][1]/preceding-sibling::*
     return
         if ($strip_following) then
-            $strip_following
+            (: note that we re-order page break element to after the ref so that it will appear :)
+            ($the_doc_ref,$pb_just_before,$strip_following)
         else
-            $strip_preceding
+            ($the_doc_ref,$pb_just_before,$strip_preceding)
 };
 
 declare function teigeneration:is_first_rectangle_of_type_in_doc($rect as node()) as xs:boolean {

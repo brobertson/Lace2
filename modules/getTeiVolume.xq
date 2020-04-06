@@ -10,7 +10,7 @@ declare function local:allTeiVolumes($my_collection as xs:string) as node()* {
     return 
         <entry type="xml" name="{fn:replace($vol,':','_') || '.tei'}">
             {(teigeneration:wrap_tei(teigeneration:strip_spans(teigeneration:make_all_tei($my_collection, $vol))))}
-         </entry>
+        </entry>
 };
 
 let $my_collection := xs:string(request:get-parameter('collectionUri', ''))
