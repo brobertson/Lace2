@@ -199,38 +199,35 @@ declare function teigeneration:strip_zone_of_following_other_doc($raw as node()*
             $strip_preceding
 };
 
+declare function teigeneration:is_first_rectangle_of_type_in_doc($rect as node()) as xs:boolean {
+    let $ordinal := $rect/@data-rectangle-ordinal
+    let $type := $rect/@data-rectangle-type
+    return 
+       not(fn:exists($rect/../svg:rect[@data-rectangle-type=$type][@data-rectangle-ordinal < $ordinal]))
+};
+
+declare function teigeneration:raw_in_rect($my_collection as xs:string, $rect as node()) as node()* {
+    for $element in teigeneration:html_node_corresponding_to_svg_node($rect, $my_collection)//html:span[@class="ocr_word" or @class="cts_picker" or @class="index_word" or @class="inserted_line"]
+    where teigeneration:intersect_bbox_and_rect($rect, $element) return 
+        $element
+};
+
 declare function teigeneration:make_tei_zone_raw($my_collection as xs:string, $zone as xs:string) as node()* {
-            for $rect in collection($my_collection)//svg:rect[@data-rectangle-type=$zone]
+            (: TODO add <pb/> milestones by 1) a function that checks if this $rect is the 
+            smallest ordinal of all the similar rect types in this docoument; 2) if that is fulfilled AND
+            the $element is the first in the 'for' loop, we prepend a <pb/>
+            :)
+            
+            for $rect in collection($my_collection || "/SVG")//svg:rect[@data-rectangle-type=$zone]
+            let $is_first_rect := teigeneration:is_first_rectangle_of_type_in_doc($rect)
             order by util:document-name($rect), $rect/@data-rectangle-ordinal 
                 return 
-                        for $element in teigeneration:html_node_corresponding_to_svg_node($rect, $my_collection)//html:span[@class="ocr_word" or @class="cts_picker" or @class="index_word" or @class="inserted_line"]
-                       where teigeneration:intersect_bbox_and_rect($rect, $element)
-                        return 
-                           $element
+                if ($is_first_rect) then
+                (<tei:pb facs="{functx:substring-before-last(util:document-name($rect),'.')}"/>,teigeneration:raw_in_rect($my_collection, $rect))
+                else
+                    teigeneration:raw_in_rect($my_collection, $rect)
 };
 
-
-(:
- : This has been factored out into functions above.  
-declare function teigeneration:make_tei($my_collection as xs:string) as node()* {
-    if ($my_collection = '')
-        then
-           error(QName('http://heml.mta.ca/Lace2/Error/','HugeZipFile'),'Inappropriate number of subdocuments in path"' || $my_collection || '"')
-        else 
-        for $type in $teigeneration:svg_zone_types
-            order by index-of($teigeneration:svg_zone_types, $type)
-        for $rect in collection($my_collection)//svg:rect[@data-rectangle-type=$type]
-            order by util:document-name($rect), $rect/@data-rectangle-ordinal 
-                return (
-                        for $element in teigeneration:html_node_corresponding_to_svg_node($rect, $my_collection)//html:span[@class="ocr_word" or @class="cts_picker" or @class="index_word" or @class="inserted_line"]
-                       where teigeneration:intersect_bbox_and_rect($rect, $element)
-                        return 
-                           $element
-                    
-            )  
-};
-
-:)
 
 declare function teigeneration:strip_spans($input as node()?) {
     let $xslt := <xsl:stylesheet version="1.0" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
