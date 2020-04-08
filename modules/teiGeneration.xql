@@ -1,14 +1,40 @@
 xquery version "3.1";
 
 module namespace teigeneration="http://heml.mta.ca/Lace2/teigeneration";
+import module namespace app="http://heml.mta.ca/Lace2/templates" at "app.xql";
 import module namespace ctsurns="http://heml.mta.ca/Lace2/ctsurns" at "ctsUrns.xql";
 declare namespace html="http://www.w3.org/1999/xhtml";
+declare namespace lace="http://heml.mta.ca/2019/lace";
 declare namespace svg="http://www.w3.org/2000/svg";
 import module namespace functx="http://www.functx.com";
 declare namespace tei="http://www.tei-c.org/ns/1.0";
 declare namespace dc="http://purl.org/dc/elements/1.1/";
 
 declare variable $teigeneration:svg_zone_types := ("primary_text", "translation", "app_crit",  "commentary");
+
+declare function teigeneration:make_ogl_publicationStmt($ref as xs:string) as node() { 
+<tei:publicationStmt>
+    <tei:publisher>Open Greek and Latin (OGL)</tei:publisher>
+        <tei:idno type="filename">{teigeneration:get_filename_from_ref($ref)}</tei:idno>
+        <tei:pubPlace/>
+
+        <tei:availability>
+               <tei:licence target="https://creativecommons.org/licenses/by-sa/4.0/">Available under a Creative Commons Attribution-ShareAlike 4.0 International License</tei:licence>
+            </tei:availability>
+    <tei:date when="{current-date()}"/>
+</tei:publicationStmt>
+};
+
+declare function teigeneration:make_respStmt($first_name, $last_name) as node() {
+        <tei:respStmt>
+          <tei:name>{$last_name}, {$first_name}</tei:name>
+          <tei:resp>proofreader</tei:resp>
+        </tei:respStmt>
+};
+
+declare function teigeneration:get_filename_from_ref($ref as xs:string) as xs:string {
+fn:replace($ref,':','.') || 'xml'
+};
 
 declare function teigeneration:clear_extra_bbox_data($in as xs:string) as xs:string {
   let $out := replace(functx:substring-before-if-contains($in,";"),'"','')
@@ -217,11 +243,6 @@ declare function teigeneration:raw_in_rect($my_collection as xs:string, $rect as
 };
 
 declare function teigeneration:make_tei_zone_raw($my_collection as xs:string, $zone as xs:string) as node()* {
-            (: TODO add <pb/> milestones by 1) a function that checks if this $rect is the 
-            smallest ordinal of all the similar rect types in this docoument; 2) if that is fulfilled AND
-            the $element is the first in the 'for' loop, we prepend a <pb/>
-            :)
-            
             for $rect in collection($my_collection || "/SVG")//svg:rect[@data-rectangle-type=$zone]
             let $is_first_rect := teigeneration:is_first_rectangle_of_type_in_doc($rect)
             order by util:document-name($rect), $rect/@data-rectangle-ordinal 
@@ -260,26 +281,43 @@ declare function teigeneration:strip_spans($input as node()?) {
 return transform:transform($input, $xslt, ())
 };
 
-declare function teigeneration:wrap_tei($body as node()) as node() {
-        <TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0">
+
+declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $first_name, $last_name) as node() {
+    let $identifier := collection($collectionUri)//dc:identifier
+    let $imageMetadata := collection('/db/apps')//lace:imagecollection[dc:identifier = $identifier]/dc:title
+    return
+    <TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0">
     <teiHeader>
         <fileDesc>
             <titleStmt>
-                <title>title of document</title>
+                <title><!-- hmmm --></title>
+                <title type="sub">an electronic transcription.</title>
+                <author>
+                    <!-- it's in the javascript ... -->
+                </author>
+                {teigeneration:make_respStmt($first_name, $last_name)}
             </titleStmt>
-            <publicationStmt>
-                <authority/>
-                <idno type="filename"/>
-            </publicationStmt>
+            {teigeneration:make_ogl_publicationStmt($vol)}
             <sourceDesc>
-                <msDesc>
-                    <msIdentifier>
-                        <repository>museum/archive</repository>
-                        <idno>inventory number</idno>
-                    </msIdentifier>
-                </msDesc>
+                <p>
+                {$imageMetadata/../dc:creator[1] || " (" || $imageMetadata/../dc:date[1] || "). " || $imageMetadata/../dc:title[1] || ". " || $imageMetadata/../dc:publisher[1] || "."}
+                </p>
             </sourceDesc>
         </fileDesc>
+        <encodingDesc>
+            <refsDecl>
+                <!-- TODO: I don't understand refsDecl -->
+                <cRefPattern matchPattern="" replacementPattern=""/>
+            </refsDecl>
+            <appInfo>
+                <application ident="Lace" version="0.6.0">
+                    <desc>Lace copyright 2013-2020, Bruce Robertson, Dept. of Classics, Mount Allison University. Developed through the support of the<ref target="https://nbif.ca/en">NBIF</ref>.</desc>
+                    <!-- these break TEI simple rng -->
+                    <!--ptr target="#text"/>
+                    <ptr target="#refsDecl"/-->
+                </application>
+            </appInfo>
+        </encodingDesc>
     </teiHeader>
     <text>
         {$body}

@@ -682,12 +682,16 @@ response:set-header( "X-Content-Type-Options", 'nosniff' ))
  <div class="col-sm-1">
       </div>
 <div class="row form-group">
-    <div class="col-sm-3">
+    <div class="col-sm-2">
 {app:makeZoningMenu()}
 </div>
-<div class="col-sm-1">
+<div class="col-sm-2">
+<button type="button" id="zone_mode_button" class="btn btn-sm">Prose</button>
+</div>
+<div class="col-sm-2">
 <button type="button" id="clear_zones_button" class="btn btn-sm">Clear Zones</button>
 </div>
+
  <!--div class="col-sm-1">
       One</div>
     <div class="col-sm-3">

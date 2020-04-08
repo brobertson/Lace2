@@ -13,7 +13,8 @@ declare function teivalidation:validateAllTeiVolumes($my_collection as xs:string
     for $vol in $volume_refs
     return 
         <validationreport file="{fn:replace($vol,':','_') || '.tei'}">
-            {validation:jing-report((teigeneration:wrap_tei(teigeneration:strip_spans(teigeneration:make_all_tei($my_collection, $vol)))), $tei_simple_rng)}
+            {validation:jing-report(
+                teigeneration:wrap_tei(teigeneration:strip_spans(teigeneration:make_all_tei($my_collection, $vol)),$my_collection, $vol,'',''), $tei_simple_rng)}
          </validationreport>
 };
 

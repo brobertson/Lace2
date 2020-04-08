@@ -108,14 +108,48 @@ declare function teipreflight:reportGoodUri($node as node(), $model as map(*),  
                     <html:p>✅Your editing passes tests and is ready to be transformed to TEI or validated:</html:p>
                 </html:div>
             </html:div>,
-            <html:div class="row announcement">
-                <html:div class="col-md-2">
-                    <html:button type="button" class="btn btn-success"><html:a id="download_tei" href='{concat("modules/getTeiVolume.xq?collectionUri=",$collectionUri)}'>Download TEI File</html:a></html:button>
+            <html:h4>TEI Options</html:h4>,
+
+            <html:form action="modules/getTeiVolume.xq">
+            
+            <html:div class="row ">
+            <html:div class="col-md-5 input-group">
+                <span class="input-group-addon" id="basic-addon1">Proofreader:</span>
+                <html:input type="text" class="form-control" name="last_name" placeholder="last name" aria-describedby="sizing-addon1"/>
+                    <html:input type="text" class="form-control" name="first_name" placeholder="first name" aria-describedby="sizing-addon1"/>
+                    </html:div>
                 </html:div>
-                <html:div class="col-md-2">
-                    <html:button type="button" class="btn btn-success"><html:a id="validate_tei" href='{concat("teiValidation.html?collectionUri=",$collectionUri)}'>Validate TEI File</html:a></html:button>
+            <!--html:div class="row">
+                <html:div class="col-md-3">
+                    <html:input type="url" class="form-control" name="marc_url" placeholder="marc url" aria-describedby="sizing-addon1"/>
+                    <input type="hidden" name="collectionUri" value="{$collectionUri}" />
+                </html:div>
+            </html:div-->,
+            <html:div class="row announcement">
+                <html:div class="col-md-4 input-group">
+                    <html:span>
+                        <html:input id="ogl_header" type="checkbox" name="OGLHeader" value="true" checked="true" aria-label="..."/>
+                        Include standard Open Greek and Latin Header
+                    </html:span>
+                </html:div><!-- /.col-lg-6 -->
+                <html:div class="col-md-4 input-group">
+                    <html:span>
+                        <html:input id="cc_license" type="checkbox" name="CCLicense" value="true" checked="true"  aria-label="..."/>
+                        Include Creative Commons License
+                    </html:span>
                 </html:div>
             </html:div>
+            <html:div class="row">
+            <input type="hidden" name="collectionUri" value="{$collectionUri}" />
+            <html:input type="submit" value="Generate TEI File(s)"/>
+            </html:div>
+            </html:form>,
+            <html:form action="teiValidation.html">
+                <html:div class="row">
+                <input type="hidden" name="collectionUri" value="{$collectionUri}"/>
+                    <html:input type="submit" value="Validate TEI File(s)"/>
+                </html:div>
+            </html:form>
             )
 };   
 declare function teipreflight:report($node as node(), $model as map(*),  $collectionUri as xs:string) {
