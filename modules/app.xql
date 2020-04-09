@@ -686,7 +686,8 @@ response:set-header( "X-Content-Type-Options", 'nosniff' ))
 {app:makeZoningMenu()}
 </div>
 <div class="col-sm-2">
-<button type="button" id="zone_mode_button" class="btn btn-sm">Prose</button>
+    <button id="line_mode" class="btn-sm btn-default">Line Mode</button>
+<!--button type="button" id="zone_mode_button" class="btn btn-sm">Prose</button-->
 </div>
 <div class="col-sm-2">
 <button type="button" id="clear_zones_button" class="btn btn-sm">Clear Zones</button>

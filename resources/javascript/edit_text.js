@@ -263,6 +263,7 @@ function generate_image_tag_call(collectionUri, page_file, bbox, width, height) 
 }
 
 $(function() {
+    
     //the '.delete_element' class inside the .ocr_page should only be related
     //to generated elements, like lines and words, that have a related
     // 'x' box to delete them.
@@ -522,4 +523,9 @@ $(function() {
             } //end shift key is true
         } //end if e.which == 13
     });
+    
+    $('#line_mode').click(function() {
+        $(this).toggleClass('btn-primary');
+    });
 });
+

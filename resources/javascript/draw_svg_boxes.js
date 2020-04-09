@@ -121,6 +121,14 @@ function screenToSVGCoords(canvas, e) {
   }
 }
 
+function get_line_mode_state() {
+    /*****
+     * Look at the html:button with id line_mode and see if its class is 
+     * btn-primary. If it is, then return true
+     ****/
+     return $("#line_mode").hasClass("btn-primary")
+}
+
 function get_rectangle_type() {
     /***
      * uses the dropdown menu #zoning_choice to find the one item within it
@@ -297,6 +305,7 @@ $(document).ready(function() {
   
     $("#svg").mousedown(function(e) {
     new_rectangle_type = get_rectangle_type()
+    line_mode = get_line_mode_state()
     new_rectangle_id = new_rectangle_type + "_" + (new Date()).getTime();
   initial_coords = screenToSVGCoords(this, e);
   var $new_start_circle = $(document.createElementNS("http://www.w3.org/2000/svg", "circle")).attr({
@@ -318,6 +327,7 @@ $(document).ready(function() {
     });
     //can't do this above because of hyphen!
     $new_rectangle.attr("data-rectangle-type", new_rectangle_type)
+    $new_rectangle.attr("data-rectangle-line-mode", line_mode)
     $new_rectangle.attr("fill-opacity","0.0")
     $new_rectangle.addClass("rectangle")
     $("#svg").append($new_rectangle)
