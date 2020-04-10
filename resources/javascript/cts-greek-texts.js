@@ -2050,6 +2050,7 @@
 {label: "Scholia in Lucianum, Scholia in Lucianum (scholia vetera et recentiora Arethae", id : "urn:cts:greekLit:tlg5029.tlg001.1st1K-grc1:" },
 {label: "Rufus, Perinthius, fl. 2. Jh., Ars Rhetorica", id : "urn:cts:greekLit:tlg6006.tlg001.1st1K-grc1:" },
 {label: "Cornutus, Lucius Annaeus, de Natura Deorum", id : "urn:cts:greekLit:tlg654.tlg002.1st1K-grc1:" },
+{label: "Anonymous, Acts of John by Prochorus", id : "urn:cts:greekLit:tlg0317.tlg002.1st1K-grc3:" },
 {label: "*END MILESTONE*", id : "__end__" }
 ]
 ;
