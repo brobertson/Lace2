@@ -85,6 +85,11 @@ function updateCTSURN(urnpicker_id, my_action) {
     data['filePath'] = filePath
     picker_span = $(picker_span_string)
     composed_urn = $("#" + urnpicker_id).attr("data-ctsurn") + $("#" + urnpicker_id + "_additional").val()
+    console.log("my action is " + my_action)
+    if (my_action === "add") {
+        Cookies.set('ctsurn', $("#" + urnpicker_id).attr("data-ctsurn"), { expires: 7 });
+        Cookies.set('author-name', $("#" + urnpicker_id).attr("data-author-name"), { expires: 7 });
+    }
     data['name'] = $("#" + urnpicker_id).attr("data-author-name") + " " + $("#" + urnpicker_id + "_additional").val()
     data['id'] = urnpicker_id + "_span"
     //this is unnecessary
@@ -382,18 +387,30 @@ $(function() {
                     $("#"+uniq).focus()
                     return; //this is the trick to short-circuiting the function.
                 } else { //ctrlKey is true, also
-                    console.log("control-alt-return hit")
+                    console.log("control-alt-return hit = generate picker")
+                    
                     if( typeof cts_tags === 'undefined' || cts_tags === null ){
                         //cts_tags is defined in a separate file, so it could be 
                         //undefined, unassigned, etc.
                         alert("The cts tag list is corrupted and so a URN picker can't be set.");
                         return;//this ensures that nothing further happens 
                     }
+                    ctsurn_cookie = Cookies.get('ctsurn');
+                    authorname_cookie = Cookies.get('author-name')
+                    authorname_placeholder = ''
+                    if ((ctsurn_cookie == null) || (authorname_cookie == null)) {
+                        authorname_placeholder = 'author/title'
+                    }
+                    else
+                    {
+                        authorname_placeholder = authorname_cookie
+                    }
                     var uniq_picker = 'ins_cts_picker_' + (new Date()).getTime();
-                    var cts_picker = $("<span class='cts_picker' id='" + uniq_picker + "_span'>📖<input class='ctsurn-picker' id='" + uniq_picker + "' type='text' placeholder='author/title'/><input class='ctsurn-span' id='" + uniq_picker + "_additional'/><button class='kill_button' type='button' id='" + uniq_picker + "_kill_button'> <span>×</span> </button></span>");
+                    var cts_picker = $("<span class='cts_picker' id='" + uniq_picker + "_span'>📖<input class='ctsurn-picker' id='" + uniq_picker + "' type='text' placeholder='" + authorname_placeholder + "'/><input class='ctsurn-span' id='" + uniq_picker + "_additional'/><button class='kill_button' type='button' id='" + uniq_picker + "_kill_button'> <span>×</span> </button></span>");
                     $(this).before(cts_picker);
                     cts_picker.attr("data-starting-span", $(this).attr("id"))
                     $("#" + uniq_picker).typeahead({
+                        default_val: "my default val",
                         source: function(query) {
                             var self = this;
                             self.map = {};
@@ -430,7 +447,12 @@ $(function() {
                                the_span.text("📕")
                             } 
                             ***/
-                            composed_urn = $("#" + uniq_picker).attr("data-ctsurn") + $("#" + uniq_picker + "_additional").val()
+                            if ($("#"+uniq_picker).attr("data-ctsurn") == null)  {
+                               console.log("the picker was undefined! Setting it to " + ctsurn_cookie + " from cookie")
+                               $("#"+uniq_picker).attr("data-ctsurn", ctsurn_cookie)
+                               $("#"+uniq_picker).attr("data-author-name",authorname_cookie)
+                            }
+                            composed_urn = $("#"+uniq_picker).attr("data-ctsurn") + $("#" + uniq_picker + "_additional").val()
                             readable_name = $("#" + uniq_picker).attr("data-author-name") + " " + $("#" + uniq_picker + "_additional").val() + " = " + composed_urn
                             the_span.attr("data-ctsurn", composed_urn)
                             the_span.attr("data-toggle", "tooltip")
@@ -450,8 +472,8 @@ $(function() {
                         updateCTSURN(uniq_picker, "remove")
                         $(this).parent().remove()
                     });
-                    //set focus to picker here
-                    $("#" + uniq_picker).focus()
+                    //set focus to picker citation box here
+                    $("#" + uniq_picker + "_additional").focus()
                     return; //this is the trick to short-circuiting the function.
                 } //end ctrl key is true
             } // end alt key is true
