@@ -240,9 +240,9 @@ declare function teigeneration:raw_in_rect_inner($my_collection as xs:string, $r
     let $elements := teigeneration:html_node_corresponding_to_svg_node($rect, $my_collection)//html:span[@class="ocr_word" or @class="cts_picker" or @class="index_word" or @class="inserted_line"]
     for $element at $count in $elements
         let $is_line_mode := ($rect/@data-rectangle-line-mode = 'true')
-        let $different_line_from_last := not($element/..[@class='ocr_line'] = $elements[$count+1]/..[@class='ocr_line'])
+        let $different_line_from_next := not($element/..[@class='ocr_line'] = $elements[$count+1]/..[@class='ocr_line'])
         where teigeneration:intersect_bbox_and_rect($rect, $element) return 
-            if ($is_line_mode and $different_line_from_last) then
+            if ($is_line_mode and $different_line_from_next) then
                 ($element,<tei:lb/>)
             else 
                 $element
@@ -253,7 +253,7 @@ declare function teigeneration:raw_in_rect($my_collection as xs:string, $rect as
     let $output := teigeneration:raw_in_rect_inner($my_collection, $rect)
     return 
         if ($is_line_mode) then
-            (<tei:lb/>,$output,<tei:lb/>)
+            (<tei:lb/>,$output)
         else
             $output
 };
@@ -271,7 +271,7 @@ declare function teigeneration:make_tei_zone_raw($my_collection as xs:string, $z
 
 
 declare function teigeneration:strip_spans($input as node()?) {
-    let $xslt := <xsl:stylesheet version="1.0" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    let $xslt := <xsl:stylesheet version="1.0" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" version="1.0" encoding="UTF-8"/>
 <!--Identity template,
         provides default behavior that copies all content into the output -->
@@ -283,7 +283,8 @@ declare function teigeneration:strip_spans($input as node()?) {
 <xsl:template match="html:span">
     <xsl:apply-templates/>
 </xsl:template>
-<xsl:template match="*[@data-dehyphenatedform]">
+<!-- when we have a lb element, we want to keep the non-dehyphenated form -->
+<xsl:template match="*[@data-dehyphenatedform][not(following-sibling::tei:lb)]">
     <xsl:if test="@data-dehyphenatedform!=''">
         <xsl:value-of select="concat(normalize-space(@data-dehyphenatedform), ' ')"/>
     </xsl:if>
