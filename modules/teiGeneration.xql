@@ -236,10 +236,26 @@ declare function teigeneration:is_first_rectangle_of_type_in_doc($rect as node()
        not(fn:exists($rect/../svg:rect[@data-rectangle-type=$type][@data-rectangle-ordinal < $ordinal]))
 };
 
+declare function teigeneration:raw_in_rect_inner($my_collection as xs:string, $rect as node()) as node()* {
+    let $elements := teigeneration:html_node_corresponding_to_svg_node($rect, $my_collection)//html:span[@class="ocr_word" or @class="cts_picker" or @class="index_word" or @class="inserted_line"]
+    for $element at $count in $elements
+        let $is_line_mode := ($rect/@data-rectangle-line-mode = 'true')
+        let $different_line_from_last := not($element/..[@class='ocr_line'] = $elements[$count+1]/..[@class='ocr_line'])
+        where teigeneration:intersect_bbox_and_rect($rect, $element) return 
+            if ($is_line_mode and $different_line_from_last) then
+                ($element,<tei:lb/>)
+            else 
+                $element
+};
+
 declare function teigeneration:raw_in_rect($my_collection as xs:string, $rect as node()) as node()* {
-    for $element in teigeneration:html_node_corresponding_to_svg_node($rect, $my_collection)//html:span[@class="ocr_word" or @class="cts_picker" or @class="index_word" or @class="inserted_line"]
-    where teigeneration:intersect_bbox_and_rect($rect, $element) return 
-        $element
+    let $is_line_mode := ($rect/@data-rectangle-line-mode = 'true')
+    let $output := teigeneration:raw_in_rect_inner($my_collection, $rect)
+    return 
+        if ($is_line_mode) then
+            (<tei:lb/>,$output,<tei:lb/>)
+        else
+            $output
 };
 
 declare function teigeneration:make_tei_zone_raw($my_collection as xs:string, $zone as xs:string) as node()* {

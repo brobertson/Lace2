@@ -260,6 +260,11 @@ padding-right: 6px; padding-left: 0px;}
     color: var(--commentary);
     stroke: var(--commentary);
 }
+
+rect[data-rectangle-line-mode="true"] {
+  stroke-dasharray: 10 5;
+}
+
 /* Style the form - display items horizontally */
 #edits-since-form {
   display: inline;
