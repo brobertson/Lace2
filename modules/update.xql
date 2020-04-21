@@ -8,7 +8,7 @@ import module namespace functx="http://www.functx.com";
 import module namespace app="http://heml.mta.ca/Lace2/templates" at "app.xql";
 declare namespace dc="http://purl.org/dc/elements/1.1/";
 declare variable $laceupdate:svgDirName := "SVG";
-declare variable $laceupdate:miniumHocrCompletion := xs:float(0.8);
+declare variable $laceupdate:miniumHocrCompletion := xs:float(0.1);
 
 declare function laceupdate:convertToDateTime($in as xs:string) as xs:dateTime {
 let $t := tokenize($in,'-')
@@ -67,7 +67,7 @@ declare function laceupdate:copy_complete_hocrs($fromCollection as xs:string, $t
                 ()
         }
         catch * {
-            ()
+            <html:li>Couldn't copy {$possible_hocr_file} due to error</html:li>
         }
 
 
