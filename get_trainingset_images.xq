@@ -48,7 +48,7 @@ declare function local:make_trainingset($my_collection as xs:string) as node()* 
                     <entry name="{$this_line_id}.gt.txt" type='text' method='deflate'>
                         {$clean_line}
                     </entry>,
-                    <entry name="{$this_line_id}.bin.png" type="binary" method='deflate'>
+                    <entry name="{$this_line_id}.png" type="binary" method='deflate'>
                     {$croppedImage}
                     </entry>
                     
