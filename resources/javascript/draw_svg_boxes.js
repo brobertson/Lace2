@@ -188,15 +188,22 @@ function bbox_string_to_data(bbox_string) {
     
 }
 
+function bbox_string_to_data_x1(bbox_string) {
+    bbox = bbox_string.split(';')[0];
+    var bbox_array = bbox.split(" ");
+    //console.log("bbox array at to data: " + bbox_array)
+    return {x: parseInt(bbox_array[1],10), y: parseInt(bbox_array[2],10), x1: parseInt(bbox_array[3],10), y1: parseInt(bbox_array[4],10)};
+    
+}
 
-/* debugging function: not needed regularly
+/* debugging function: not needed regularly*/
 function print_rect(rectangle) {
     console.log("\tx: " + rectangle.attr("x"))
     console.log("\ty: " + rectangle.attr("y"))
     console.log("\twidth: " + rectangle.attr("width"))
     console.log("\theight: " + rectangle.attr("height"))
 }
-*/
+
 
 function bbox_string_to_rect(bbox_string) {
     box_dict = bbox_string_to_data(bbox_string)
@@ -238,6 +245,65 @@ function hilight_corresponding_ocr_words($zone_rectangle) {
             $(this).removeClass("zoning_hilight")
         }
     });
+}
+
+function resize_rect_to_corresponding_ocr_words($zone_rectangle) {
+    /****
+     * Given a SVG rectangle, this resizes it to the perimeter of the 
+     * .ocr_word elements that either are within or intersecting with that rectangle.
+     ***/
+    hit_array = []
+    $(".ocr_word, .inserted_line, .index_word").each(function() {
+        data_rect = bbox_string_to_data_x1($(this).attr("original-title"))
+        test_rect = bbox_string_to_rect($(this).attr("original-title"))
+        if (intersectRect($zone_rectangle, test_rect)) {
+            //add test_rect to the array of rects
+            console.log("a data_rect:" + data_rect['x'] + " " + data_rect["y"] + " " + data_rect["x1"] + " " + data_rect["y1"])
+            hit_array.push(data_rect)
+        }
+    });
+    //collect the widest dimensions based on the enclosed or touched words
+    var i;
+    var x1 = 0;
+    y1 = 0;
+    var x = 1000000;
+    y = 1000000;
+    for (i = 0; i < hit_array.length; i++) {
+        //console.log("x of rect in loop is: " + hit_array[i]['x'])
+        //console.log("x is " + x)
+        if (hit_array[i]['x'] < x) {
+            console.log(hit_array[i]['x'] + " is less than " + x)
+            x = hit_array[i]['x']
+        }
+        if (hit_array[i]['y'] < y) {
+            y = hit_array[i]['y']
+        }
+        if (hit_array[i]['x1'] > x1) {
+            //console.log(hit_array[i]['x1'] + " is greater than " + x1)
+            x1 = hit_array[i]['x1']
+        }
+        if (hit_array[i]['y1'] > y1) {
+            y1 = hit_array[i]['y1']
+        }
+    }
+    console.log("modified zone_rectangle so that its outer limits are " + x + " " + y + " " + x1 + " " + y1)
+    //modify $zone_rectangle so that is the outer limits of all of those rects
+    var scale = $("#page_image").attr("data-scale")
+    $zone_rectangle.attr('x', x*scale);
+    $zone_rectangle.attr('y', y*scale);
+    $zone_rectangle.attr('width', Math.max((x1-x)*scale,0));
+    $zone_rectangle.attr('height', Math.max((y1-y)*scale,0));
+    suffix="_rectangle"
+    id = $zone_rectangle.attr("id")
+    bare_name = id.substring(0,id.length-suffix.length)
+    start_circle_id = bare_name + "_start_circle"
+    finish_circle_id = bare_name + "_finish_circle"
+    $("#"+start_circle_id).attr('cx',x*scale)
+    $("#" + start_circle_id).attr('cy',y*scale)
+    $("#"+finish_circle_id).attr('cx',x1*scale)
+    $("#"+finish_circle_id).attr('cy',y1*scale)
+    //return $zone_rectangle 
+    //with its dimensions expanded.
 }
 
 $(document).ready(function() {
@@ -352,9 +418,14 @@ $(document).ready(function() {
        $(this).unbind("mousemove");
        $(this).unbind("mouseup");
        console.log("it was mouseup")
+       console.log("rect before")
+       print_rect($new_rectangle)
        $new_rectangle.removeClass("selected_rectangle");
        clear_zoning_hilight();
-       //check it isn't overlapping with other rectangles
+       resize_rect_to_corresponding_ocr_words($new_rectangle)
+        console.log("rect after")
+        print_rect($new_rectangle)
+        //check it isn't overlapping with other rectangles
        total_dimensions = parseFloat($new_rectangle.attr("width")) + parseFloat($new_rectangle.attr("height"))
        //apparently rectangles can be made without these properties. If it doesn't have them, we don't want 
        //it to persist.
