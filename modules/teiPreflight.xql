@@ -37,8 +37,8 @@ declare function teipreflight:duplicateUrnTest($ordered_pickers) {
     let $urns := $ordered_pickers//@data-ctsurn/string()
     let $dups := distinct-values(
         for $s in $urns
-    where count($urns[. eq $s]) gt 1
-        return $s
+            where count($urns[. eq $s]) gt 1
+                return $s
         )
     return
     if (fn:count($dups) > 0) then
