@@ -41,29 +41,89 @@ function save_svg() {
  * Rectangle helper functions:
  ****/
  
-function intersectRect(rect1, rect2) {
+function intersectRect(rect1, rect2, scaleRect2) {
     /****
      * Returns 'true' if the two rectangles overlap. 
      ***/
-
+    if (scaleRect2) {
+        scale = $("#page_image").attr("data-scale")
+    }
+    else {
+        scale = 1
+    }
+    
     left_x_of_rect1 = parseFloat(rect1.attr("x"))
-    left_x_of_rect2 = parseFloat(rect2.attr("x"))
-    right_x_of_rect2 = (left_x_of_rect2 + parseFloat(rect2.attr("width")))
+    left_x_of_rect2 = parseFloat(rect2.attr("x"))/scale
+    right_x_of_rect2 = (left_x_of_rect2 + parseFloat(rect2.attr("width"))/scale)
     right_x_of_rect1 = ( left_x_of_rect1 + parseFloat(rect1.attr("width")))
     // If one rectangle is on left side of other 
-    if ((left_x_of_rect1 > right_x_of_rect2) || (left_x_of_rect2 > right_x_of_rect1)) { 
-        
+    if ((left_x_of_rect1 >= right_x_of_rect2) || (left_x_of_rect2 >= right_x_of_rect1)) { 
+        /*
+        console.log("left/right edge makes these not overlap:")
+        console.log("\tleft_x_of_rect1: " + left_x_of_rect1)
+        console.log("\tleft_x_of_rect2: " + left_x_of_rect2)
+        console.log("\tright_x_of_rect1: " + right_x_of_rect1)
+        console.log("\tright_x_of_rect2: " + right_x_of_rect2)
+        */
         return false; 
     }
     top_y_of_rect1 = parseFloat(rect1.attr("y"))
-    top_y_of_rect2 = parseFloat(rect2.attr("y"))
+    top_y_of_rect2 = parseFloat(rect2.attr("y"))/scale
     bottom_y_of_rect1 = top_y_of_rect1 + parseFloat(rect1.attr("height"))
-    bottom_y_of_rect2 = top_y_of_rect2 + parseFloat(rect2.attr("height"))
+    bottom_y_of_rect2 = top_y_of_rect2 + parseFloat(rect2.attr("height"))/scale
     // If one rectangle is above other 
-   if ((top_y_of_rect1 > bottom_y_of_rect2) || (top_y_of_rect2 > bottom_y_of_rect1))  {
+   if ((top_y_of_rect1 >= bottom_y_of_rect2) || (top_y_of_rect2 >= bottom_y_of_rect1))  {
+       /**
+       console.log("top/bottom edge makes these not overlap:")
+       console.log("\ttop_y_of_rect1: " + top_y_of_rect1)
+       console.log("\ttop_y_of_rect2: " + top_y_of_rect2)
+       console.log("\tbottom_y_of_rect1: " + bottom_y_of_rect1)
+       console.log("\tbottom_y_of_rect2: " + bottom_y_of_rect2)
+       **/
         return false; 
    }
    // otherwise, it is in fact overlapping
+   console.log("intersecting rects")
+    return true; 
+} 
+
+function enclosesRect(rectInner, rectOuter) {
+    /****
+     * Returns 'true' if rectOuter encloses rectInner. rectOuter is assumed to be unscaled, and so upscale
+     * is applied to it.
+     ***/
+    var scale = $("#page_image").attr("data-scale")
+    left_x_of_rectInner = parseInt(rectInner.attr("x"))
+    left_x_of_rectOuter = parseFloat(rectOuter.attr("x"))/scale
+    right_x_of_rectOuter = (left_x_of_rectOuter + parseFloat(rectOuter.attr("width"))/scale)
+    right_x_of_rectInner = ( left_x_of_rectInner + parseInt(rectInner.attr("width")))
+    // If one rectangle is on left side of other 
+    if ((left_x_of_rectInner < left_x_of_rectOuter) || (right_x_of_rectInner > right_x_of_rectOuter)) { 
+        /**
+        console.log("not enclosed on x dimension:")
+        console.log("\tleft_x_of_rectInner: " + left_x_of_rectInner)
+        console.log("\tleft_x_of_rectOuter: " + left_x_of_rectOuter)
+        console.log("\tright_x_of_rectInner: " + right_x_of_rectInner)
+        console.log("\tright_x_of_rectOuter: " + right_x_of_rectOuter)
+        **/
+        return false; 
+    }
+    top_y_of_rectInner = parseInt(rectInner.attr("y"))
+    top_y_of_rectOuter = parseFloat(rectOuter.attr("y"))/scale
+    bottom_y_of_rectInner = top_y_of_rectInner + parseInt(rectInner.attr("height"))
+    bottom_y_of_rectOuter = top_y_of_rectOuter + parseFloat(rectOuter.attr("height"))/scale
+ 
+   if ((top_y_of_rectInner < top_y_of_rectOuter) || (bottom_y_of_rectInner > bottom_y_of_rectOuter))  {
+       /**
+       console.log("not enclosed on y dimension:")
+       console.log("\ttop_y_of_rectInner: " + top_y_of_rectInner)
+       console.log("\ttop_y_of_rectOuter: " + top_y_of_rectOuter)
+       console.log("\tbottom_y_of_rectInner: " + bottom_y_of_rectInner)
+       console.log("\tbottom_y_of_rectOuter: " + bottom_y_of_rectOuter)
+       **/
+        return false; 
+   }
+   // otherwise, it is in fact enclosed
     return true; 
 } 
 
@@ -80,7 +140,7 @@ function rectCollision(my_rectangle) {
     }
     for(var i = 0; i < rectangles.length; i++){
         //check that it isn't this same rectangle that is colliding!
-        if (!($(rectangles[i]).attr("id") == my_rectangle.attr("id")) && intersectRect(my_rectangle, $(rectangles[i]))) {
+        if (!($(rectangles[i]).attr("id") == my_rectangle.attr("id")) && intersectRect(my_rectangle, $(rectangles[i]), false)) {
             return true
         }
     }
@@ -198,10 +258,11 @@ function bbox_string_to_data_x1(bbox_string) {
 
 /* debugging function: not needed regularly*/
 function print_rect(rectangle) {
-    console.log("\tx: " + rectangle.attr("x"))
-    console.log("\ty: " + rectangle.attr("y"))
-    console.log("\twidth: " + rectangle.attr("width"))
-    console.log("\theight: " + rectangle.attr("height"))
+    var scale = $("#page_image").attr("data-scale")
+    console.log("\tx: " + rectangle.attr("x") + " " + rectangle.attr("x") /scale)
+    console.log("\ty: " + rectangle.attr("y") + " " + rectangle.attr("y") /scale)
+    console.log("\twidth: " + rectangle.attr("width") + " " + rectangle.attr("width") /scale)
+    console.log("\theight: " + rectangle.attr("height") + " " + rectangle.attr("height") /scale)
 }
 
 
@@ -210,11 +271,12 @@ function bbox_string_to_rect(bbox_string) {
     //console.log(box_dict)
     var scale = $("#page_image").attr("data-scale")
     var $new_rectangle = $(document.createElementNS("http://www.w3.org/2000/svg", "rect")).attr({
-        x: box_dict["x"] * scale,
-        y: box_dict["y"] *scale,
-        width: box_dict["width"] *scale,
-        height: box_dict["height"] *scale
+        x: box_dict["x"],
+        y: box_dict["y"],
+        width: box_dict["width"],
+        height: box_dict["height"]
     });
+    //print_rect($new_rectangle)
     return $new_rectangle
 }
 
@@ -238,10 +300,11 @@ function hilight_corresponding_ocr_words($zone_rectangle) {
      ***/
     $(".ocr_word, .inserted_line, .index_word").each(function() {
         test_rect = bbox_string_to_rect($(this).attr("original-title"))
-        if (intersectRect($zone_rectangle, test_rect)) {
+        console.log("testing word '" + $(this).text() + "' for enclosing")
+        if (intersectRect(test_rect,$zone_rectangle,true)) {
             $(this).addClass("zoning_hilight")
         }
-        if ($(this).hasClass("zoning_hilight") && !intersectRect($zone_rectangle, test_rect)) {
+        if ($(this).hasClass("zoning_hilight") && !intersectRect(test_rect, $zone_rectangle,true)) {
             $(this).removeClass("zoning_hilight")
         }
     });
@@ -256,7 +319,7 @@ function resize_rect_to_corresponding_ocr_words($zone_rectangle) {
     $(".ocr_word, .inserted_line, .index_word").each(function() {
         data_rect = bbox_string_to_data_x1($(this).attr("original-title"))
         test_rect = bbox_string_to_rect($(this).attr("original-title"))
-        if (intersectRect($zone_rectangle, test_rect)) {
+        if (intersectRect(test_rect,$zone_rectangle,true)) {
             //add test_rect to the array of rects
             console.log("a data_rect:" + data_rect['x'] + " " + data_rect["y"] + " " + data_rect["x1"] + " " + data_rect["y1"])
             hit_array.push(data_rect)
