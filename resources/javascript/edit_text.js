@@ -550,4 +550,3 @@ $(function() {
         $(this).toggleClass('btn-primary');
     });
 });
-

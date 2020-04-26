@@ -198,7 +198,7 @@ padding-right: 6px; padding-left: 0px;}
 }
 
 .selected_rectangle {
-    fill-opacity: 20%;
+    fill-opacity: 0.20;
 }
 
 #app_crit_button:hover {
@@ -333,6 +333,10 @@ section p {
 }
 .modal-dialog {
     text-align: left;
+}
+
+button { 
+    background-color: white;
 }
 
 button a {
