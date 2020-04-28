@@ -346,3 +346,13 @@ button a {
 .announcement {
     padding-bottom: 10px;
 }
+
+/** position context menu and tooltip relative to each other,
+ *  so tooltip is below
+ **/
+.context-menu-list {
+    z-index: 100;
+}
+.tooltip {
+    z-index: 1;
+}

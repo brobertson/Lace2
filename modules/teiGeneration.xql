@@ -67,6 +67,32 @@ declare function teigeneration:html_node_corresponding_to_svg_node($node as node
     doc($my_collection || "/" || substring-before(util:document-name($node), ".svg") || ".html")
 };
 
+declare function teigeneration:rect_encloses_bbox($rect as node(), $bbox as node()) as xs:boolean {
+    try {
+        let $bbox_string := teigeneration:get_bbox($bbox)
+        let $scale := xs:float($rect/preceding::svg:image/@data-scale)
+        let $bbox_tokens := fn:tokenize($bbox_string,'\s+')
+        let $bULx := xs:float($bbox_tokens[1])
+        let $bULy := xs:float($bbox_tokens[2])
+        let $bLRx := xs:float($bbox_tokens[3])
+        let $bLRy := xs:float($bbox_tokens[4])
+        let $rULx := xs:float($rect/@x) div $scale
+        let $rULy := xs:float($rect/@y)  div $scale
+        let $rLRx := $rULx + (xs:float($rect/@width) div $scale)
+        let $rLRy := $rULy + (xs:float($rect/@height) div $scale)
+        return
+        if (($bULx lt $rULx) or ($rLRx lt $bLRx) or ($bULy lt $rULy) or ($rLRy lt $bLRy)) then
+            false()
+        else 
+            true()
+    }
+    (: deal with cases where either are null, for instance if an element has no @title attribute.
+    :)
+    catch * {
+        false()
+    }
+
+};
 
 declare function teigeneration:intersect_bbox_and_rect($rect as node(), $bbox as node()) as xs:boolean {
     try {

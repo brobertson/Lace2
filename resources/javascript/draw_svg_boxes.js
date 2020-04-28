@@ -300,11 +300,11 @@ function hilight_corresponding_ocr_words($zone_rectangle) {
      ***/
     $(".ocr_word, .inserted_line, .index_word").each(function() {
         test_rect = bbox_string_to_rect($(this).attr("original-title"))
-        console.log("testing word '" + $(this).text() + "' for enclosing")
-        if (intersectRect(test_rect,$zone_rectangle,true)) {
+        //console.log("testing word '" + $(this).text() + "' for enclosing")
+        if (enclosesRect(test_rect,$zone_rectangle)) {
             $(this).addClass("zoning_hilight")
         }
-        if ($(this).hasClass("zoning_hilight") && !intersectRect(test_rect, $zone_rectangle,true)) {
+        if ($(this).hasClass("zoning_hilight") && !enclosesRect(test_rect, $zone_rectangle)) {
             $(this).removeClass("zoning_hilight")
         }
     });

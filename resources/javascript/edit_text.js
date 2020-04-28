@@ -174,10 +174,9 @@ function update_all_xmldb(element, e) {
     });
 }
 
-function add_line_below_xmldb(element, e, uniq) {
+function add_line_below_xmldb(element, uniq) {
     //console.log("calling addlinebelow")
     var data = {};
-    data['shift'] = e.shiftKey
     data['value'] = $(element).text();
     data['original-title'] = $(element).attr('original-title')
     data['title'] = $(element).attr('original-title')
@@ -232,11 +231,11 @@ function delete_added_element(buttonElement) {
     });
 }
 
-function add_index_after(element, e, uniq, dimensions) {
+function add_index_after(element, uniq, dimensions) {
     var data = {};
-    data['shift'] = e.shiftKey
+    //data['shift'] = e.shiftKey
     data['value'] = $(element).text();
-    data['id'] = element.id;
+    data['id'] = $(element).attr("id");
     data['uniq'] = uniq;
     doc = $('.ocr_page').attr('title')
     data['original-title'] = dimensions
@@ -248,14 +247,12 @@ function add_index_after(element, e, uniq, dimensions) {
     data['fileName'] = fileName
     var filePath = doc.substring(0, n);
     data['filePath'] = filePath
-    $.post('modules/addIndexWordAfter.xq', data, function(data, textStatus, xhr) {
-        //console.log("success!" + xhr.responseText)
-        //this is the 'success' function 
-        //if the update works, it will fire.
-        //We can't use JQuery syntax here, for some reason.
-
-    }).fail(function(xhr, textStatus, errorThrown) {
+    $.post('modules/addIndexWordAfter.xq', data)
+    .fail(function(xhr, textStatus, errorThrown) {
         alert(xhr.responseText);
+    })
+    .done(function( backat ) {
+    //alert( "Data Loaded");
     });
 }
 
@@ -267,6 +264,167 @@ function generate_image_tag_call(collectionUri, page_file, bbox, width, height) 
     return request
 }
 
+function insert_word_inline(target_word) {
+    console.log("inside insert")
+    parent_line = target_word.parent('.ocr_line')
+    var uniq = 'ins_word_' + (new Date()).getTime();
+    var index_word = $("<span class='index_word_holder' id='" + uniq + "_holder'><span class='index_word' id='" + uniq + "' data-manually-confirmed='false' contenteditable='true'></span><button id='" + uniq + "_button' type='button' class='delete_element' aria-label='Close'><span aria-hidden='true'>&times;</span></button></span>")
+    target_word.after(index_word)
+    var pixel_shift_down = 0
+    dimensions = narrow_bbox_below_string(parent_line, pixel_shift_down)
+    $("#"+uniq).attr("original-title", dimensions)
+    $("#"+uniq).attr("title", dimensions)
+    add_index_after(target_word, uniq, dimensions);
+    $('.ocr_page').on('keypress', '.index_word', function(e) {
+        if (e.which == 13) {
+            e.preventDefault();
+            update_xmldb(this, e);
+            }
+    });
+    $("#"+uniq).focus()
+    return; //this is the trick to short-circuiting the function.
+}
+
+function insert_line_below(element) {
+    parent_line = $(element).parent('.ocr_line')
+    var uniq = 'ins_line_' + (new Date()).getTime();
+    var newline = $("<div class='inserted_line_holder' id='" + uniq + "_holder'><span class='inserted_line' id='" + uniq + "' data-manually-confirmed='false' contenteditable='true'></span><button id='" + uniq + "_button' type='button' class='delete_element' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>")
+    parent_line.after(newline);
+    $("#"+uniq).attr("original-title", narrow_bbox_below_string(parent_line, 4))
+    $("#"+uniq).attr("title", narrow_bbox_below_string(parent_line, 4))
+    add_line_below_xmldb(element, uniq);
+    $('.ocr_page').on('keypress', '.inserted_line', function(e) {
+        //console.log("we get an inserted line keypress")
+        if (e.which == 13) {
+            //console.log("it's a return")
+            e.preventDefault();
+            update_xmldb(this, e);
+        }
+    });
+    $("#"+uniq).focus()
+}
+
+function make_cts_urn_picker(element) {
+    if( typeof cts_tags === 'undefined' || cts_tags === null ){
+        //cts_tags is defined in a separate file, so it could be 
+        //undefined, unassigned, etc.
+        alert("The cts tag list is corrupted and so a URN picker can't be set.");
+        return;//this ensures that nothing further happens 
+    }
+    /** 
+     * See if we have cookies set to preset this data
+     * 
+     **/
+    ctsurn_cookie = Cookies.get('ctsurn');
+    authorname_cookie = Cookies.get('author-name')
+    authorname_placeholder = ''
+    if ((ctsurn_cookie == null) || (authorname_cookie == null)) {
+        authorname_placeholder = 'author/title'
+    }
+    else
+    {
+        authorname_placeholder = authorname_cookie
+    }
+    var uniq_picker = 'ins_cts_picker_' + (new Date()).getTime();
+    var cts_picker = $("<span class='cts_picker' id='" + uniq_picker + "_span'>📖<input class='ctsurn-picker' id='" + uniq_picker + "' type='text' placeholder='" + authorname_placeholder + "'/><input class='ctsurn-span' id='" + uniq_picker + "_additional'/><button class='kill_button' type='button' id='" + uniq_picker + "_kill_button'> <span>×</span> </button></span>");
+    $(element).before(cts_picker);
+    cts_picker.attr("data-starting-span", $(element).attr("id"))
+    /**
+     * Put a typeahead on the text field
+     **/
+    $("#" + uniq_picker).typeahead({
+        default_val: "my default val",
+        source: function(query) {
+            var self = this;
+            self.map = {};
+            var items = [];
+            //ctsGreekTags is assigned in a separate file
+            $.each(cts_tags, function(i, item) {
+                self.map[item.label] = item;
+                items.push(item.label)
+            });
+            return items;
+        },
+        updater: function(item) {
+            var selectedItem = this.map[item];
+            this.$element.data('selected', selectedItem);
+            console.log("updater function called on: " + selectedItem)
+            console.log(this.$element)
+            this.$element.attr("data-ctsurn", selectedItem["id"])
+            this.$element.attr("data-author-name", selectedItem["label"])
+            $("#" + uniq_picker + "_additional").focus()
+            return item
+        }
+    });
+    $("#" + uniq_picker + "_additional").on('keypress', function(event) {
+        //console.log("we get an inserted line keypress")
+        if (event.which == 13) {
+            event.preventDefault(); // To prevent actually entering return
+            console.log("return in picker_additional: " + uniq_picker)
+            //add data and tooltip to span
+            the_span = $("#" + uniq_picker + "_span")
+            /***
+             * in the case of a close-reference milestone, trying to use the closed-book emoji, but honestly, this
+             * causes a bunch of side effects, so wait for another day.
+            if ($("#"+uniq_picker).attr("data-ctsurn") === "__end__") {
+               the_span.text("📕")
+            } 
+            ***/
+            if ($("#"+uniq_picker).attr("data-ctsurn") == null)  {
+               console.log("the picker was undefined! Setting it to " + ctsurn_cookie + " from cookie")
+               $("#"+uniq_picker).attr("data-ctsurn", ctsurn_cookie)
+               $("#"+uniq_picker).attr("data-author-name",authorname_cookie)
+            }
+            composed_urn = $("#"+uniq_picker).attr("data-ctsurn") + $("#" + uniq_picker + "_additional").val()
+            readable_name = $("#" + uniq_picker).attr("data-author-name") + " " + $("#" + uniq_picker + "_additional").val() + " = " + composed_urn
+            the_span.attr("data-ctsurn", composed_urn)
+            the_span.attr("data-toggle", "tooltip")
+            the_span.attr("data-placement", "top")
+            the_span.attr("title", readable_name)
+            //the_span.tooltip()
+            console.log("here, uniq_picker is " + uniq_picker)
+            updateCTSURN(uniq_picker, "add")
+            //now delete all the inner inputs and this button
+            $("#" + uniq_picker).remove()
+            $("#" + uniq_picker + "_additional").remove()
+            $("#" + uniq_picker + "_ok_button").remove()
+        }
+    });
+    $("#" + uniq_picker + "_kill_button").on('click', function(event) {
+        //remove the entire picker span
+        updateCTSURN(uniq_picker, "remove")
+        $(this).parent().remove()
+    });
+    //set focus to picker citation box here
+    $("#" + uniq_picker + "_additional").focus()
+    return; //this is the trick to short-circuiting the function.
+}
+
+function find_next_focus(element) {
+    var focusables = $(".ocr_word");
+    var current = focusables.index(element);
+    //var path_array = window.location.pathname.split("/")
+    following_focusables = focusables.slice(current, focusables.length)
+    preceding_focusables = focusables.slice(0, current)
+    preceding_focusables_unedited = preceding_focusables.filter(function() {
+        return $(this).attr('data-manually-confirmed') == 'false'
+    })
+    // console.log("following length: " + following_focusables.length)
+    following_focusables_unedited = following_focusables.filter(function() {
+        return $(this).attr('data-manually-confirmed') == 'false'
+    })
+    // console.log("ffuned: " + following_focusables_unedited.length)
+    if (following_focusables_unedited.length > 0) {
+        next = following_focusables_unedited[0]
+    } else if (preceding_focusables_unedited.length > 0) {
+        next = preceding_focusables_unedited[0]
+    } else {
+        next = focusables.eq(current + 1).length ? focusables.eq(current + 1) : focusables.eq(0);
+    }
+    next.focus()
+}
+
+
 $(function() {
     
     //the '.delete_element' class inside the .ocr_page should only be related
@@ -275,6 +433,14 @@ $(function() {
     $('.ocr_page').on('click', '.delete_element', function(e) {
     //console.log(this.id)
     delete_added_element(this)
+    })
+    
+    .on('keypress', '.index_word', function(e) {
+        if (e.which == 13) {
+            console.log("iv'e trapped a return on index word, gonna go save it now, ok?")
+            e.preventDefault();
+            update_xmldb(this, e);
+            }
     });
     
     $("#svg_focus_rect").attr('visibility', 'hidden');
@@ -304,38 +470,41 @@ $(function() {
     //The actual dynamic generation of the tooltip 
     $('.ocr_word').on({
         'focus': function() {
-            $(this).tooltip({
-                //container: 'body',
-                html: true,
-                trigger: 'manual',
-                placement: 'bottom',
-                title: function() { 
-                    var prev_bbox = "";
-                    var page_path = $(this).closest('.ocr_page').attr("title");
-                    //var bbox = $(this).attr('original-title');
-                    var bbox_array = get_bbox_array_of_element($(this));
-                    //Strip following, additional data in this
-                    if (bbox.includes(';')) {
-                        //console.log("theres additional data, that we'll strip")
-                        bbox = bbox.substr(0, bbox.indexOf(';'));
-                    }
-                    console.log(bbox_array)
-                    var url = new URL(window.location.href);
-                    var collectionUri = url.searchParams.get("collectionUri");
-                    //collectionUri = $.urlParam('collectionUri');
-                    var path_array = page_path.split('/');
-                    var page_file = path_array[path_array.length - 1];
-                    var scale = $("#page_image").attr("data-scale")
-                    width = (bbox_array[2] - bbox_array[0]) + 10
-                    height = (bbox_array[3] - bbox_array[1])
-                    $("#svg_focus_rect").attr("x", bbox_array[0] * scale)
-                    $("#svg_focus_rect").attr("y", bbox_array[1] * scale)
-                    $("#svg_focus_rect").attr("width", width * scale)
-                    $("#svg_focus_rect").attr("height", height * scale)
-                    $('#svg_focus_rect').attr('visibility', 'visible');
-                    return generate_image_tag_call(collectionUri, page_file, bbox, width, height)
-                },
-            }).tooltip('show');
+            //console.log("currently showing menu? " + $(this).hasClass('currently-showing-menu'))
+            //if (!($(this).hasClass('currently-showing-menu'))) {
+                $(this).tooltip({
+                    //container: 'body',
+                    html: true,
+                    trigger: 'manual',
+                    placement: 'bottom',
+                    title: function() { 
+                        var prev_bbox = "";
+                        var page_path = $(this).closest('.ocr_page').attr("title");
+                        //var bbox = $(this).attr('original-title');
+                        var bbox_array = get_bbox_array_of_element($(this));
+                        //Strip following, additional data in this
+                        if (bbox.includes(';')) {
+                            //console.log("theres additional data, that we'll strip")
+                            bbox = bbox.substr(0, bbox.indexOf(';'));
+                        }
+                        console.log(bbox_array)
+                        var url = new URL(window.location.href);
+                        var collectionUri = url.searchParams.get("collectionUri");
+                        //collectionUri = $.urlParam('collectionUri');
+                        var path_array = page_path.split('/');
+                        var page_file = path_array[path_array.length - 1];
+                        var scale = $("#page_image").attr("data-scale")
+                        width = (bbox_array[2] - bbox_array[0]) + 10
+                        height = (bbox_array[3] - bbox_array[1])
+                        $("#svg_focus_rect").attr("x", bbox_array[0] * scale)
+                        $("#svg_focus_rect").attr("y", bbox_array[1] * scale)
+                        $("#svg_focus_rect").attr("width", width * scale)
+                        $("#svg_focus_rect").attr("height", height * scale)
+                        $('#svg_focus_rect').attr('visibility', 'visible');
+                        return generate_image_tag_call(collectionUri, page_file, bbox, width, height)
+                    },
+                }).tooltip('show');
+           // }
         },
         'focusout': function() {
             $(this).tooltip('hide');
@@ -364,119 +533,6 @@ $(function() {
         if (e.which == 13) {
             console.log("return hit")
             e.preventDefault();
-            if (e.altKey == true) {
-                console.log("alt is on")
-                if (e.ctrlKey == false) {
-                    console.log("ctrl is off")
-                    //Inserting a word inline
-                    parent_line = $(this).parent('.ocr_line')
-                    var uniq = 'ins_word_' + (new Date()).getTime();
-                    var index_word = $("<span class='index_word_holder' id='" + uniq + "_holder'><span class='index_word' id='" + uniq + "' data-manually-confirmed='false' contenteditable='true'></span><button id='" + uniq + "_button' type='button' class='delete_element' aria-label='Close'><span aria-hidden='true'>&times;</span></button></span>")
-                    $(this).after(index_word)
-                    var pixel_shift_down = 0
-                    dimensions = narrow_bbox_below_string(parent_line, pixel_shift_down)
-                    $("#"+uniq).attr("original-title", dimensions)
-                    $("#"+uniq).attr("title", dimensions)
-                    add_index_after(this, e, uniq, dimensions);
-                    $('.ocr_page').on('keypress', '.index_word', function(e) {
-                        if (e.which == 13) {
-                            e.preventDefault();
-                            update_xmldb(this, e);
-                        }
-                    });
-                    $("#"+uniq).focus()
-                    return; //this is the trick to short-circuiting the function.
-                } else { //ctrlKey is true, also
-                    console.log("control-alt-return hit = generate picker")
-                    
-                    if( typeof cts_tags === 'undefined' || cts_tags === null ){
-                        //cts_tags is defined in a separate file, so it could be 
-                        //undefined, unassigned, etc.
-                        alert("The cts tag list is corrupted and so a URN picker can't be set.");
-                        return;//this ensures that nothing further happens 
-                    }
-                    ctsurn_cookie = Cookies.get('ctsurn');
-                    authorname_cookie = Cookies.get('author-name')
-                    authorname_placeholder = ''
-                    if ((ctsurn_cookie == null) || (authorname_cookie == null)) {
-                        authorname_placeholder = 'author/title'
-                    }
-                    else
-                    {
-                        authorname_placeholder = authorname_cookie
-                    }
-                    var uniq_picker = 'ins_cts_picker_' + (new Date()).getTime();
-                    var cts_picker = $("<span class='cts_picker' id='" + uniq_picker + "_span'>📖<input class='ctsurn-picker' id='" + uniq_picker + "' type='text' placeholder='" + authorname_placeholder + "'/><input class='ctsurn-span' id='" + uniq_picker + "_additional'/><button class='kill_button' type='button' id='" + uniq_picker + "_kill_button'> <span>×</span> </button></span>");
-                    $(this).before(cts_picker);
-                    cts_picker.attr("data-starting-span", $(this).attr("id"))
-                    $("#" + uniq_picker).typeahead({
-                        default_val: "my default val",
-                        source: function(query) {
-                            var self = this;
-                            self.map = {};
-                            var items = [];
-                            //ctsGreekTags is assigned in a separate file
-                            $.each(cts_tags, function(i, item) {
-                                self.map[item.label] = item;
-                                items.push(item.label)
-                            });
-                            return items;
-                        },
-                        updater: function(item) {
-                            var selectedItem = this.map[item];
-                            this.$element.data('selected', selectedItem);
-                            console.log("updater function called on: " + selectedItem)
-                            console.log(this.$element)
-                            this.$element.attr("data-ctsurn", selectedItem["id"])
-                            this.$element.attr("data-author-name", selectedItem["label"])
-                            $("#" + uniq_picker + "_additional").focus()
-                            return item
-                        }
-                    });
-                    $("#" + uniq_picker + "_additional").on('keypress', function(event) {
-                        //console.log("we get an inserted line keypress")
-                        if (event.which == 13) {
-                            event.preventDefault(); // To prevent actually entering return
-                            console.log("return in picker_additional: " + uniq_picker)
-                            //add data and tooltip to span
-                            the_span = $("#" + uniq_picker + "_span")
-                            /***
-                             * in the case of a close-reference milestone, trying to use the closed-book emoji, but honestly, this
-                             * causes a bunch of side effects, so wait for another day.
-                            if ($("#"+uniq_picker).attr("data-ctsurn") === "__end__") {
-                               the_span.text("📕")
-                            } 
-                            ***/
-                            if ($("#"+uniq_picker).attr("data-ctsurn") == null)  {
-                               console.log("the picker was undefined! Setting it to " + ctsurn_cookie + " from cookie")
-                               $("#"+uniq_picker).attr("data-ctsurn", ctsurn_cookie)
-                               $("#"+uniq_picker).attr("data-author-name",authorname_cookie)
-                            }
-                            composed_urn = $("#"+uniq_picker).attr("data-ctsurn") + $("#" + uniq_picker + "_additional").val()
-                            readable_name = $("#" + uniq_picker).attr("data-author-name") + " " + $("#" + uniq_picker + "_additional").val() + " = " + composed_urn
-                            the_span.attr("data-ctsurn", composed_urn)
-                            the_span.attr("data-toggle", "tooltip")
-                            the_span.attr("data-placement", "top")
-                            the_span.attr("title", readable_name)
-                            //the_span.tooltip()
-                            console.log("here, uniq_picker is " + uniq_picker)
-                            updateCTSURN(uniq_picker, "add")
-                            //now delete all the inner inputs and this button
-                            $("#" + uniq_picker).remove()
-                            $("#" + uniq_picker + "_additional").remove()
-                            $("#" + uniq_picker + "_ok_button").remove()
-                        }
-                    });
-                    $("#" + uniq_picker + "_kill_button").on('click', function(event) {
-                        //remove the entire picker span
-                        updateCTSURN(uniq_picker, "remove")
-                        $(this).parent().remove()
-                    });
-                    //set focus to picker citation box here
-                    $("#" + uniq_picker + "_additional").focus()
-                    return; //this is the trick to short-circuiting the function.
-                } //end ctrl key is true
-            } // end alt key is true
             if (e.shiftKey == false) {
                 var data = {};
                 console.log(this.constructor.name);
@@ -499,50 +555,8 @@ $(function() {
                     update_progress_bar()
                 }
                 //$(this).attr("data-manually-confirmed", "true");
-                var focusables = $(".ocr_word");
-                var current = focusables.index(this);
-                //var path_array = window.location.pathname.split("/")
-                following_focusables = focusables.slice(current, focusables.length)
-                preceding_focusables = focusables.slice(0, current)
-                preceding_focusables_unedited = preceding_focusables.filter(function() {
-                    return $(this).attr('data-manually-confirmed') == 'false'
-                })
-                // console.log("following length: " + following_focusables.length)
-                following_focusables_unedited = following_focusables.filter(function() {
-                    return $(this).attr('data-manually-confirmed') == 'false'
-                })
-                // console.log("ffuned: " + following_focusables_unedited.length)
-                if (following_focusables_unedited.length > 0) {
-                    next = following_focusables_unedited[0]
-                } else if (preceding_focusables_unedited.length > 0) {
-                    next = preceding_focusables_unedited[0]
-                } else {
-                    next = focusables.eq(current + 1).length ? focusables.eq(current + 1) : focusables.eq(0);
-                }
-                next.focus()
+                find_next_focus($(this))
             } //end shiftkey = false
-            else { // shiftkey is true
-                if (e.shiftKey == true) {
-                    //console.log("inserting line")
-                    parent_line = $(this).parent('.ocr_line')
-                    
-                    var uniq = 'ins_line_' + (new Date()).getTime();
-                    var newline = $("<div class='inserted_line_holder' id='" + uniq + "_holder'><span class='inserted_line' id='" + uniq + "' data-manually-confirmed='false' contenteditable='true'></span><button id='" + uniq + "_button' type='button' class='delete_element' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>")
-                    parent_line.after(newline);
-                    $("#"+uniq).attr("original-title", narrow_bbox_below_string(parent_line, 4))
-                    $("#"+uniq).attr("title", narrow_bbox_below_string(parent_line, 4))
-                    add_line_below_xmldb(this, e, uniq);
-                    $('.ocr_page').on('keypress', '.inserted_line', function(e) {
-                        //console.log("we get an inserted line keypress")
-                        if (e.which == 13) {
-                            //console.log("it's a return")
-                            e.preventDefault();
-                            update_xmldb(this, e);
-                        }
-                    });
-                    $("#"+uniq).focus()
-                }
-            } //end shift key is true
         } //end if e.which == 13
     });
     
