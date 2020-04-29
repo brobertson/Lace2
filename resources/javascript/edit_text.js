@@ -8,9 +8,7 @@ function get_filename() {
     return path_array[path_array.length - 1]
 }
 
-function get_editing_progress() {
-    alert("wow");
-}
+
 
 function get_bbox_array(bbox_string) {
     bbox = bbox_string.split(';')[0];
@@ -141,19 +139,37 @@ function update_xmldb(element) {
 
 }
 
+/**
+ * Functions implemented with context menu.
+ **/
+
+/**
+ * This is not yet implemented in the context menu. I'm not sure it
+ * is that useful, honestly.
+ **/
+function update_similar(element) {
+    update_all_xmldb(element, e);
+    old_form = $(element).attr('data-selected-form')
+    new_form = $(element).text()
+    $(".ocr_word[data-selected-form='" + old_form.replace(/'/g, "\\'") + "']").each(function() {
+        $(this).text(new_form);
+        $(this).attr("data-manually-confirmed", "true");
+    });
+}
+
+/**
+ * Called by the function above
+ **/
 function update_all_xmldb(element, e) {
     var data = {};
-
     doc = $('.ocr_page').attr('title')
     var n = doc.lastIndexOf('/');
     var fileName = doc.substring(n + 1);
     data['fileName'] = fileName
     var filePath = doc.substring(0, n);
     data['filePath'] = filePath
-
     data['correctedForm'] = $(element).text();
     data['query'] = $(element).attr('data-selected-form');
-
     data['id'] = element.id;
     console.log("updated " + data['query'] + " with " + data['correctedForm'] + " in all of " + data['collectionPath']);
     $.post('modules/updateMany.xq', data, function(dataReturned, textStatus, xhr) {
@@ -200,8 +216,6 @@ function add_line_below_xmldb(element, uniq) {
 }
 
 
-
-
 /*called when the 'x' button beside the added element is pressed*/
 function delete_added_element(buttonElement) {
     console.log("calling line delete")
@@ -230,7 +244,7 @@ function delete_added_element(buttonElement) {
     });
 }
 
-function add_index_after(element, uniq, dimensions) {
+function add_span_after(element, uniq, dimensions) {
     var data = {};
     //data['shift'] = e.shiftKey
     data['value'] = $(element).text();
@@ -273,7 +287,7 @@ function insert_word_inline(target_word) {
     dimensions = narrow_bbox_below_string(parent_line, pixel_shift_down)
     $("#"+uniq).attr("original-title", dimensions)
     $("#"+uniq).attr("title", dimensions)
-    add_index_after(target_word, uniq, dimensions);
+    add_span_after(target_word, uniq, dimensions);
     $('.ocr_page').on('keypress', '.index_word', function(e) {
         if (e.which == 13) {
             e.preventDefault();
@@ -455,23 +469,9 @@ function validate_following(element) {
 }
 
 $(function() {
-    
-    //the '.delete_element' class inside the .ocr_page should only be related
-    //to generated elements, like lines and words, that have a related
-    // 'x' box to delete them.
-    $('.ocr_page').on('click', '.delete_element', function(e) {
-    //console.log(this.id)
-    delete_added_element(this)
-    })
-    
-    .on('keypress', '.index_word', function(e) {
-        if (e.which == 13) {
-            console.log("iv'e trapped a return on index word, gonna go save it now, ok?")
-            e.preventDefault();
-            update_xmldb(this);
-            }
-    });
-    
+    /**
+     * Do the following at startup.
+     **/
     $("#svg_focus_rect").attr('visibility', 'hidden');
     update_progress_bar();
     //Store the 'title' attribute value somewhere else, because
@@ -483,6 +483,45 @@ $(function() {
         }
 
     });
+    
+    /** 
+     * Bind the following 'return' key presses.
+     **/
+    .on('keypress', '.index_word', function(e) {
+        if (e.which == 13) {
+            e.preventDefault();
+            update_xmldb(this);
+            }
+    });
+    $('.inserted_line').bind('keypress', function(e) {
+        if (e.which == 13) {
+            e.preventDefault();
+            //console.log("trying to update xmldb")
+            update_xmldb(this);
+        }
+    });
+    $('.ocr_word').bind('keypress', function(e) {
+        if (e.which == 13) {
+            console.log("return hit")
+            e.preventDefault();
+            update_xmldb(this);
+            //console.log(get_editing_progress())
+            update_progress_bar()
+            find_next_focus($(this))
+        }
+    });
+    
+
+    /**
+     * Bind the following delete functions
+     **/
+    //the '.delete_element' class inside the .ocr_page should only be related
+    //to generated elements, like lines and words, that have a related
+    // 'x' box to delete them.
+    $('.ocr_page').on('click', '.delete_element', function(e) {
+    //console.log(this.id)
+    delete_added_element(this)
+    })
     //make all kill buttons for urn spans kill their related data
     //when built from the database
     $(".kill_button").on('click', function(event) {
@@ -496,44 +535,52 @@ $(function() {
         $(this).parent().remove()
 
     });
+    
+    /**
+     * Bind the following toggle functions
+     **/
+    $('#line_mode').click(function() {
+        $(this).toggleClass('btn-primary');
+    });
+    
+    /**
+     * Make the tooltip image of the word
+     **/
     //The actual dynamic generation of the tooltip 
     $('.ocr_word').on({
         'focus': function() {
-            //console.log("currently showing menu? " + $(this).hasClass('currently-showing-menu'))
-            //if (!($(this).hasClass('currently-showing-menu'))) {
-                $(this).tooltip({
-                    //container: 'body',
-                    html: true,
-                    trigger: 'manual',
-                    placement: 'bottom',
-                    title: function() { 
-                        var prev_bbox = "";
-                        var page_path = $(this).closest('.ocr_page').attr("title");
-                        //var bbox = $(this).attr('original-title');
-                        var bbox_array = get_bbox_array_of_element($(this));
-                        //Strip following, additional data in this
-                        if (bbox.includes(';')) {
-                            //console.log("theres additional data, that we'll strip")
-                            bbox = bbox.substr(0, bbox.indexOf(';'));
-                        }
-                        console.log(bbox_array)
-                        var url = new URL(window.location.href);
-                        var collectionUri = url.searchParams.get("collectionUri");
-                        //collectionUri = $.urlParam('collectionUri');
-                        var path_array = page_path.split('/');
-                        var page_file = path_array[path_array.length - 1];
-                        var scale = $("#page_image").attr("data-scale")
-                        width = (bbox_array[2] - bbox_array[0]) + 10
-                        height = (bbox_array[3] - bbox_array[1])
-                        $("#svg_focus_rect").attr("x", bbox_array[0] * scale)
-                        $("#svg_focus_rect").attr("y", bbox_array[1] * scale)
-                        $("#svg_focus_rect").attr("width", width * scale)
-                        $("#svg_focus_rect").attr("height", height * scale)
-                        $('#svg_focus_rect').attr('visibility', 'visible');
-                        return generate_image_tag_call(collectionUri, page_file, bbox, width, height)
-                    },
-                }).tooltip('show');
-           // }
+            $(this).tooltip({
+                //container: 'body',
+                html: true,
+                trigger: 'manual',
+                placement: 'bottom',
+                title: function() { 
+                    var prev_bbox = "";
+                    var page_path = $(this).closest('.ocr_page').attr("title");
+                    //var bbox = $(this).attr('original-title');
+                    var bbox_array = get_bbox_array_of_element($(this));
+                    //Strip following, additional data in this
+                    if (bbox.includes(';')) {
+                        //console.log("theres additional data, that we'll strip")
+                        bbox = bbox.substr(0, bbox.indexOf(';'));
+                    }
+                    console.log(bbox_array)
+                    var url = new URL(window.location.href);
+                    var collectionUri = url.searchParams.get("collectionUri");
+                    //collectionUri = $.urlParam('collectionUri');
+                    var path_array = page_path.split('/');
+                    var page_file = path_array[path_array.length - 1];
+                    var scale = $("#page_image").attr("data-scale")
+                    width = (bbox_array[2] - bbox_array[0]) + 10
+                    height = (bbox_array[3] - bbox_array[1])
+                    $("#svg_focus_rect").attr("x", bbox_array[0] * scale)
+                    $("#svg_focus_rect").attr("y", bbox_array[1] * scale)
+                    $("#svg_focus_rect").attr("width", width * scale)
+                    $("#svg_focus_rect").attr("height", height * scale)
+                    $('#svg_focus_rect').attr('visibility', 'visible');
+                    return generate_image_tag_call(collectionUri, page_file, bbox, width, height)
+                },
+            }).tooltip('show');
         },
         'focusout': function() {
             $(this).tooltip('hide');
@@ -541,55 +588,5 @@ $(function() {
         }
     });
     //end generate tooltips
-
-    $('.ocr_word').bind('keydown', function(e) {
-        if (e.which == 110) {
-            e.preventDefault();
-            alert("combo");
-        }
-    });
-
-
-    $('.inserted_line').bind('keypress', function(e) {
-        if (e.which == 13) {
-            e.preventDefault();
-            //console.log("trying to update xmldb")
-            update_xmldb(this);
-        }
-    });
-
-    $('.ocr_word').bind('keypress', function(e) {
-        if (e.which == 13) {
-            console.log("return hit")
-            e.preventDefault();
-            if (e.shiftKey == false) {
-                var data = {};
-                console.log(this.constructor.name);
-                if (e.ctrlKey == true) {
-                    //with ctrl held down, every word in this page
-                    //is corrected at once
-                    update_all_xmldb(this, e);
-                    old_form = $(this).attr('data-selected-form')
-                    new_form = $(this).text()
-                    $(".ocr_word[data-selected-form='" + old_form.replace(/'/g, "\\'") + "']").each(function() {
-                        $(this).text(new_form);
-                        $(this).attr("data-manually-confirmed", "true");
-                    });
-                } //end e.ctrlKey == true
-                else { //ctrlKey == false
-                    //this is what happens if you just hit return.
-                    //console.log("doing single word update")
-                    update_xmldb(this);
-                    //console.log(get_editing_progress())
-                    update_progress_bar()
-                }
-                //$(this).attr("data-manually-confirmed", "true");
-                find_next_focus($(this))
-            } //end shiftkey = false
-        } //end if e.which == 13
-    });
     
-    $('#line_mode').click(function() {
-        $(this).toggleClass('btn-primary');
-    });
 });
