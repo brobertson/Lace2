@@ -5,14 +5,19 @@
         callback: function(key, options) {
             //var m = "clicked: " + key;
             //window.console && console.log(m) || alert(m);
-            if (key === 'word') {
-                 insert_word_inline($(this))
-            }
-            else if (key === 'line') {
-                insert_line_below($(this))
-            }
-            else if (key === "cts-urn") {
-                make_cts_urn_picker($(this))
+            switch (key) {
+                case 'word':
+                    insert_word_inline($(this))
+                    break;
+                case 'line':
+                    insert_line_below($(this))
+                    break;
+                case 'cts-urn':
+                    make_cts_urn_picker($(this))
+                    break;
+                case 'following':
+                    validate_following($(this))
+                    break;
             }
         },
         /** somehow, we're not doing this right 
@@ -29,7 +34,7 @@
             "cts-urn": {name: "Insert Ref. Before", icon: "fa-edit"},
             "line": {name: "Add Line After", icon: "fa-beer"},
             "word": {name: "Insert Word After", icon: "fa-edit"},
-            copy: {name: "Cloud download", icon: "fa-cloud-download"}
+            "following": {name: "Verify Following", icon: "fa-cloud-download"}
         }
     });
 

@@ -108,9 +108,8 @@ function updateCTSURN(urnpicker_id, my_action) {
         });
 }
 
-function update_xmldb(element, e) {
+function update_xmldb(element) {
     var data = {};
-    data['shift'] = e.shiftKey
     data['value'] = $(element).text();
     data['id'] = element.id;
     doc = $('.ocr_page').attr('title')
@@ -278,7 +277,7 @@ function insert_word_inline(target_word) {
     $('.ocr_page').on('keypress', '.index_word', function(e) {
         if (e.which == 13) {
             e.preventDefault();
-            update_xmldb(this, e);
+            update_xmldb(this);
             }
     });
     $("#"+uniq).focus()
@@ -298,7 +297,7 @@ function insert_line_below(element) {
         if (e.which == 13) {
             //console.log("it's a return")
             e.preventDefault();
-            update_xmldb(this, e);
+            update_xmldb(this);
         }
     });
     $("#"+uniq).focus()
@@ -424,6 +423,36 @@ function find_next_focus(element) {
     next.focus()
 }
 
+/**
+ * This confirms the given value for the OCR in all the words following the 'element' word
+ * until it reaches either the end of the page or a word which does not ahve a 'True' spelcheck-mode.
+ * It then finds the next word to focus on. It is called from the context menu.
+ **/
+function validate_following(element) {
+    var words = $(".ocr_word");
+    var current_word = words.index(element);
+    console.log("there are ", words.length, " words")
+    console.log("im at ", current_word)
+    console.log("doing validate_following starting with ", element.attr('id'))
+    following_words = words.slice(current_word, words.length)
+    console.log("there are ", following_words.length, " following words")
+    var i = 0;
+    do {
+        current = $(following_words[i])
+        console.log("current spellcheck mode: ", current.attr('data-spellcheck-mode'))
+        console.log("will I validate ", current.attr('id'), "?")
+        //There's no point in doing it again if it's already entered.
+        if ( current.attr('data-manually-confirmed') == 'false' ) {
+            //requires a javascript, not jquery object: .get(0) will dereference it.
+            update_xmldb(current.get(0));
+            console.log("\tyes")
+        }
+        i++;
+        //console.log("next spellcheck mode: ", $(following_words[i]).attr('data-spellcheck-mode'))
+    }
+    while ( (i < following_words.length) && ( $(following_words[i]).attr('data-spellcheck-mode').startsWith('True')) || $(following_words[i]).attr('data-manually-confirmed') == 'true');
+    find_next_focus(following_words[i])
+}
 
 $(function() {
     
@@ -439,7 +468,7 @@ $(function() {
         if (e.which == 13) {
             console.log("iv'e trapped a return on index word, gonna go save it now, ok?")
             e.preventDefault();
-            update_xmldb(this, e);
+            update_xmldb(this);
             }
     });
     
@@ -525,7 +554,7 @@ $(function() {
         if (e.which == 13) {
             e.preventDefault();
             //console.log("trying to update xmldb")
-            update_xmldb(this, e);
+            update_xmldb(this);
         }
     });
 
@@ -550,7 +579,7 @@ $(function() {
                 else { //ctrlKey == false
                     //this is what happens if you just hit return.
                     //console.log("doing single word update")
-                    update_xmldb(this, e);
+                    update_xmldb(this);
                     //console.log(get_editing_progress())
                     update_progress_bar()
                 }
