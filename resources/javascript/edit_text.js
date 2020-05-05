@@ -487,7 +487,7 @@ $(function() {
     /** 
      * Bind the following 'return' key presses.
      **/
-    .on('keypress', '.index_word', function(e) {
+    $('.index_word').bind('keypress', function(e) {
         if (e.which == 13) {
             e.preventDefault();
             update_xmldb(this);
