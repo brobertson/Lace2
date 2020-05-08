@@ -83,7 +83,7 @@ function intersectRect(rect1, rect2, scaleRect2) {
         return false; 
    }
    // otherwise, it is in fact overlapping
-   console.log("intersecting rects")
+   //console.log("intersecting rects")
     return true; 
 } 
 
@@ -298,13 +298,16 @@ function hilight_corresponding_ocr_words($zone_rectangle) {
      * Given a SVG rectangle, this applies the 'zoning_hilight' class to each
      * .ocr_word element that either is within or intersecting with that rectangle.
      ***/
+     console.log("rectangle selected with dimensions:")
+     print_rect($zone_rectangle)
+    var scale = $("#page_image").attr("data-scale")
     $(".ocr_word, .inserted_line, .index_word").each(function() {
         test_rect = bbox_string_to_rect($(this).attr("original-title"))
         //console.log("testing word '" + $(this).text() + "' for enclosing")
-        if (enclosesRect(test_rect,$zone_rectangle)) {
+        if (intersectRect(test_rect, $zone_rectangle, scale)) {
             $(this).addClass("zoning_hilight")
         }
-        if ($(this).hasClass("zoning_hilight") && !enclosesRect(test_rect, $zone_rectangle)) {
+        if ($(this).hasClass("zoning_hilight") && !intersectRect(test_rect, $zone_rectangle, scale)) {
             $(this).removeClass("zoning_hilight")
         }
     });

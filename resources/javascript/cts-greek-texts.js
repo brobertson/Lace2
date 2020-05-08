@@ -776,10 +776,13 @@
 {label: "Dionysius of Halicarnassus, Art of Rhetoric", id : "urn:cts:greekLit:tlg0081.tlg016.1st1K-grc1:" },
 {label: "Dionysius of Halicarnasus, Fragmenta", id : "urn:cts:greekLit:tlg0081.tlg018.1st1K-grc1:" },
 {label: "Apollonius Dyscolus, On Pronouns", id : "urn:cts:greekLit:tlg0082.tlg001.1st1K-grc1:" },
-{label: "Aristoxenus, Elementa Rhythmica (Lib .1)", id : "urn:cts:greekLit:tlg0082.tlg002.1st1K-grc1:" },
-{label: "Aristoxenus, Elementa Rhythmica (Lib .2)", id : "urn:cts:greekLit:tlg0082.tlg003.1st1K-grc1:" },
-{label: "Aristoxenus, Fragmenta Parisiana", id : "urn:cts:greekLit:tlg0082.tlg004.1st1K-grc1:" },
-{label: "Aristoxenus, Fragmenta", id : "urn:cts:greekLit:tlg0082.tlg006.1st1K-grc1:" },
+{label: "Apollonius Dyscolus, On Adverbs", id : "urn:cts:greekLit:tlg0082.tlg002.1st1K-grc1:" },
+{label: "Apollonius Dyscolus, On Conjunctions", id : "urn:cts:greekLit:tlg0082.tlg003.1st1K-grc1:" },
+{label: "Apollonius Dyscolus, On Syntax", id : "urn:cts:greekLit:tlg0082.tlg004.1st1K-grc1:" },
+{label: "Aristoxenus, Elementa Rhythmica (Lib .1)", id : "urn:cts:greekLit:tlg0088.tlg002.1st1K-grc1:" },
+{label: "Aristoxenus, Elementa Rhythmica (Lib .2)", id : "urn:cts:greekLit:tlg0088.tlg003.1st1K-grc1:" },
+{label: "Aristoxenus, Fragmenta Parisiana", id : "urn:cts:greekLit:tlg0088.tlg004.1st1K-grc1:" },
+{label: "Aristoxenus, Fragmenta", id : "urn:cts:greekLit:tlg0088.tlg006.1st1K-grc1:" },
 {label: "Dionysius, Sailing through the Bosporus", id : "urn:cts:greekLit:tlg0083.tlg003.1st1K-grc1:" },
 {label: "Dionysius, Description of the Inhabited World", id : "urn:cts:greekLit:tlg0084.tlg001.1st1K-grc1:" },
 {label: "Dionysius Periegetes, Ixeuticon sive De aucupio (paraphrasis) (olim sub auctore Eutecnio)", id : "urn:cts:greekLit:tlg0084.tlg003.1st1K-grc1:" },
@@ -2051,6 +2054,7 @@
 {label: "Rufus, Perinthius, fl. 2. Jh., Ars Rhetorica", id : "urn:cts:greekLit:tlg6006.tlg001.1st1K-grc1:" },
 {label: "Cornutus, Lucius Annaeus, de Natura Deorum", id : "urn:cts:greekLit:tlg654.tlg002.1st1K-grc1:" },
 {label: "Anonymous, Acts of John by Prochorus", id : "urn:cts:greekLit:tlg0317.tlg002.1st1K-grc3:" },
+{label: "Apicius De Re Coquinaria", id : "urn:cts:latinLit:phi2003.phi001.opp-lat3:"},
 {label: "*END MILESTONE*", id : "__end__" }
 ]
 ;
