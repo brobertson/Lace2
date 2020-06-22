@@ -147,8 +147,8 @@ function update_xmldb(element) {
  * This is not yet implemented in the context menu. I'm not sure it
  * is that useful, honestly.
  **/
-function update_similar(element) {
-    update_all_xmldb(element, e);
+function validate_all_similar(element) {
+    update_all_xmldb(element);
     old_form = $(element).attr('data-selected-form')
     new_form = $(element).text()
     $(".ocr_word[data-selected-form='" + old_form.replace(/'/g, "\\'") + "']").each(function() {
@@ -160,7 +160,7 @@ function update_similar(element) {
 /**
  * Called by the function above
  **/
-function update_all_xmldb(element, e) {
+function update_all_xmldb(element) {
     var data = {};
     doc = $('.ocr_page').attr('title')
     var n = doc.lastIndexOf('/');
@@ -171,9 +171,9 @@ function update_all_xmldb(element, e) {
     data['correctedForm'] = $(element).text();
     data['query'] = $(element).attr('data-selected-form');
     data['id'] = element.id;
-    console.log("updated " + data['query'] + " with " + data['correctedForm'] + " in all of " + data['collectionPath']);
+    console.log("updated " + data['query'] + " with " + data['correctedForm'] + " in all of " + data['filePath']);
     $.post('modules/updateMany.xq', data, function(dataReturned, textStatus, xhr) {
-        //console.log("success!" + xhr.responseText)
+        console.log("success!" + xhr.responseText)
         set_of_blinkers = $(".ocr_word").filter(function() {
             return ($(this).text() === data['query'])
         })
@@ -347,6 +347,8 @@ function make_cts_urn_picker(element) {
      **/
     $("#" + uniq_picker).typeahead({
         default_val: "my default val",
+        hint: true,
+        highlight: true,
         source: function(query) {
             var self = this;
             self.map = {};
@@ -358,6 +360,9 @@ function make_cts_urn_picker(element) {
             });
             return items;
         },
+        //limit does not work, and we are hard-fixed to 8.
+        //See this discussion: https://stackoverflow.com/questions/26111281/twitters-typeahead-limit-not-working
+        //limit: Number.MAX_VALUE,
         updater: function(item) {
             var selectedItem = this.map[item];
             this.$element.data('selected', selectedItem);
