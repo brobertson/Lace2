@@ -2055,6 +2055,19 @@
 {label: "Cornutus, Lucius Annaeus, de Natura Deorum", id : "urn:cts:greekLit:tlg654.tlg002.1st1K-grc1:" },
 {label: "Anonymous, Acts of John by Prochorus", id : "urn:cts:greekLit:tlg0317.tlg002.1st1K-grc3:" },
 {label: "Apicius De Re Coquinaria", id : "urn:cts:latinLit:phi2003.phi001.opp-lat3:"},
+{label: "Apicius Brevis Pimentorum. Excerpta", id : "urn:cts:latinLit:phi2003.phi003.opp-lat2:"},
+{label: "Apicius Brevis Ciborum. Excerpta", id : "urn:cts:latinLit:phi2003.phi002.opp-lat2:"},
+{label: "Apicius Appendicula", id : "urn:cts:latinLit:phi2003.phi004.opp-lat1:"},
+{label: "Pomponius Mela, De Chorographia", id : "urn:cts:latinLit:phi0929.phi001.ogl-lat1:"},
+{label: "Varro, Res Rusticae", id : "urn:cts:latinLit:phi0684.phi002.ogl-lat1:"},
+{label: "Theophrastus, De Odoribus", id: "urn:cts:greekLit:tlg0093.tlg010x01:"},
+{label: "Theophrastus, De Ventis", id: "urn:cts:greekLit:tlg0093.tlg010x02:"},
+{label: "Theophrastus, De Signis Tempestum", id: "urn:cts:greekLit:tlg0093.tlg010x03:"},
+{label: "Theophrastus, De Lassitudine", id: "urn:cts:greekLit:tlg0093.tlg010x04:"},
+{label: "Theophrastus, De Vertigine", id: "urn:cts:greekLit:tlg0093.tlg010x05:"},
+{label: "Theophrastus, De Sudore", id: "urn:cts:greekLit:tlg0093.tlg010x06:"},
+{label: "Theophrastus, De Animi Defectione", id: "urn:cts:greekLit:tlg0093.tlg010x07:"},
+{label: "Theophrastus, De Nervorum Resolutione", id: "urn:cts:greekLit:tlg0093.tlg010x08:"},
 {label: "*END MILESTONE*", id : "__end__" }
 ]
 ;
