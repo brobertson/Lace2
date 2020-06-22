@@ -18,6 +18,9 @@
                 case 'following':
                     validate_following($(this))
                     break;
+                case 'all':
+                    validate_all_similar($(this))
+                    break;
             }
         },
         /** somehow, we're not doing this right 
@@ -35,6 +38,7 @@
             "line": {name: "Add Line After", icon: "fa-beer"},
             "word": {name: "Insert Word After", icon: "fa-edit"},
             "following": {name: "Verify Following", icon: "fa-cloud-download"}
+            //"all": {name: "Verify All in Volume", icon: "fa-edit"}
         }
     });
 
