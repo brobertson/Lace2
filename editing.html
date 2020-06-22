@@ -85,15 +85,15 @@ When the OCR output is post-processed by the computer, it indicates the spellche
     <p class="documentation">In the case where a text is highly accurate, editing will simply entail clicking on the first word, checking that the word text corresponds to the pop-up image and then pressing <code>Return</code>. The process is repeated again and again, the text being changed only when necessary.</p>
     <p class="documentation">A progress bar above the text indicates how much of the page has been verified.</p>
     <h3>Advanced Text Editing</h3>
-<p class="documentation">The following advanced editing functions are available:</p>
+<p class="documentation">The following advanced editing functions are available. They are all accessed though a pop-up menu that appears when an editor does a right button mouse click on a word. (The Apple only has one mouse button, so it simulates right-click with <code>control-click</code>.)</p>
 <ol>
-        <li>
+        <!--li>
             <p class="documentation">If an editor verifies a word with the <code>Control</code> key held down while pressing <code>Return</code>, the edit function is applied to all applicable words on this page of the text. So, if the word is unchanged and verified, all words that contain that string are similarly verified. They will flash and then will also appear coloured as light-blue. This is a very powerful function and should be used sparingly, especially at first. However, it may become clear that a word like Ἰσραήλ is very unlikely to be incorrectly identified. In which case, verifying all of these words at once saves time.</p>
 <p class="documentation">(If a word has been changed with this function, all words in all pages of the text that had the original form of the word will be changed to the edited form. Note that by 'original form' it is mean the very first form outputted. Thus if all words reading ἐπ’ are changed to ἐπ' (with a different final character) and then, using this function, one of those words is used to do a global change to ἐφ', this will not change words that originally were output as ἐπ’.)
 </p>
-        </li>
+        </li-->
         <li>
-            <p class="documentation">Holding the <code>Control</code> key down while also holding <code>Alt</code> key down (<code>Option</code> key in MacOS) and pressing <code>Return</code> causes two fields to be generated inline whereby you indicate the beginning of a new work or the new section of a work in progress.</p> 
+            <p class="documentation">The <code>Insert Ref. Before</code> menu item causes two fields to be generated inline whereby you indicate the beginning of a new work or the new section of a work in progress.</p> 
 <p class="documentation">The field on the left side is for the author and title. Type any keyword from these and a list of matching works will appear in a menu below. Select one of these. (At present, an extensive list of Greek works is provided, and it is not possible to type in a work yourself. It is possible for an administrator to add other works to this list modifying the file at <code>$LACE_APP/resources/javascript/cts-greek-texts.js</code>.) This field must always be completed, even in the middle of a work. The field on the right is used to indicate the section of the work, according to your sectioning syntax. For instance, you might use <code>10.2</code> to indicate "book 10, section 2."</p>
 <p class="documentation">
 When the page is refreshed, this dialog collapses to a book emoji milestone, 📖, in order to conserve space. The stored text title and section can still be seen by mousing over the emoji, as can the URN used by the computer to formally identify this section.
@@ -101,18 +101,21 @@ When the page is refreshed, this dialog collapses to a book emoji milestone, �
 <p class="documentation">At any point, the dialog or its milestone can be deleted with the 'x' to its right.</p>
         </li>
         <li>
-            <p class="documentation">Holding the <code>Alt</code> (MacOS: <code>Option</code>) key down while pressing <code>Return</code> causes a manually entered word to be added to the line to deal with the instance where the OCR engine omitted a word. This word can be deleted with the <code>x</code> button following it. It word begins without any letters in it. Type what it should contain and press <code>Return</code> to save this word. Like the others, it will then be highlighted in <span data-spellcheck-mode="Manual">blue</span>. Manually entered words and lines (see below) have a <span class="index_word">dashed green outline</span>.
+            <p class="documentation">The <code>Insert Word After</code> menu item causes a manually entered word to be added to the line to deal with the instance where the OCR engine omitted a word. This word can be deleted with the <code>x</code> button following it. It word begins without any letters in it. Type what it should contain and press <code>Return</code> to save this word. Like the others, it will then be highlighted in <span data-spellcheck-mode="Manual">blue</span>. Manually entered words and lines (see below) have a <span class="index_word">dashed green outline</span>.
 </p>
 <p class="documentation">For the purpose of alignment with the page zones, the manually added word is positioned just to the right of the word on its left and represented by a narrow vertical strip the height of the enclosing line. Thus in most cases this word will be included in any zoning of this area. (Note that as of version 0.5.9 it is not possible to generate manually a word at the leftmost position of a line.)</p>
         </li>
         <li>
-            <p class="documentation">Holding <code>Shift</code> down while pressing <code>Return</code> causes a new blank line to be inserted into the document, directly following the current one. This is editable, but its content is not broken into words. Pressing <code>Return</code> in this line will save its content as expected. This allows one to add content to the page which has been missed by the OCR engine. At any time, the line may be deleted by clicking on the <code>x</code> at the right hand edge of the page.
+            <p class="documentation">The <code>Add Line After</code> menu item causes a new blank line to be inserted into the document, directly following the current one. This is editable, but its content is not broken into words. Pressing <code>Return</code> in this line will save its content as expected. This allows one to add content to the page which has been missed by the OCR engine. At any time, the line may be deleted by clicking on the <code>x</code> at the right hand edge of the page.
 </p>
 <p class="documentation">This word will be assigned a position on the page just below the line above it, and is represented by a narrow horizontal strip the same width of that line. Thus in most cases it will be included in any zoning of this area. (Note that as of version 0.5.9 it is not possible to generate manually a line at the topmost position of a page.)</p>
         </li>
         <li>
             <p class="documentation">If a word is split in the editor, meaning that it apears in multiple boxes rather than altogether in a single box, you may correct this error by completing the word as it appears in the text in the first editing box and deleting the content of the subsequent box(es). If multiple words are detected as a single word, you may solve this by simply separating them by a <code>Space</code> as the computer will detect this as being seprate words.
 </p>
+        </li>
+	<li>
+            <p class="documentation">The <code>Verify Following</code> menu item helps speed up the word verification of a highly accurate text. It verifies and turns blue all the words following the context word until it reaches one that is did not pass spellcheck. This is a very powerful feature and should only be used when those following words have been carefully read.</p>
         </li>
     </ol>
     <h3>Using Unicode</h3>
