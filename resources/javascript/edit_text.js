@@ -96,7 +96,7 @@ function updateCTSURN(urnpicker_id, my_action) {
     data['starting-span'] = picker_span.attr("data-starting-span")
     data['value'] = composed_urn
     data['action'] = my_action
-
+    /*
     $.post('modules/updateCTSUrn.xq', data, function(data, textStatus, xhr) {
             console.log("success updating CTS URN: " + composed_urn + " on " + picker_span_string + " at " + filePath + "/" + fileName + " before " + data['next_sibling_id']) //success
         })
@@ -104,6 +104,25 @@ function updateCTSURN(urnpicker_id, my_action) {
             //failure
             console.log("failure updating CTS URN")
         });
+    */ 
+    $.ajax({
+        url: 'modules/updateCTSUrn.xq',
+        method: "POST",
+        dataType: "xml",
+        data: data,
+      beforeSend: function( xhr ) {
+        console.log("sending" + xhr)
+      }
+    })
+    .done(function( data ) {
+        if ( console && console.log ) {
+          console.log("success " + my_action + " CTS URN: " + composed_urn + " on " + picker_span_string + " at " + filePath + "/" + fileName + " before " + data['next_sibling_id']) 
+        }
+    })
+    .fail(function() {
+        console.log("failure updating CTS URN")
+        //delete the element?
+    });
 }
 
 function update_xmldb(element) {
@@ -249,17 +268,37 @@ function delete_added_element(buttonElement) {
     the_actual_span = buttonElement.id.substr(0, buttonElement.id.lastIndexOf('_'))
     enclosing_element = the_actual_span.concat('_holder');
     data['id'] = enclosing_element
-        //this has been stored in the database, so we need to do a call to xquery to 
-        //delete it from there, and only delete it from the DOM if that call is successful
+    //this has been stored in the database, so we need to do a call to xquery to 
+    //delete it from there, and only delete it from the DOM if that call is successful
+    /*
     $.post('modules/deleteElement.xq', data, function(returnedData, textStatus, xhr) {
         //console.log("success!" + xhr.responseText)
         //console.log("id is " + data["id"])
-        /* if it succeeds in removing from the database, 
-        then also remove from the DOM on the screen 
-        */
+        // if it succeeds in removing from the database, 
+        // then also remove from the DOM on the screen 
         $("#" + data['id']).remove();
     }).fail(function(xhr, textStatus, errorThrown) {
         alert(xhr.responseText);
+    });
+    */
+    $.ajax({
+        url: 'modules/deleteElement.xq',
+        method: "POST",
+        dataType: "xml",
+        data: data,
+      beforeSend: function( xhr ) {
+        console.log("sending" + xhr)
+      }
+    })
+    .done(function( data_out ) {
+        if ( console && console.log ) {
+          console.log("success deleting element " + data["id"]) 
+        }
+        $("#" + data['id']).remove();
+    })
+    .fail(function() {
+        console.log("failure deleting element "+ data["id"])
+        alert("Failure to connect to the Lace Server")
     });
 }
 
