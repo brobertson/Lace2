@@ -106,14 +106,21 @@ declare function app:formatCatalogEntry($node as node(), $model as map(*), $arch
     return
     <xh:span class="catalogueEntry" title="{$text}">{$creator_string} ({$text/../dc:date/text()}). <xh:i>{fn:substring($text/../dc:title/text(),1,80)}</xh:i>.</xh:span>
 };
+
 (: 
  : for a given dc:identifier node, format the contents and link to 
  : its 'runs'
  :)
 declare function app:formatCatalogEntryWithRunsLink($text as node()) {
-    <xh:a href="{concat("runs.html?archive_number=",$text)}">
-        {app:formatCatalogEntry($text)}
-    </xh:a>
+    if (count(collection('/db/apps')//lace:run[dc:identifier/text() = $text]) > 1) then
+        <xh:a href="{concat("runs.html?archive_number=",$text)}">
+            {app:formatCatalogEntry($text)}
+        </xh:a>
+    else 
+        <xh:a href="{concat('side_by_side_view.html?collectionUri=',app:hocrCollectionUriForRunMetadataFile(collection('/db/apps')//lace:run[dc:identifier/text() = $text]),'&amp;positionInCollection=2')}">
+            {app:formatCatalogEntry($text)}
+        </xh:a>
+        
 };
 
 (: 
@@ -520,7 +527,7 @@ declare function app:getCollectionUri($documentId as xs:string, $runId as xs:str
   concat($app:textDataPath,$documentId,'/',$runId)  
 };
 
-declare function app:dropdownMenu() {
+declare function app:dropdownMenu($collectionUri as xs:string ) {
     <xh:span id="dropdownMenu">
                 <xh:div class="btn-group">
               <xh:button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><xh:span class="caret"></xh:span>
@@ -529,6 +536,10 @@ declare function app:dropdownMenu() {
                 <xh:li><xh:a id="run_info" href='#'>Run Info</xh:a></xh:li>
                 <xh:li><xh:a id="editing_view" href="#">Run Editing View</xh:a></xh:li>
                 <xh:li><xh:a id="accuracy_view" href="#">Run Accuracy View</xh:a></xh:li>
+                <xh:li><xh:a id="download_training_csv" href="{concat("get_trainingset.xq?collectionUri=",$collectionUri, "&amp;format=csv")}">Download Training Set File</xh:a></xh:li>
+                <xh:li><xh:a id="download_xar" href='{concat("getZippedCollection.xq?collectionUri=",$collectionUri, "&amp;format=xar")}'>Download XAR Backup of Editing</xh:a></xh:li>
+                <xh:li><xh:a id="download_txt" href="{concat("getZippedCollection.xq?collectionUri=",$collectionUri, "&amp;format=text")}">Download Plain Text Zip File</xh:a></xh:li>
+                <xh:li><xh:a id="preflight_tei" href='{concat("teiPreflight.html?collectionUri=",$collectionUri)}'>Precheck and Download TEI File</xh:a></xh:li>
               </xh:ul>
             </xh:div>
             <xh:div id="info_alert" class="panel panel-default">
@@ -645,7 +656,7 @@ response:set-header( "X-Content-Type-Options", 'nosniff' ))
          <xh:div class="text-center" >
                          
 <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#editingInfo">?</button>{app:formatCatalogEntryForCollectionUri($imageCollection)}
-             {app:dropdownMenu()}
+             {app:dropdownMenu($collectionUri)}
              {app:paginationWidget($collectionUri, $positionInCollection)} 
 
 <div id="editingInfo" class="modal fade" role="dialog">
@@ -663,6 +674,17 @@ response:set-header( "X-Content-Type-Options", 'nosniff' ))
               <li>Run Accuracy View: Another colored band representing the sequence of pages in this volume, but in this case the colours show how accurate the OCR output in each page is, with accuracy measured by dictionary words per total words.</li>
         </ol>
         Mousing over either of the last two views will cause the page number corresponding to the section of the band to appear, and clicking on that part of the band will navigate to a new editing page.
+        </p>
+        <p>
+        This menu also provides the following downloads:
+        <ul>
+            <li>Training Set File: This is a single page tab-separated data table representing the image file name, bounding box and corrected text of all lines in this run, all of whose words have been validated by a user. From this a python script generates the line image and text pairs used to retrain an OCR engine like Ocropus or Kraken.</li>
+            
+         <li>XAR Backup of Editing: A complete collection of all data, including editing and zoning rectangles, useful for installing in this or another instance of Lace. This is one option for backing up your data.</li>
+            <li>Plain Text Zip File: A zipped archive of all the texts converted to plain text. The corrected text is formatted according to the original OCR text, without the zoning information being applied.</li>
+<li>Training Set Images: This is a zipped archive comprising similarly-named pairs of line images and text files used to train OCR engines like Ocropus or Kraken. Thus unlike the data above, no intermediary program needs to be run to use this training data. However, these images are set at the binarization level of the collection installed in Lace; whereas the tab-separated table can be used to work with the original colour pages if necessary.</li>
+        <li>Precheck and Download TEI File: This does a last sanity check on the TEI output, then presents a page for final information before TEI download.</li>
+        </ul>
       </p>
 <p>Below this is a pagination bar with which you can navigate through the text's editing pages. The numbers do not necessarily indicate the printed page number or the number in the image file's name. Rather, they are the ordinal value of this image in the collection.</p>
 <p>There is a separate page <a href="editing.html">explaining</a> how to zone the image and edit the text.</p>
