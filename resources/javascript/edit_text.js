@@ -121,6 +121,7 @@ function update_xmldb(element) {
     //console.log("posting ", data, " to ", whole_address)
     old_attribute = element.getAttribute("data-manually-confirmed")
     element.setAttribute("data-manually-confirmed", "true");
+    /**
     $.post(whole_address, data, function(data, textStatus, xhr) {
             //console.log("success!" + xhr.responseText)
             //this is the 'success' function 
@@ -136,7 +137,25 @@ function update_xmldb(element) {
                 alert(xhr.responseText + " status" + xhr.status);
             }
         });
-
+        **/
+    $.ajax({
+        url: whole_address,
+        method: "POST",
+        dataType: "xml",
+        data: data,
+      beforeSend: function( xhr ) {
+        console.log("sending" + xhr)
+      }
+    })
+    .done(function( data ) {
+        if ( console && console.log ) {
+          //console.dirxml(data);
+        }
+    })
+    .fail(function() {
+    element.setAttribute("data-manually-confirmed", old_attribute);
+    alert("The connection has been lost to the lace server.")
+  });
 }
 
 /**
@@ -197,13 +216,13 @@ function add_line_below_xmldb(element, uniq) {
     data['title'] = $(element).attr('original-title')
     data['id'] = element.id;
     data['uniq'] = uniq;
-    doc = $('.ocr_page').attr('title')
-    data['doc'] = doc
+    doc = $('.ocr_page').attr('title');
+    data['doc'] = doc;
     var n = doc.lastIndexOf('/');
     var fileName = doc.substring(n + 1);
     data['fileName'] = fileName
     var filePath = doc.substring(0, n);
-    data['filePath'] = filePath
+    data['filePath'] = filePath;
     $.post('modules/addLineBelow.xq', data, function(data, textStatus, xhr) {
         //console.log("success!" + xhr.responseText)
         //this is the 'success' function 
@@ -218,10 +237,10 @@ function add_line_below_xmldb(element, uniq) {
 
 /*called when the 'x' button beside the added element is pressed*/
 function delete_added_element(buttonElement) {
-    console.log("calling line delete")
+    console.log("calling line delete");
     var data = {};
-    doc = $('.ocr_page').attr('title')
-    data['doc'] = doc
+    doc = $('.ocr_page').attr('title');
+    data['doc'] = doc;
     var n = doc.lastIndexOf('/');
     var fileName = doc.substring(n + 1);
     data['fileName'] = fileName
@@ -477,6 +496,8 @@ $(function() {
     /**
      * Do the following at startup.
      **/
+     //testing an idea
+     //$("#async").modal()
     $("#svg_focus_rect").attr('visibility', 'hidden');
     update_progress_bar();
     //Store the 'title' attribute value somewhere else, because
