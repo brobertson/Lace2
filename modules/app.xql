@@ -823,3 +823,4 @@ declare function app:searchAllCollections($node as node(), $model as map(*)) {
             </xh:div>
             </xh:div>
 };
+
