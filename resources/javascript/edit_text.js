@@ -210,6 +210,7 @@ function update_all_xmldb(element) {
     data['query'] = $(element).attr('data-selected-form');
     data['id'] = element.id;
     console.log("updated " + data['query'] + " with " + data['correctedForm'] + " in all of " + data['filePath']);
+    /*
     $.post('modules/updateMany.xq', data, function(dataReturned, textStatus, xhr) {
         console.log("success!" + xhr.responseText)
         set_of_blinkers = $(".ocr_word").filter(function() {
@@ -224,6 +225,27 @@ function update_all_xmldb(element) {
 
     }).fail(function(xhr, textStatus, errorThrown) {
         alert(xhr.responseText);
+    });
+    */
+    $.ajax({
+    url: 'modules/updateMany.xq',
+    method: "POST",
+    dataType: "xml",
+    data: data,
+    beforeSend: function( xhr ) {
+        console.log("sending" + xhr)
+      }
+    })
+    .done(function( data_back ) {
+        set_of_blinkers = $(".ocr_word").filter(function() {
+            return ($(this).text() === data['query'])
+            })
+        //console.log("blinker count " + set_of_blinkers.length)
+        set_of_blinkers.addClass("blinker");
+    })
+    .fail(function() {
+        console.log("failure updating many")
+        alert("Disconnected from Lace Server")
     });
 }
 
@@ -242,6 +264,7 @@ function add_line_below_xmldb(element, uniq) {
     data['fileName'] = fileName
     var filePath = doc.substring(0, n);
     data['filePath'] = filePath;
+    /*
     $.post('modules/addLineBelow.xq', data, function(data, textStatus, xhr) {
         //console.log("success!" + xhr.responseText)
         //this is the 'success' function 
@@ -250,6 +273,25 @@ function add_line_below_xmldb(element, uniq) {
 
     }).fail(function(xhr, textStatus, errorThrown) {
         alert(xhr.responseText);
+    });
+    */
+        $.ajax({
+    url: 'modules/addLineBelow.xq',
+    method: "POST",
+    dataType: "xml",
+    data: data,
+    beforeSend: function( xhr ) {
+        console.log("sending" + xhr)
+      }
+    })
+    .done(function( data ) {
+        if ( console && console.log ) {
+          
+        }
+    })
+    .fail(function() {
+        console.log("failure adding line below")
+        alert("Disconnected from Lace Server")
     });
 }
 
@@ -318,12 +360,32 @@ function add_span_after(element, uniq, dimensions) {
     data['fileName'] = fileName
     var filePath = doc.substring(0, n);
     data['filePath'] = filePath
+    /*
     $.post('modules/addIndexWordAfter.xq', data)
     .fail(function(xhr, textStatus, errorThrown) {
         alert(xhr.responseText);
     })
     .done(function( backat ) {
     //alert( "Data Loaded");
+    });
+    */
+    $.ajax({
+    url: 'modules/addIndexWordAfter.xq',
+    method: "POST",
+    dataType: "xml",
+    data: data,
+    beforeSend: function( xhr ) {
+        console.log("sending" + xhr)
+      }
+    })
+    .done(function( data ) {
+        if ( console && console.log ) {
+          
+        }
+    })
+    .fail(function() {
+        console.log("failure adding word after")
+        alert("Disconnected from Lace Server")
     });
 }
 
