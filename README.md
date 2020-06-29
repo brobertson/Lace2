@@ -1,5 +1,4 @@
-# Lace2
-Visualizing, Editing and Searching Polylingual OCR Results
+# Lace2: From OCR to TEI
 
 Designed for the large-scale scholarly digitization of primary texts, Lace is a GUI-based OCR editing suite with a difference: it outputs structured, citable TEI Simple, bridging the gap between OCR’s page-based layout and a publication-ready document without the proofreader/editor ever confronting XML data.
 
