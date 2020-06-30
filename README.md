@@ -1,5 +1,7 @@
 # Lace2: From OCR to TEI
 
+(A complete [manual](https://docs.google.com/document/d/1ZErAy0ytybk9Jozh5jjunXu9JozZg4Nz35fDnGui3Sk/edit?usp=sharing) is available in Google Docs format.)
+
 Designed for the large-scale scholarly digitization of primary texts, Lace is a GUI-based OCR editing suite with a difference: it outputs structured, citable [TEI Simple](https://teic.github.io/TEI-Simple/), bridging the gap between OCR’s page-based layout and a publication-ready document without the proofreader/editor ever confronting XML data.
 
 Lace’s in-browser editing environment, comprising a page image and a facing OCR transcription, makes possible three operations. A proofreader may verify the OCR text, aided by an adjacent popup image of the word image. Secondly, she may draw rectangular zones on the page image. These correspond to the functional regions of the page such as ‘translation’, ‘commentary’ and ‘primary text’ and also indicate proper reading order. Finally, a GUI widget allows her to place a citation within the text of these zones. Internally, citations are [CTS-URNs](https://www.homermultitext.org/hmt-doc/cite/cts-urn-overview.html) but the widget’s type-ahead form field allows the proofreader to search by author and title.
