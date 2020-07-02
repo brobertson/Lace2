@@ -128,7 +128,7 @@ function updateCTSURN(urnpicker_id, my_action) {
 function update_xmldb(element) {
     var data = {};
     data['value'] = $(element).text();
-    data['id'] = element.id;
+    data['id'] = $(element).attr('id');
     doc = $('.ocr_page').attr('title')
     data['doc'] = doc
     var n = doc.lastIndexOf('/');
@@ -208,7 +208,7 @@ function update_all_xmldb(element) {
     data['filePath'] = filePath
     data['correctedForm'] = $(element).text();
     data['query'] = $(element).attr('data-selected-form');
-    data['id'] = element.id;
+    data['id'] = $element.attr('id');
     console.log("updated " + data['query'] + " with " + data['correctedForm'] + " in all of " + data['filePath']);
     /*
     $.post('modules/updateMany.xq', data, function(dataReturned, textStatus, xhr) {
@@ -250,12 +250,13 @@ function update_all_xmldb(element) {
 }
 
 function add_line_below_xmldb(element, uniq) {
-    //console.log("calling addlinebelow")
+    console.log("calling addlinebelow")
     var data = {};
     data['value'] = $(element).text();
     data['original-title'] = $(element).attr('original-title')
     data['title'] = $(element).attr('original-title')
-    data['id'] = element.id;
+    data['id'] = $(element).attr('id');
+    console.log("the id is: " + data['id'])
     data['uniq'] = uniq;
     doc = $('.ocr_page').attr('title');
     data['doc'] = doc;
@@ -275,7 +276,7 @@ function add_line_below_xmldb(element, uniq) {
         alert(xhr.responseText);
     });
     */
-        $.ajax({
+    $.ajax({
     url: 'modules/addLineBelow.xq',
     method: "POST",
     dataType: "xml",
@@ -284,9 +285,10 @@ function add_line_below_xmldb(element, uniq) {
         console.log("sending" + xhr)
       }
     })
-    .done(function( data ) {
+    .done(function( data_out ) {
         if ( console && console.log ) {
-          
+          console.log("success adding line below")
+          console.dirxml(data_out);
         }
     })
     .fail(function() {
