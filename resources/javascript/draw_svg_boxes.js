@@ -319,15 +319,20 @@ function resize_rect_to_corresponding_ocr_words($zone_rectangle) {
      * .ocr_word elements that either are within or intersecting with that rectangle.
      ***/
     hit_array = []
-    $(".ocr_word, .inserted_line, .index_word").each(function() {
-        data_rect = bbox_string_to_data_x1($(this).attr("original-title"))
-        test_rect = bbox_string_to_rect($(this).attr("original-title"))
-        if (intersectRect(test_rect,$zone_rectangle,true)) {
-            //add test_rect to the array of rects
-            console.log("a data_rect:" + data_rect['x'] + " " + data_rect["y"] + " " + data_rect["x1"] + " " + data_rect["y1"])
-            hit_array.push(data_rect)
-        }
-    });
+    try {
+        $(".ocr_word, .inserted_line, .index_word").each(function() {
+            data_rect = bbox_string_to_data_x1($(this).attr("original-title"))
+            test_rect = bbox_string_to_rect($(this).attr("original-title"))
+            if (intersectRect(test_rect,$zone_rectangle,true)) {
+                //add test_rect to the array of rects
+                console.log("a data_rect:" + data_rect['x'] + " " + data_rect["y"] + " " + data_rect["x1"] + " " + data_rect["y1"])
+                hit_array.push(data_rect)
+            }
+        });
+    }
+    catch(err) {
+        alert("there is a buggy bounding box on this page. Please have your admin fix this manually.")
+    }
     //collect the widest dimensions based on the enclosed or touched words
     var i;
     var x1 = 0;
