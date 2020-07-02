@@ -12,13 +12,7 @@ Lace is more than a TEI-generating program, though. It produces zip files of OCR
 
 Lace is built upon the well-established [eXist-db](http://exist-db.org/exist/apps/homepage/index.html) XML database: it and its OCR data are installed as easily-managed packages through eXist’s drag-and-drop interface. An open-source project, Lace’s source code and compiled modules are stored in an active github [repository](https://github.com/brobertson/Lace2), and a site for exploring its functions is offered at [http://trylace.org](http://trylace.org) Lace is a well-established platform: the majority of the 24 million words in the Open Greek and Latin’s First Thousand Years of Greek project were edited with Lace.
 
-Further Documentation
-
-Modularization: [*Lace 0.4*](https://docs.google.com/document/d/1eGfseeNOPe1FNbEZ-F5UOozAqbaPdquIu14iEhFYVOI/edit?usp=sharing)
-
-Zoning: [*Lace 0.5*](https://docs.google.com/document/d/1WV72eKqTkg-hugXO5jY4SERA8yQHp3B0LSS1f5tCa-E/edit?usp=sharing)
-
-Search: [*Lace 0.5.5*](https://docs.google.com/document/d/1HRzFKwhO4nyeXLdQvPEbChELO39SV2lh_xl0K09g9-Y/edit?usp=sharing)
+[Lace-2 Tools](https://github.com/brobertson/Lace2-tools) is a separate repository for Lace-related code, especially pre-processing.
 
 Bruce Robertson
 
