@@ -601,6 +601,8 @@ $(function() {
      **/
      //testing an idea
      //$("#async").modal()
+    //clear title attributes on @ocr_line spans
+    $(".ocr_line").attr('title','')
     $("#svg_focus_rect").attr('visibility', 'hidden');
     update_progress_bar();
     //Store the 'title' attribute value somewhere else, because
