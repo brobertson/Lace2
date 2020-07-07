@@ -2068,6 +2068,7 @@
 {label: "Theophrastus, De Sudore", id: "urn:cts:greekLit:tlg0093.tlg010x06:"},
 {label: "Theophrastus, De Animi Defectione", id: "urn:cts:greekLit:tlg0093.tlg010x07:"},
 {label: "Theophrastus, De Nervorum Resolutione", id: "urn:cts:greekLit:tlg0093.tlg010x08:"},
+{label: "Lucretius, De Rerum Natura (Bailey)", id: "urn:cts:latinLit:phi0550.phi001.ogl-lat1:"},
 {label: "*END MILESTONE*", id : "__end__" }
 ]
 ;
