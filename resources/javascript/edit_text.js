@@ -12,7 +12,7 @@ function get_filename() {
 
 function get_bbox_array(bbox_string) {
     bbox = bbox_string.split(';')[0];
-    //console.log("listen up: this is bbox: " + bbox)
+    //console.log("this is bbox: " + bbox)
     return bbox.split(' ').map(Number).slice(1);
 }
 
