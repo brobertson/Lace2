@@ -26,12 +26,25 @@ declare function teigeneration:make_ogl_publicationStmt($ref as xs:string) as no
 };
 
 declare function teigeneration:make_respStmt($first_name, $last_name) as node() {
-        <tei:respStmt>
-          <tei:name>{$last_name}, {$first_name}</tei:name>
-          <tei:resp>proofreader</tei:resp>
-        </tei:respStmt>
+    <tei:respStmt>
+        <tei:resp>proofreader</tei:resp>
+        <tei:persName>
+            <tei:forename>{$first_name}</tei:forename> 
+            <tei:surname>{$last_name}</tei:surname>
+            <!--tei:idno type=""></tei:idno-->
+        </tei:persName>
+    </tei:respStmt>
 };
 
+declare function teigeneration:convert_div_type_names($name as xs:string) as xs:string {
+  switch ($name) 
+   case "primary_text" return "edition"
+   case "app_crit" return "apparatus"
+   case "bibliography" return "bibliography"
+   case "commentary" return "commentary"
+   case "translation" return "translation"
+   default return "textpart"  
+};
 declare function teigeneration:get_filename_from_ref($ref as xs:string) as xs:string {
 fn:replace($ref,':','.') || 'xml'
 };
@@ -216,7 +229,7 @@ declare function teigeneration:make_all_tei($my_collection as xs:string, $ref as
                 {
         for $type in $teigeneration:svg_zone_types
             order by index-of($teigeneration:svg_zone_types, $type)
-            return <tei:div type="{$type}">{teigeneration:make_tei_zone($my_collection, $type, $ref)}</tei:div>
+            return <tei:div type="{teigeneration:convert_div_type_names($type)}">{teigeneration:make_tei_zone($my_collection, $type, $ref)}</tei:div>
                 }
             </tei:body>
 };
@@ -352,14 +365,11 @@ declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $
                 <!-- TODO: I don't understand refsDecl -->
                 <cRefPattern matchPattern="" replacementPattern=""/>
             </refsDecl>
-            <appInfo>
-                <application ident="Lace" version="0.6.0">
-                    <desc>Lace copyright 2013-2020, Bruce Robertson, Dept. of Classics, Mount Allison University. Developed through the support of the<ref target="https://nbif.ca/en">NBIF</ref>.</desc>
-                    <!-- these break TEI simple rng -->
-                    <!--ptr target="#text"/>
-                    <ptr target="#refsDecl"/-->
-                </application>
-            </appInfo>
+            <editorialDecl>
+                <correction>
+                    <p>Lace v0.6.8 copyright 2013-2020, Bruce Robertson, Dept. of Classics, Mount Allison University. Developed through the support of the <ref target="https://nbif.ca/en">NBIF</ref>.</p>
+                </correction>
+            </editorialDecl>
         </encodingDesc>
     </teiHeader>
     <text>

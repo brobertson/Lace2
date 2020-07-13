@@ -33,8 +33,20 @@ declare function teipreflight:testPassageCitationDepths($pickers as node()*) {
         ()
 };
 
+(:  
+declare function teipreflight:findDuplicates($urn) {
+  let $hits :=   $ordered_pickers//html:span[@data-ctsurn = $urn]
+  for $hit in $hits
+    return app:formatSearchHit($hit)
+
+    $urn
+};
+:)
+
+
+
 declare function teipreflight:duplicateUrnTest($ordered_pickers) {
-    let $urns := $ordered_pickers//@data-ctsurn/string()
+    let $urns := $ordered_pickers//@data-ctsurn
     let $dups := distinct-values(
         for $s in $urns
             where count($urns[. eq $s]) gt 1
@@ -42,7 +54,8 @@ declare function teipreflight:duplicateUrnTest($ordered_pickers) {
         )
     return
     if (fn:count($dups) > 0) then
-        <html:div class="tei_error">❌Duplicated URNs: {$dups}</html:div>
+        for $dup in $dups
+        return <html:div class="tei_error">❌Duplicated URNs: {$dup}</html:div>
     else
         ()
 };

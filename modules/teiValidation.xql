@@ -8,7 +8,7 @@ import module namespace validation="http://exist-db.org/xquery/validation";
 import module namespace ctsurns="http://heml.mta.ca/Lace2/ctsurns" at "ctsUrns.xql";
 
 declare function teivalidation:validateAllTeiVolumes($my_collection as xs:string) as node()* {
-    let $tei_simple_rng := doc("/db/apps/lace/resources/schemas/teisimple.rng")
+    let $tei_simple_rng := doc("/db/apps/lace/resources/schemas/tei-epidoc.rng")
     let $volume_refs := ctsurns:uniqueCtsUrnReferences(collection($my_collection)//xh:span[@data-ctsurn])
     for $vol in $volume_refs
     return 
@@ -19,7 +19,7 @@ declare function teivalidation:validateAllTeiVolumes($my_collection as xs:string
 };
 
 declare function teivalidation:validationReport($node as node(), $model as map(*),  $collectionUri as xs:string) as node()* {
-        (<xh:h3>TEI Validation for {app:formatRunTitle($node, $model, $collectionUri)}</xh:h3>,
+        (<xh:h3>TEI Epidoc Validation for {app:formatRunTitle($node, $model, $collectionUri)}</xh:h3>,
     transform:transform(teivalidation:validateAllTeiVolumes($collectionUri),doc('/db/apps/lace/resources/xslt/validation_to_xhtml.xsl'),())
         )
 };
