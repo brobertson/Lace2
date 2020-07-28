@@ -342,40 +342,40 @@ declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $
     let $identifier := collection($collectionUri)//dc:identifier
     let $imageMetadata := collection('/db/apps')//lace:imagecollection[dc:identifier = $identifier]/dc:title
     return
-    <TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0">
-    <teiHeader>
-        <fileDesc>
-            <titleStmt>
-                <title><!-- hmmm --></title>
-                <title type="sub">an electronic transcription.</title>
-                <author>
+    <tei:TEI xml:space="preserve" xmlns:tei="http://www.tei-c.org/ns/1.0">
+    <tei:teiHeader>
+        <tei:fileDesc>
+            <tei:titleStmt>
+                <tei:title><!-- hmmm --></tei:title>
+                <tei:title type="sub">an electronic transcription.</tei:title>
+                <tei:author>
                     <!-- it's in the javascript ... -->
-                </author>
+                </tei:author>
                 {teigeneration:make_respStmt($first_name, $last_name)}
-            </titleStmt>
+            </tei:titleStmt>
             {teigeneration:make_ogl_publicationStmt($vol)}
-            <sourceDesc>
-                <p>
+            <tei:sourceDesc>
+                <tei:p>
                 {$imageMetadata/../dc:creator[1] || " (" || $imageMetadata/../dc:date[1] || "). " || $imageMetadata/../dc:title[1] || ". " || $imageMetadata/../dc:publisher[1] || "."}
-                </p>
-            </sourceDesc>
-        </fileDesc>
-        <encodingDesc>
-            <refsDecl>
+                </tei:p>
+            </tei:sourceDesc>
+        </tei:fileDesc>
+        <tei:encodingDesc>
+            <tei:refsDecl>
                 <!-- TODO: I don't understand refsDecl -->
-                <cRefPattern matchPattern="" replacementPattern=""/>
-            </refsDecl>
-            <editorialDecl>
-                <correction>
-                    <p>Lace v0.6.8 copyright 2013-2020, Bruce Robertson, Dept. of Classics, Mount Allison University. Developed through the support of the <ref target="https://nbif.ca/en">NBIF</ref>.</p>
-                </correction>
-            </editorialDecl>
-        </encodingDesc>
-    </teiHeader>
-    <text>
+                <tei:cRefPattern matchPattern="" replacementPattern=""/>
+            </tei:refsDecl>
+            <tei:editorialDecl>
+                <tei:correction>
+                    <tei:p>Lace v0.6.8 copyright 2013-2020, Bruce Robertson, Dept. of Classics, Mount Allison University. Developed through the support of the <tei:ref target="https://nbif.ca/en">NBIF</tei:ref>.</tei:p>
+                </tei:correction>
+            </tei:editorialDecl>
+        </tei:encodingDesc>
+    </tei:teiHeader>
+    <tei:text>
         {$body}
-        </text>
-        </TEI>
+        </tei:text>
+        </tei:TEI>
 };
 
 
