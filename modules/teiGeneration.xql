@@ -358,51 +358,72 @@ declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $
     let $identifier := collection($collectionUri)//dc:identifier
     let $imageMetadata := collection('/db/apps')//lace:imagecollection[dc:identifier = $identifier]/dc:title
     return
-    <tei:TEI xml:space="preserve" xmlns:tei="http://www.tei-c.org/ns/1.0">
-    <tei:teiHeader>
-        <tei:fileDesc>
-            <tei:titleStmt>
-                <tei:title><!-- hmmm --></tei:title>
-                <tei:title type="sub">an electronic transcription.</tei:title>
-                <tei:author>
-                    <!-- it's in the javascript ... -->
-                </tei:author>
-            {teigeneration:make_ogl_respStmt($OGLHeader)}
-            {teigeneration:make_respStmt($first_name, $last_name)}
-            </tei:titleStmt>
-            {teigeneration:make_ogl_publicationStmt($OGLHeader, $vol)}
-            <tei:sourceDesc>
-                <tei:p>
-                {$imageMetadata/../dc:creator[1] || " (" || $imageMetadata/../dc:date[1] || "). " || $imageMetadata/../dc:title[1] || ". " || $imageMetadata/../dc:publisher[1] || "."}
-                </tei:p>
-            </tei:sourceDesc>
-        </tei:fileDesc>
-        <tei:encodingDesc>
-            <tei:refsDecl>
-                <!-- TODO: I don't understand refsDecl -->
-                <tei:cRefPattern matchPattern="" replacementPattern=""/>
-            </tei:refsDecl>
-            <tei:editorialDecl>
-                <tei:correction>
-                    <tei:p>Lace v0.6.8 copyright 2013-2020, Bruce Robertson, Dept. of Classics, Mount Allison University. Developed through the support of the <tei:ref target="https://nbif.ca/en">NBIF</tei:ref>.</tei:p>
-                </tei:correction>
-            </tei:editorialDecl>
-            <!-- uncomment and edit the following -->
-            <!-- tei:profileDesc>
+<tei:TEI xml:space="preserve" xmlns:tei="http://www.tei-c.org/ns/1.0">
+    <tei:teiHeader xml:lang="en">
+            <tei:fileDesc>
+                <tei:titleStmt>
+                    <tei:title xml:lang="grc"><!--This ought to be the title of
+                    the work as it appears in the printed edition, 
+                    e.g. Πρὸς τὰς ἀρχομένας ὑποχύσεις --></tei:title>
+                    <tei:title type="sub">an electronic transcription.</tei:title>
+                    <tei:author><!-- Put the ancient author's name here --></tei:author>
+                    <tei:funder><!-- e.g. Center for Hellenic Studies--></tei:funder>
+                    {teigeneration:make_ogl_respStmt($OGLHeader)}
+                    {teigeneration:make_respStmt($first_name, $last_name)}
+                    <tei:respStmt>
+                        <tei:resp>CTS conversion</tei:resp>
+                        <tei:orgName><!-- The institution of the person doing conversion --></tei:orgName>
+                        <tei:persName><!-- The person doing conversion --></tei:persName>
+                    </tei:respStmt>
+                </tei:titleStmt>
+                {teigeneration:make_ogl_publicationStmt($OGLHeader, $vol)}
+                <tei:sourceDesc>
+                    <tei:biblStruct>
+                        <tei:monogr> <!--Removed author, since there is more than one-->
+                            <!--Short version of title; no period; lang attribute-->
+                            <tei:title xml:lang="lat">{$imageMetadata/../dc:title[1]/text()}</tei:title> 
+                            <tei:editor></tei:editor>
+                            <tei:imprint>
+                                <tei:pubPlace><!-- like 'Paris' --></tei:pubPlace>
+                                <tei:publisher>{$imageMetadata/../dc:publisher[1]/text()}</tei:publisher>
+                                <tei:date>{$imageMetadata/../dc:date[1]/text()}</tei:date> <!--added pub date-->
+                            </tei:imprint>
+                        </tei:monogr>
+                        <!-- 'target' needs to point to the page on which the text begins. This is given as an example.
+                        -->
+                        <tei:ref target="https://archive.org/details/poetaebucoliciet00amei/page/n435/mode/2up?q=suffusiones"><!-- e.g. Internet Archive --></tei:ref>
+                    </tei:biblStruct>
+                </tei:sourceDesc>
+            </tei:fileDesc>
+            <tei:encodingDesc>
+                <tei:editorialDecl>
+                    <tei:correction>
+                        <tei:p>Lace v0.6.8 copyright 2013-2020, Bruce Robertson, Dept. of Classics, Mount Allison University. Developed through the support of the <tei:ref target="https://nbif.ca/en">NBIF</tei:ref>.</tei:p>
+                    </tei:correction>
+                </tei:editorialDecl>
+                <tei:p>The following text is encoded in accordance with EpiDoc standards and with the CTS/CITE Architecture</tei:p>
+                <!-- sample top level refsDecl for lines -->
+                <tei:refsDecl n="CTS">
+                    <tei:cRefPattern matchPattern="(\w+)" n="lines" replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n='$1'])">
+                        <tei:p>This pointer pattern extracts lines</tei:p>
+                    </tei:cRefPattern>
+                </tei:refsDecl>
+            </tei:encodingDesc>
+            <tei:profileDesc>
                 <tei:langUsage>
-                <tei:language ident="grc">Greek</tei:language>
+                    <!-- correct language as necessary -->
+                    <tei:language ident="grc">Greek</tei:language>
                 </tei:langUsage>
-        </tei:profileDesc-->
-        </tei:encodingDesc>
-        <tei:revisionDesc>
-        <!-- put your name in 'who' and this date in YYYY-MM-DD format in 'when' -->
-            <tei:change when="" who="">initial markup of new file.</tei:change>
-        </tei:revisionDesc>
-    </tei:teiHeader>
+            </tei:profileDesc>
+            <tei:revisionDesc>
+                <!-- put your name in 'who' and this date in YYYY-MM-DD format in 'when' -->
+                <tei:change when="2020-02-02" who="Jane Smith">initial markup of new file.</tei:change>
+            </tei:revisionDesc>
+        </tei:teiHeader>
     <tei:text>
         {$body}
-        </tei:text>
-        </tei:TEI>
+    </tei:text>
+</tei:TEI>
 };
 
 

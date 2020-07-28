@@ -9,14 +9,14 @@ declare function local:allTeiVolumes($my_collection as xs:string, $first_name as
     for $vol in $volume_refs
     return
         <entry type="xml" name="{teigeneration:get_filename_from_ref($vol)}">
-            {
+        { 
                 teigeneration:wrap_tei(
                     teigeneration:strip_spans(
                         teigeneration:make_all_tei($my_collection, $vol)
                     ), 
                 $my_collection, $vol, $first_name, $last_name, $OGLHeader)
-            
-            }
+        
+                }
         </entry>
 };
 
