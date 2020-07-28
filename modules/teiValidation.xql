@@ -8,13 +8,13 @@ import module namespace validation="http://exist-db.org/xquery/validation";
 import module namespace ctsurns="http://heml.mta.ca/Lace2/ctsurns" at "ctsUrns.xql";
 
 declare function teivalidation:validateAllTeiVolumes($my_collection as xs:string) as node()* {
-    let $tei_simple_rng := doc("/db/apps/lace/resources/schemas/tei-epidoc.rng")
+    let $tei_epidoc_rng := doc("/db/apps/lace/resources/schemas/tei-epidoc.rng")
     let $volume_refs := ctsurns:uniqueCtsUrnReferences(collection($my_collection)//xh:span[@data-ctsurn])
     for $vol in $volume_refs
     return 
         <validationreport file="{fn:replace($vol,':','_') || '.tei'}">
             {validation:jing-report(
-                teigeneration:wrap_tei(teigeneration:strip_spans(teigeneration:make_all_tei($my_collection, $vol)),$my_collection, $vol,'',''), $tei_simple_rng)}
+                teigeneration:wrap_tei(teigeneration:strip_spans(teigeneration:make_all_tei($my_collection, $vol)),$my_collection, $vol,'','',true()), $tei_epidoc_rng)}
          </validationreport>
 };
 

@@ -142,15 +142,9 @@ declare function teipreflight:reportGoodUri($node as node(), $model as map(*),  
                 <html:div class="col-md-4 input-group">
                     <html:span>
                         <html:input id="ogl_header" type="checkbox" name="OGLHeader" value="true" checked="true" aria-label="..."/>
-                        Include standard Open Greek and Latin Header
+                        Include standard Open Greek and Latin Headers
                     </html:span>
                 </html:div><!-- /.col-lg-6 -->
-                <html:div class="col-md-4 input-group">
-                    <html:span>
-                        <html:input id="cc_license" type="checkbox" name="CCLicense" value="true" checked="true"  aria-label="..."/>
-                        Include Creative Commons License
-                    </html:span>
-                </html:div>
             </html:div>
             <html:div class="row">
             <input type="hidden" name="collectionUri" value="{$collectionUri}" />

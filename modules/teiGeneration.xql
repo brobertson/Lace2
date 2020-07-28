@@ -12,21 +12,37 @@ declare namespace dc="http://purl.org/dc/elements/1.1/";
 
 declare variable $teigeneration:svg_zone_types := ("primary_text", "translation", "app_crit",  "commentary");
 
-declare function teigeneration:make_ogl_publicationStmt($ref as xs:string) as node() { 
+declare function teigeneration:make_ogl_publicationStmt($OGLHeader as xs:boolean, $ref as xs:string) as node()* { 
+    if ($OGLHeader = true()) then
 <tei:publicationStmt>
-    <tei:publisher>Open Greek and Latin (OGL)</tei:publisher>
+    <tei:publisher>Open Greek and Latin</tei:publisher>
         <tei:idno type="filename">{teigeneration:get_filename_from_ref($ref)}</tei:idno>
         <tei:pubPlace/>
 
         <tei:availability>
                <tei:licence target="https://creativecommons.org/licenses/by-sa/4.0/">Available under a Creative Commons Attribution-ShareAlike 4.0 International License</tei:licence>
             </tei:availability>
-    <tei:date when="{current-date()}"/>
+    <tei:date when="{format-date(current-date(), "[Y0001]-[M01]-[D01]")}"/>
 </tei:publicationStmt>
+else 
+    ()
 };
 
-declare function teigeneration:make_respStmt($first_name, $last_name) as node() {
-    <tei:respStmt>
+declare function teigeneration:make_ogl_respStmt($OGLHeader as xs:boolean) as node()* {
+    if ($OGLHeader = true()) then
+        <tei:respStmt>
+        <tei:resp>Published original versions of the electronic texts</tei:resp>
+        <tei:orgName ref="https://www.opengreekandlatin.org">Open Greek and Latin</tei:orgName>
+        <tei:persName role="principal">Gregory Crane</tei:persName>
+        <tei:persName role="principal">Leonard Muellner</tei:persName>
+        <tei:persName role="principal">Bruce Robertson</tei:persName>
+      </tei:respStmt>
+      else 
+          ()
+};
+
+declare function teigeneration:make_respStmt($first_name, $last_name) as node()* {
+      <tei:respStmt>
         <tei:resp>proofreader</tei:resp>
         <tei:persName>
             <tei:forename>{$first_name}</tei:forename> 
@@ -338,7 +354,7 @@ return transform:transform($input, $xslt, ())
 };
 
 
-declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $first_name, $last_name) as node() {
+declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $first_name as xs:string, $last_name as xs:string, $OGLHeader as xs:boolean) as node() {
     let $identifier := collection($collectionUri)//dc:identifier
     let $imageMetadata := collection('/db/apps')//lace:imagecollection[dc:identifier = $identifier]/dc:title
     return
@@ -351,9 +367,10 @@ declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $
                 <tei:author>
                     <!-- it's in the javascript ... -->
                 </tei:author>
-                {teigeneration:make_respStmt($first_name, $last_name)}
+            {teigeneration:make_ogl_respStmt($OGLHeader)}
+            {teigeneration:make_respStmt($first_name, $last_name)}
             </tei:titleStmt>
-            {teigeneration:make_ogl_publicationStmt($vol)}
+            {teigeneration:make_ogl_publicationStmt($OGLHeader, $vol)}
             <tei:sourceDesc>
                 <tei:p>
                 {$imageMetadata/../dc:creator[1] || " (" || $imageMetadata/../dc:date[1] || "). " || $imageMetadata/../dc:title[1] || ". " || $imageMetadata/../dc:publisher[1] || "."}
@@ -370,7 +387,17 @@ declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $
                     <tei:p>Lace v0.6.8 copyright 2013-2020, Bruce Robertson, Dept. of Classics, Mount Allison University. Developed through the support of the <tei:ref target="https://nbif.ca/en">NBIF</tei:ref>.</tei:p>
                 </tei:correction>
             </tei:editorialDecl>
+            <!-- uncomment and edit the following -->
+            <!-- tei:profileDesc>
+                <tei:langUsage>
+                <tei:language ident="grc">Greek</tei:language>
+                </tei:langUsage>
+        </tei:profileDesc-->
         </tei:encodingDesc>
+        <tei:revisionDesc>
+        <!-- put your name in 'who' and this date in YYYY-MM-DD format in 'when' -->
+            <tei:change when="" who="">initial markup of new file.</tei:change>
+        </tei:revisionDesc>
     </tei:teiHeader>
     <tei:text>
         {$body}
