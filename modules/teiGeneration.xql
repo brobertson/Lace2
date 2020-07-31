@@ -386,7 +386,7 @@ declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $
                             <tei:imprint>
                                 <tei:pubPlace><!-- like 'Paris' --></tei:pubPlace>
                                 <tei:publisher>{$imageMetadata/../dc:publisher[1]/text()}</tei:publisher>
-                                <tei:date>{$imageMetadata/../dc:date[1]/text()}</tei:date> <!--added pub date-->
+                                <tei:date>{$imageMetadata/../dc:date[1]/text()}</tei:date>
                             </tei:imprint>
                         </tei:monogr>
                         <!-- 'target' needs to point to the page on which the text begins. This is given as an example.
@@ -404,20 +404,18 @@ declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $
                 <tei:p>The following text is encoded in accordance with EpiDoc standards and with the CTS/CITE Architecture</tei:p>
                 <!-- sample top level refsDecl for lines -->
                 <tei:refsDecl n="CTS">
-                    <tei:cRefPattern matchPattern="(\w+)" n="lines" replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n='$1'])">
-                        <tei:p>This pointer pattern extracts lines</tei:p>
-                    </tei:cRefPattern>
+                    <tei:cRefPattern matchPattern="(\w+)" n="lines" replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n='$1'])"/>
+                    <p>This pointer pattern extracts lines</p>
                 </tei:refsDecl>
             </tei:encodingDesc>
             <tei:profileDesc>
                 <tei:langUsage>
-                    <!-- correct language as necessary -->
                     <tei:language ident="grc">Greek</tei:language>
                 </tei:langUsage>
             </tei:profileDesc>
             <tei:revisionDesc>
                 <!-- put your name in 'who' and this date in YYYY-MM-DD format in 'when' -->
-                <tei:change when="2020-02-02" who="Jane Smith">initial markup of new file.</tei:change>
+                <tei:change when="" who="">initial markup of new file.</tei:change>
             </tei:revisionDesc>
         </tei:teiHeader>
     <tei:text>
