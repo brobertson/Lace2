@@ -14,7 +14,7 @@ declare function teipreflight:ctsPickerPassageCitationDepth($picker as node()) {
 };
 
 
-declare function teipreflight:testPassageCitationDepths($pickers as node()*) {
+declare function teipreflight:testPassageCitationDepths($pickers as node()*, $collectionUri) {
     let $first_depth :=  teipreflight:ctsPickerPassageCitationDepth($pickers[1])
     for $picker in $pickers
     let $this_depth := teipreflight:ctsPickerPassageCitationDepth($picker)
@@ -28,7 +28,7 @@ declare function teipreflight:testPassageCitationDepths($pickers as node()*) {
         let $docCollectionUri := $image_position_results[1]
         let $position := $image_position_results[2]
         :)
-        <html:div class="tei_error">❌The depth of the first reference for the work <html:code>{ctsurns:ctsUrnReference($picker/@data-ctsurn/string())}</html:code> is {$first_depth}, but for another it is {$this_depth} with a citation that reads <html:code>{ctsurns:ctsUrnPassageCitation($picker/@data-ctsurn/string())}</html:code>. To generate a TEI text, all references for a work have to have the same depth.</html:div>
+        <html:div class="tei_error">❌The depth of the first reference for the work <html:code>{ctsurns:ctsUrnReference($picker/@data-ctsurn/string())}</html:code> is {$first_depth}, but for the one that appears at {teipreflight:findInstances($picker/@data-ctsurn/string(),$collectionUri)} it is {$this_depth} with a citation that reads <html:code>{ctsurns:ctsUrnPassageCitation($picker/@data-ctsurn/string())}</html:code>. To generate a TEI text, all references for a work have to have the same depth.</html:div>
     else
         ()
 };
@@ -42,8 +42,14 @@ declare function teipreflight:formatSearchHit($hit as node()) as node() {
         <html:span class="search_results"><html:code><html:a href="side_by_side_view.html?collectionUri={$docCollectionUri}&amp;positionInCollection={$position}#{string($hit/@id)}">{$position}</html:a></html:code></html:span>
 };
   
-declare function teipreflight:findDuplicates($urn, $collectionUri as xs:string) {
+declare function teipreflight:findInstances($urn, $collectionUri as xs:string) {
   let $hits :=   collection($collectionUri)//html:span[@data-ctsurn = $urn]
+  for $hit in $hits
+    return teipreflight:formatSearchHit($hit)
+};
+
+declare function teipreflight:findPartialMatchOfUrn($urnFrontPart, $collectionUri as xs:string) {
+  let $hits :=   collection($collectionUri)//html:span[contains(@data-ctsurn,$urnFrontPart)]
   for $hit in $hits
     return teipreflight:formatSearchHit($hit)
 };
@@ -60,7 +66,7 @@ declare function teipreflight:duplicateUrnTest($ordered_pickers, $collectionUri 
         for $dup in $dups
         return <html:div class="tei_error">❌Duplicated URNs: {$dup} at 
             <html:span>
-                {teipreflight:findDuplicates($dup ,$collectionUri)} (Be careful, some urns might be in other zones!)
+                {teipreflight:findInstances($dup ,$collectionUri)} (Be careful, some urns might be in other zones!)
             </html:span>
             </html:div>
     else
@@ -75,13 +81,13 @@ declare function teipreflight:interleavedUrnReferencesTest($ordered_pickers, $co
     for $ref at $pos in $refs
        where ($refs[$pos + 1] != $ref) and ($ref = subsequence($refs, ($pos + 2), count($refs))) 
     return
-    <html:div class="tei_error">❌Your Urn References are not in blocks: {$ref} and {$refs[$pos +1]} are interleaved.</html:div>
+    <html:div class="tei_error">❌Your Urn References are not in blocks: {$ref}  (appearing at {teipreflight:findPartialMatchOfUrn($ref, $collectionUri)}) and {$refs[$pos +1]} ( appearing at {teipreflight:findPartialMatchOfUrn($refs[$pos +1], $collectionUri)})  are interleaved.</html:div>
 };
 
 declare function teipreflight:depthTestReport($ordered_pickers as node()*, $collectionUri as xs:string) {
     for $ref in ctsurns:uniqueCtsUrnReferences($ordered_pickers)
         return 
-        teipreflight:testPassageCitationDepths(ctsurns:getPickerNodesForCtsUrnReference($ordered_pickers, $ref))
+        teipreflight:testPassageCitationDepths(ctsurns:getPickerNodesForCtsUrnReference($ordered_pickers, $ref), $collectionUri)
 };
 
 
