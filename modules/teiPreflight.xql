@@ -33,19 +33,22 @@ declare function teipreflight:testPassageCitationDepths($pickers as node()*) {
         ()
 };
 
-(:  
-declare function teipreflight:findDuplicates($urn) {
-  let $hits :=   $ordered_pickers//html:span[@data-ctsurn = $urn]
-  for $hit in $hits
-    return app:formatSearchHit($hit)
-
-    $urn
+declare function teipreflight:formatSearchHit($hit as node()) as node() {
+    let $image_position_results := app:getSideBySideViewDataForDocumentElement($hit)
+    let $docCollectionUri := $image_position_results[1]
+    let $position := $image_position_results[2]
+    (: there's clearly a problem with namespacing on these cts_picker spans. TODO: FIX :)
+    return
+        <html:span class="search_results"><html:code><html:a href="side_by_side_view.html?collectionUri={$docCollectionUri}&amp;positionInCollection={$position}#{string($hit/@id)}">{$position}</html:a></html:code></html:span>
 };
-:)
+  
+declare function teipreflight:findDuplicates($urn, $collectionUri as xs:string) {
+  let $hits :=   collection($collectionUri)//html:span[@data-ctsurn = $urn]
+  for $hit in $hits
+    return teipreflight:formatSearchHit($hit)
+};
 
-
-
-declare function teipreflight:duplicateUrnTest($ordered_pickers) {
+declare function teipreflight:duplicateUrnTest($ordered_pickers, $collectionUri as xs:string) {
     let $urns := $ordered_pickers//@data-ctsurn
     let $dups := distinct-values(
         for $s in $urns
@@ -55,12 +58,16 @@ declare function teipreflight:duplicateUrnTest($ordered_pickers) {
     return
     if (fn:count($dups) > 0) then
         for $dup in $dups
-        return <html:div class="tei_error">❌Duplicated URNs: {$dup}</html:div>
+        return <html:div class="tei_error">❌Duplicated URNs: {$dup} at 
+            <html:span>
+                {teipreflight:findDuplicates($dup ,$collectionUri)} (Be careful, some urns might be in other zones!)
+            </html:span>
+            </html:div>
     else
         ()
 };
 
-declare function teipreflight:interleavedUrnReferencesTest($ordered_pickers) {
+declare function teipreflight:interleavedUrnReferencesTest($ordered_pickers, $collectionUri as xs:string) {
     let $refs :=
             for $picker in $ordered_pickers
             return
@@ -71,7 +78,7 @@ declare function teipreflight:interleavedUrnReferencesTest($ordered_pickers) {
     <html:div class="tei_error">❌Your Urn References are not in blocks: {$ref} and {$refs[$pos +1]} are interleaved.</html:div>
 };
 
-declare function teipreflight:depthTestReport($ordered_pickers as node()*) {
+declare function teipreflight:depthTestReport($ordered_pickers as node()*, $collectionUri as xs:string) {
     for $ref in ctsurns:uniqueCtsUrnReferences($ordered_pickers)
         return 
         teipreflight:testPassageCitationDepths(ctsurns:getPickerNodesForCtsUrnReference($ordered_pickers, $ref))
@@ -79,7 +86,7 @@ declare function teipreflight:depthTestReport($ordered_pickers as node()*) {
 
 
 
-declare function teipreflight:zoneReport($zone as xs:string, $raw_elements) {
+declare function teipreflight:zoneReport($zone as xs:string, $raw_elements, $collectionUri as xs:string) {
     let $enclosed := <here>{$raw_elements}</here>
     let $ordered_pickers := $enclosed//*[@class='cts_picker']
     let $warning :=
@@ -89,9 +96,9 @@ declare function teipreflight:zoneReport($zone as xs:string, $raw_elements) {
                 <html:div>✅ Zone<html:code>{$zone}</html:code> has {fn:count($ordered_pickers)} references and {fn:count($raw_elements)} zoned words.</html:div>
     let $allReports :=
     (
-    teipreflight:depthTestReport($ordered_pickers),
-    teipreflight:duplicateUrnTest($ordered_pickers),
-    teipreflight:interleavedUrnReferencesTest($ordered_pickers)
+    teipreflight:depthTestReport($ordered_pickers, $collectionUri),
+    teipreflight:duplicateUrnTest($ordered_pickers, $collectionUri),
+    teipreflight:interleavedUrnReferencesTest($ordered_pickers, $collectionUri)
     )
     return
         if ($allReports/@class="tei_error") then
@@ -108,7 +115,7 @@ declare function teipreflight:reportGoodUri($node as node(), $model as map(*),  
         for $zone_label in $teigeneration:svg_zone_types
         let $zone_elements := teigeneration:make_tei_zone_raw($collectionUri, $zone_label)
         return 
-            teipreflight:zoneReport($zone_label, $zone_elements)
+            teipreflight:zoneReport($zone_label, $zone_elements, $collectionUri)
     return
         if ($reports//@class="tei_error") then
             ($title,
