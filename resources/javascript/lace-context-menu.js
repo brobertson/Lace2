@@ -41,5 +41,24 @@
             //"all": {name: "Verify All in Volume", icon: "fa-edit"}
         }
     });
-
+    $.contextMenu({
+        selector: '.inserted_line, .index_word',
+        zIndex: 0,
+        callback: function(key, options) {
+            //var m = "clicked: " + key;
+            //window.console && console.log(m) || alert(m);
+            switch (key) {
+                case 'cts-urn':
+                    make_cts_urn_picker($(this))
+                    break;
+            }
+        },
+        items: {
+            "cts-urn": {name: "Insert Ref. Before", icon: "fa-edit"}
+           // "line": {name: "Add Line After", icon: "fa-beer"},
+            //"word": {name: "Insert Word After", icon: "fa-edit"},
+            //"following": {name: "Verify Following", icon: "fa-cloud-download"}
+            //"all": {name: "Verify All in Volume", icon: "fa-edit"}
+        }
+    });
 });
