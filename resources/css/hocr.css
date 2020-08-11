@@ -356,3 +356,8 @@ button a {
 .tooltip {
     z-index: 1;
 }
+
+.inactive {
+    opacity: 0.5;
+}
+

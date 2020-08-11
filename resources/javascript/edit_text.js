@@ -8,8 +8,6 @@ function get_filename() {
     return path_array[path_array.length - 1]
 }
 
-
-
 function get_bbox_array(bbox_string) {
     bbox = bbox_string.split(';')[0];
     //console.log("this is bbox: " + bbox)
@@ -48,6 +46,16 @@ $.urlParam = function(name) {
     }
     return decodeURI(results[1]) || 0;
 };
+
+function pause_editing() {
+     $("#right_side").addClass("inactive")
+     $("#ocr_page").attr("contentEditable", "false")
+}
+
+function resume_editing() {
+     $("#right_side").removeClass("inactive")
+     $("#ocr_page").attr("contentEditable", "true")
+}
 
 function update_progress_bar() {
     var confirmed = $("span[data-manually-confirmed='true']").length;
@@ -164,16 +172,21 @@ function update_xmldb(element) {
         data: data,
       beforeSend: function( xhr ) {
         console.log("sending" + xhr)
+        pause_editing()
       }
     })
     .done(function( data ) {
         if ( console && console.log ) {
           //console.dirxml(data);
         }
+        resume_editing()
     })
     .fail(function() {
-    element.setAttribute("data-manually-confirmed", old_attribute);
-    alert("The connection has been lost to the lace server.")
+        //make_page-not_gray()
+        element.setAttribute("data-manually-confirmed", old_attribute);
+        alert("The connection has been lost to the lace server.")
+        resume_editing()
+    
   });
 }
 
