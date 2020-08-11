@@ -30,6 +30,11 @@ declare function functx:substring-after-last
    replace ($arg,concat('^.*',functx:escape-for-regex($delim)),'')
  } ;
 
+declare  function app:app-version-number() as xs:string{
+        let $pkg := collection(repo:get-root())//package:package[@name='http://heml.mta.ca/Lace/application']
+   return $pkg/@abbrev || " v. " || $pkg/@version
+};
+
 declare  function app:app-version-number($node as node(), $model as map(*)) as xs:string {
     let $pkg := collection(repo:get-root())//package:package[@name='http://heml.mta.ca/Lace/application']
    return $pkg/@abbrev || " v. " || $pkg/@version  
