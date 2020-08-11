@@ -2070,6 +2070,7 @@
 {label: "Theophrastus, De Nervorum Resolutione", id: "urn:cts:greekLit:tlg0093.tlg010x08:"},
 {label: "Lucretius, De Rerum Natura (Bailey)", id: "urn:cts:latinLit:phi0550.phi001.ogl-lat1:"},
 {label: "Dionysius of Halicarnassus, De imitatione (fragmenta)", id: "urn:cts:greekLit:tlg0081.tlg014.1st1K-grc1:"},
+{label: "Aesop as edited by Chambry", id: "urn:cts:greekLit:tlg0096.tlg002.opp-grc3"},
 {label: "*END MILESTONE*", id : "__end__" }
 ]
 ;
