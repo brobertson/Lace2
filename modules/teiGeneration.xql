@@ -398,15 +398,15 @@ declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $
             <tei:encodingDesc>
                 <tei:editorialDecl>
                     <tei:correction>
-                        <tei:p>Lace v0.6.8 copyright 2013-2020, Bruce Robertson, Dept. of Classics, Mount Allison University. Developed through the support of the <tei:ref target="https://nbif.ca/en">NBIF</tei:ref>.</tei:p>
+                        <tei:p>{app:app-version-number()} copyright 2013-2020, Bruce Robertson, Dept. of Classics, Mount Allison University. Developed through the support of the <tei:ref target="https://nbif.ca/en">NBIF</tei:ref>.</tei:p>
                     </tei:correction>
                 </tei:editorialDecl>
                 <tei:p>The following text is encoded in accordance with EpiDoc standards and with the CTS/CITE Architecture</tei:p>
                 <!-- sample top level refsDecl for lines -->
                 <tei:refsDecl n="CTS">
                     <tei:cRefPattern matchPattern="(\w+)" n="lines" replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n='$1'])"/>
-                    <p>This pointer pattern extracts lines</p>
                 </tei:refsDecl>
+                <tei:p>This pointer pattern extracts lines</tei:p>
             </tei:encodingDesc>
             <tei:profileDesc>
                 <tei:langUsage>
@@ -415,7 +415,7 @@ declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $
             </tei:profileDesc>
             <tei:revisionDesc>
                 <!-- put your name in 'who' and this date in YYYY-MM-DD format in 'when' -->
-                <tei:change when="" who="">initial markup of new file.</tei:change>
+                <tei:change when="2020-02-02" who="Jane Smith">initial markup of new file.</tei:change>
             </tei:revisionDesc>
         </tei:teiHeader>
     <tei:text>
