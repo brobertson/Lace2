@@ -9,8 +9,14 @@
                 case 'word':
                     insert_word_inline($(this))
                     break;
-                case 'line':
+                case 'add_line':
                     insert_line_below($(this))
+                    break;
+                case 'verify_line':
+                    verify_this_line($(this))
+                    break;
+                case 'verify_page':
+                    verify_whole_page($(this))
                     break;
                 case 'cts-urn':
                     make_cts_urn_picker($(this))
@@ -35,7 +41,9 @@
         **/
         items: {
             "cts-urn": {name: "Insert Ref. Before", icon: "fa-edit"},
-            "line": {name: "Add Line After", icon: "fa-beer"},
+             "verify_line": {name: "Verify Whole Line", icon: "fa-beer"},
+             "verify_page": {name: "Verify Whole Page", icon: "fa-beer"},
+            "add_line": {name: "Add Line After", icon: "fa-beer"},
             "word": {name: "Insert Word After", icon: "fa-edit"},
             "following": {name: "Verify Following", icon: "fa-cloud-download"}
             //"all": {name: "Verify All in Volume", icon: "fa-edit"}
@@ -55,7 +63,7 @@
         },
         items: {
             "cts-urn": {name: "Insert Ref. Before", icon: "fa-edit"}
-           // "line": {name: "Add Line After", icon: "fa-beer"},
+           // "add_line": {name: "Add Line After", icon: "fa-beer"},
             //"word": {name: "Insert Word After", icon: "fa-edit"},
             //"following": {name: "Verify Following", icon: "fa-cloud-download"}
             //"all": {name: "Verify All in Volume", icon: "fa-edit"}

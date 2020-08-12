@@ -98,20 +98,21 @@
         </nav>
         <div id="content" class="NOTcontainer"/>
 <!-- Modal -->
-  <div class="modal fade" id="myModal" role="dialog">
+  <div class="modal fade" id="verifyPageModal" role="dialog">
     <div class="modal-dialog">
     
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal">x</button>
-          <h4 class="modal-title">Notice</h4>
+          <h4 class="modal-title">Verify Whole Page</h4>
         </div>
         <div class="modal-body">
-          <p id="error_message">Some text in the modal.</p>
+          <p id="error_message">This will verify all words on the page. Use with caution: it cannot be undone.</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button id="verifyPageOkButton" type="button" class="btn btn-default" data-dismiss="modal">OK</button>
         </div>
       </div>
       

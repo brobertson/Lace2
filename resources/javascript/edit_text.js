@@ -133,6 +133,11 @@ function updateCTSURN(urnpicker_id, my_action) {
     });
 }
 
+/***
+ * Old way of updating a word, which does one at a time. 
+ * This will be replaced with 'update_xmldbs' in all cases if the latter works
+ * out.
+ ****/
 function update_xmldb(element) {
     var data = {};
     data['value'] = $(element).text();
@@ -178,6 +183,72 @@ function update_xmldb(element) {
     .done(function( data ) {
         if ( console && console.log ) {
           //console.dirxml(data);
+        }
+        resume_editing()
+    })
+    .fail(function() {
+        //make_page-not_gray()
+        element.setAttribute("data-manually-confirmed", old_attribute);
+        alert("The connection has been lost to the lace server.")
+        resume_editing()
+    
+  });
+}
+
+/*****
+ * Experimental multi-element update
+ * ****/
+ 
+function update_xmldbs(elementsIn) {
+    var elements = {};
+    for (i = 0; i < elementsIn.length; i++) {
+        element = elementsIn[i]
+        element.setAttribute("data-manually-confirmed", "true");
+        elements[$(element).attr('id')] = $(element).text();
+    }
+    var data = {};
+    data['elements'] = JSON.stringify(elements)
+    doc = $('.ocr_page').attr('title')
+    data['doc'] = doc
+    var n = doc.lastIndexOf('/');
+    var fileName = doc.substring(n + 1);
+    data['fileName'] = fileName
+    var filePath = doc.substring(0, n);
+    data['filePath'] = filePath
+    whole_address = 'modules/updateWords.xq';
+    console.log("posting ", data, " to ", whole_address)
+    //old_attribute = element.getAttribute("data-manually-confirmed")
+    
+    /**
+    $.post(whole_address, data, function(data, textStatus, xhr) {
+            //console.log("success!" + xhr.responseText)
+            //this is the 'success' function 
+            //if the update works, it will fire.
+            //We can't use JQuery syntax here, for some reason.
+
+        })
+        .fail(function(xhr, textStatus, errorThrown) {
+            element.setAttribute("data-manually-confirmed", old_attribute);
+            if ((xhr.status == 404) || (xhr.status === 0)) {
+                alert("The connection has been lost to the lace server.")
+            } else {
+                alert(xhr.responseText + " status" + xhr.status);
+            }
+        });
+        **/
+    $.ajax({
+        url: whole_address,
+        method: "POST",
+        dataType: "xml",
+        data: data,
+      beforeSend: function( xhr ) {
+        console.log("sending" + xhr)
+        pause_editing()
+      }
+    })
+    .done(function( data ) {
+        if ( console && console.log ) {
+          console.dirxml(data);
         }
         resume_editing()
     })
@@ -258,8 +329,28 @@ function update_all_xmldb(element) {
     })
     .fail(function() {
         console.log("failure updating many")
-        alert("Disconnected from Lace Server")
+        alert("Failure to update. Disconnected from Lace Server?")
     });
+}
+
+function verify_this_line(element) {
+    siblings_and_self = $(element).parent().children()
+    update_xmldbs(siblings_and_self)
+    update_progress_bar();
+}
+
+function verify_whole_page_actual() {
+    update_xmldbs($("span[class='ocr_word']"))
+    update_progress_bar();
+}
+
+/***
+ * this shows the modal dialog that is stored in page.html 
+ * If its 'OK' button is pressed, then the function above
+ * 'verify_whole_page_actual' is run
+ ***/
+function verify_whole_page(element) {
+    $('#verifyPageModal').modal('show');
 }
 
 function add_line_below_xmldb(element, uniq) {
@@ -628,13 +719,16 @@ $(function() {
 
     });
     
+    $("#verifyPageOkButton").click(function (e) {
+        verify_whole_page_actual();
+    });
     /** 
      * Bind the following 'return' key presses.
      **/
     $('.index_word').bind('keypress', function(e) {
         if (e.which == 13) {
             e.preventDefault();
-            update_xmldb(this);
+            update_xmldbs(this);
             }
     });
     $('.inserted_line').bind('keypress', function(e) {
@@ -648,7 +742,7 @@ $(function() {
         if (e.which == 13) {
             console.log("return hit")
             e.preventDefault();
-            update_xmldb(this);
+            update_xmldbs([this]);
             //console.log(get_editing_progress())
             update_progress_bar()
             find_next_focus($(this))
