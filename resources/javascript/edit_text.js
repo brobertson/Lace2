@@ -262,6 +262,7 @@ function update_xmldbs(elementsIn, validateOnly) {
         if ( console && console.log ) {
           console.dirxml(data);
         }
+        find_next_focus(element)
         resume_editing()
     })
     .fail(function() {
