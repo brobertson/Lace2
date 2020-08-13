@@ -16,17 +16,28 @@ function get_bbox_array(bbox_string) {
 
 function get_bbox_array_of_element(jquery_element) {
     ot_attr = jquery_element.attr("original-title");
+    console.log("the ot_attr is: " + ot_attr)
     if (typeof ot_attr !== typeof undefined && ot_attr !== false && ot_attr.indexOf('bbox') !== -1) {
+        console.log("returing ot_attr")
         return get_bbox_array(ot_attr);
     }
     else {
+        console.log("returing title attr for bbox: " + jquery_element.attr("title"))
         return get_bbox_array(jquery_element.attr("title"));
     }
 }
 
 function narrow_bbox_below_string(jquery_element, amount) {
     bbox_array=get_bbox_array_of_element(jquery_element)
+    console.log("original array: " + bbox_array)
     y1 =  bbox_array[1]+amount
+    y2 = y1 + 2
+    return "bbox " + bbox_array[0] + " " + y1  + " " +  bbox_array[2] + " " + y2;
+}
+
+function narrow_bbox_above_string(jquery_element, amount) {
+    bbox_array=get_bbox_array_of_element(jquery_element)
+    y1 =  Math.max(bbox_array[1]-amount,0)
     y2 = y1 + 2
     return "bbox " + bbox_array[0] + " " + y1  + " " +  bbox_array[2] + " " + y2;
 }
@@ -356,7 +367,7 @@ function verify_whole_page(element) {
     $('#verifyPageModal').modal('show');
 }
 
-function add_line_below_xmldb(element, uniq) {
+function add_line_xmldb(element, uniq, below) {
     console.log("calling addlinebelow")
     var data = {};
     data['value'] = $(element).text();
@@ -367,6 +378,7 @@ function add_line_below_xmldb(element, uniq) {
     data['uniq'] = uniq;
     doc = $('.ocr_page').attr('title');
     data['doc'] = doc;
+    data['below'] = below;
     var n = doc.lastIndexOf('/');
     var fileName = doc.substring(n + 1);
     data['fileName'] = fileName
@@ -458,15 +470,6 @@ function add_span_after(element, uniq, dimensions) {
     data['fileName'] = fileName
     var filePath = doc.substring(0, n);
     data['filePath'] = filePath
-    /*
-    $.post('modules/addIndexWordAfter.xq', data)
-    .fail(function(xhr, textStatus, errorThrown) {
-        alert(xhr.responseText);
-    })
-    .done(function( backat ) {
-    //alert( "Data Loaded");
-    });
-    */
     $.ajax({
     url: 'modules/addIndexWordAfter.xq',
     method: "POST",
@@ -516,14 +519,23 @@ function insert_word_inline(target_word) {
     return; //this is the trick to short-circuiting the function.
 }
 
-function insert_line_below(element) {
+function insert_line(element, below) {
     parent_line = $(element).parent('.ocr_line')
     var uniq = 'ins_line_' + (new Date()).getTime();
     var newline = $("<div class='inserted_line_holder' id='" + uniq + "_holder'><span class='inserted_line' id='" + uniq + "' data-manually-confirmed='false' contenteditable='true'></span><button id='" + uniq + "_button' type='button' class='delete_element' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>")
-    parent_line.after(newline);
-    $("#"+uniq).attr("original-title", narrow_bbox_below_string(parent_line, 4))
-    $("#"+uniq).attr("title", narrow_bbox_below_string(parent_line, 4))
-    add_line_below_xmldb(element, uniq);
+    console.log("the newline is:" + newline)
+
+    if (below) {
+        parent_line.after(newline);
+        new_bbox_string = narrow_bbox_below_string(parent_line, 4)
+    }
+    else {
+        parent_line.before(newline);
+        new_bbox_string = narrow_bbox_above_string(parent_line, 4);
+    }
+    $("#"+uniq).attr("original-title", new_bbox_string)
+    $("#"+uniq).attr("title", new_bbox_string)
+    add_line_xmldb(element, uniq, below);
     $('.ocr_page').on('keypress', '.inserted_line', function(e) {
         //console.log("we get an inserted line keypress")
         if (e.which == 13) {
@@ -698,12 +710,11 @@ $(function() {
      //testing an idea
      //$("#async").modal()
     //clear title attributes on @ocr_line spans
-    $(".ocr_line").attr('title','')
     $("#svg_focus_rect").attr('visibility', 'hidden');
     update_progress_bar();
     //Store the 'title' attribute value somewhere else, because
     //the tooltip requires this to store its value
-    $('.ocr_word').each(function() {
+    $('.ocr_word, .ocr_line').each(function() {
         var $e = $(this);
         if ($e.attr('title') || typeof($e.attr('original-title')) != 'string') {
             $e.attr('original-title', $e.attr('title') || '').removeAttr('title');
