@@ -3,15 +3,12 @@ declare namespace xh="http://www.w3.org/1999/xhtml";
 declare namespace output="http://www.w3.org/2010/xslt-xquery-serialization";
 import module namespace response = "http://exist-db.org/xquery/response";
 import module namespace config = "http://exist-db.org/xquery/securitymanager";
-(:  
-let $id := request:get-parameter('id', '')
-let $new := request:get-parameter('value', '')
-let $word := doc($fullPath)//xh:span[@id = $id]
-:)
+
 let $elements := parse-json(request:get-parameter('elements',''))
 let $fileName := request:get-parameter('fileName', '')
 let $collectionPath := request:get-parameter('filePath', '')
 let $fullPath := $collectionPath || '/' || $fileName
+let $validate_only := xs:boolean(request:get-parameter('validateOnly', 'false'))
 let $unused0 := response:set-header("Access-Control-Allow-Origin", "*")
 
 let $page := doc($fullPath)//xh:div[@class='ocr_page']
@@ -21,20 +18,16 @@ let $update_thru_map := function($id, $new){
     let $unused2 := update value $word with $new
     return $id
   }
-
-(:  
-let $unused1 := update  value $word/@data-manually-confirmed with 'true'
-let $unused2 := update value $word with $new
-:)
-(:  
-let $confirmed_count := count(doc($fullPath)//xh:span[@data-manually-confirmed="true"])
   
-let $unused3 := 
-if (exists($page/@data-confirmed-word-count)) then
-    update value $page/@data-confirmed-word-count with $confirmed_count
-else
-    update insert attribute data-confirmed-word-count {$confirmed_count} into $page
-:)
+let $validate_only_thru_map := function($id, $new){
+    let $word := doc($fullPath)//xh:span[@id = $id]
+    let $unused1 := update  value $word/@data-manually-confirmed with 'true'
+    return $id
+  }
+let $output := if ($validate_only) then
+        map:for-each($elements, $validate_only_thru_map)
+    else
+        map:for-each($elements, $update_thru_map)
 return 
     
     if (not(xmldb:collection-available($collectionPath))) then (
@@ -62,7 +55,7 @@ return
         fileName: {$fileName}
         </p>
         <p>
-            IDs: {map:for-each($elements, $update_thru_map)}
+            IDs: {$output}
             </p>
             <p>json input of 'elements': {serialize($elements, 
         <output:serialization-parameters>

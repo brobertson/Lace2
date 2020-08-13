@@ -199,7 +199,7 @@ function update_xmldb(element) {
  * Experimental multi-element update
  * ****/
  
-function update_xmldbs(elementsIn) {
+function update_xmldbs(elementsIn, validateOnly) {
     var elements = {};
     for (i = 0; i < elementsIn.length; i++) {
         element = elementsIn[i]
@@ -208,6 +208,7 @@ function update_xmldbs(elementsIn) {
     }
     var data = {};
     data['elements'] = JSON.stringify(elements)
+    data['validateOnly'] = validateOnly
     doc = $('.ocr_page').attr('title')
     data['doc'] = doc
     var n = doc.lastIndexOf('/');
@@ -335,12 +336,14 @@ function update_all_xmldb(element) {
 
 function verify_this_line(element) {
     siblings_and_self = $(element).parent().children()
-    update_xmldbs(siblings_and_self)
+    validateOnly = "true"
+    update_xmldbs(siblings_and_self, validateOnly)
     update_progress_bar();
 }
 
 function verify_whole_page_actual() {
-    update_xmldbs($("span[class='ocr_word']"))
+    validateOnly = "true"
+    update_xmldbs($("span[class='ocr_word']"), validateOnly)
     update_progress_bar();
 }
 
@@ -369,17 +372,6 @@ function add_line_below_xmldb(element, uniq) {
     data['fileName'] = fileName
     var filePath = doc.substring(0, n);
     data['filePath'] = filePath;
-    /*
-    $.post('modules/addLineBelow.xq', data, function(data, textStatus, xhr) {
-        //console.log("success!" + xhr.responseText)
-        //this is the 'success' function 
-        //if the update works, it will fire.
-        //We can't use JQuery syntax here, for some reason.
-
-    }).fail(function(xhr, textStatus, errorThrown) {
-        alert(xhr.responseText);
-    });
-    */
     $.ajax({
     url: 'modules/addLineBelow.xq',
     method: "POST",
