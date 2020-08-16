@@ -30,14 +30,13 @@ declare function functx:substring-after-last
    replace ($arg,concat('^.*',functx:escape-for-regex($delim)),'')
  } ;
 
-declare  function app:app-version-number() as xs:string{
-        let $pkg := collection(repo:get-root())//package:package[@name='http://heml.mta.ca/Lace/application']
-   return $pkg/@abbrev || " v. " || $pkg/@version
-};
-
-declare  function app:app-version-number($node as node(), $model as map(*)) as xs:string {
+declare function app:app-version-number() as xs:string {
     let $pkg := collection(repo:get-root())//package:package[@name='http://heml.mta.ca/Lace/application']
    return $pkg/@abbrev || " v. " || $pkg/@version  
+};
+
+declare function app:app-version-number($node as node(), $model as map(*)) as xs:string {
+    app:app-version-number()
 };
 
  (: 
@@ -584,8 +583,8 @@ declare function local:generate-zone-item-from-map($key, $value) {
 };
 
 declare function app:makeZoningMenu() {
-    let $zoning_items := map{ 'Title':'title', 'Page Number':'page_number', 'Primary Text':'primary_text','App. Crit.':'app_crit', 'Commentary':'commentary', 'Translation':'translation'}
-    let $zoning_items_order := map{'Title':1, 'Page Number':2, 'Primary Text':3, 'App. Crit.':4, 'Commentary':5, 'Translation':6}
+    let $zoning_items := map{ 'Primary Text':'primary_text', 'Title':'title', 'Page Number':'page_number' ,'App. Crit.':'app_crit', 'Commentary':'commentary', 'Translation':'translation'}
+    let $zoning_items_order := map{'Title':5, 'Page Number':6, 'Primary Text':1, 'App. Crit.':2, 'Commentary':3, 'Translation':4}
     let $items :=
         for $key in map:keys($zoning_items)
         order by $zoning_items_order($key)
