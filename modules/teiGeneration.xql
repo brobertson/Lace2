@@ -170,7 +170,7 @@ declare function teigeneration:get_milestones_that_change_ref_level($spans as no
 
 declare function teigeneration:get_length_to_next_mile_or_last($spans as node()+, $miles as node()+, $count as xs:int, $start_index as xs:int) as xs:int {
         if ($count = count($miles)) then
-          count($spans)
+          count($spans)+1
         else
            functx:index-of-node($spans, $miles[$count+1])-$start_index
             
@@ -189,15 +189,15 @@ declare function teigeneration:make_divs_from_changed_ref_level($spans as node()
                 let $start_index := functx:index-of-node($spans, $ms)+1
                 return
                     if ($ref_level = $ref_depth) then
-                    <tei:div  type="textpart"  subtype="{$ref_level}" n="{$ref}" >
-                    <tei:p>
-                    {subsequence($spans,$start_index, teigeneration:get_length_to_next_mile_or_last($spans , $miles, $count, $start_index))}
-                    </tei:p>
-                    </tei:div>
-                else
-                    <tei:div type="textpart" subtype="{$ref_level}" n="{$ref}" >
-                    {teigeneration:make_divs_from_changed_ref_level(subsequence($spans,functx:index-of-node($spans, $ms), teigeneration:get_length_to_next_mile_or_last($spans , $miles, $count, $start_index) ), $ref_level + 1, $doc_ref, $ref_depth)}
-                    </tei:div>
+                        <tei:div  type="textpart"  subtype="{$ref_level}" n="{$ref}" >
+                        <tei:p>
+                        {(subsequence($spans,$start_index, teigeneration:get_length_to_next_mile_or_last($spans , $miles, $count, $start_index)))}
+                        </tei:p>
+                        </tei:div>
+                    else
+                        <tei:div type="textpart" subtype="{$ref_level}" n="{$ref}" >
+                        {(teigeneration:make_divs_from_changed_ref_level(subsequence($spans,functx:index-of-node($spans, $ms), teigeneration:get_length_to_next_mile_or_last($spans , $miles, $count, $start_index) ), $ref_level + 1, $doc_ref, $ref_depth))}
+                        </tei:div>
 };
 
 declare function teigeneration:milestones_to_divs_widows($spans as node()+) as node()* {
@@ -261,6 +261,7 @@ declare function teigeneration:make_tei_zone($my_collection as xs:string, $zone 
                 teigeneration:make_divs_from_changed_ref_level($raw,1, $ref, $reference_depth)
 };
 
+
 declare function teigeneration:strip_zone_of_following_other_doc($raw as node()*, $this_doc_ref as xs:string) {
     (: According to the teiPreflight check, all doc refs within a given zone have to come in blocks.
     That is, they cant be interleaved, like AABBA. So we can get the pertinent matter for this zone by 
@@ -294,10 +295,9 @@ declare function teigeneration:is_first_rectangle_of_type_in_doc($rect as node()
 declare function teigeneration:raw_in_rect_inner($my_collection as xs:string, $rect as node()) as node()* {
     let $elements := teigeneration:html_node_corresponding_to_svg_node($rect, $my_collection)//html:span[@class="ocr_word" or @class="cts_picker" or @class="index_word" or @class="inserted_line"]
     for $element at $count in $elements
-        let $is_line_mode := ($rect/@data-rectangle-line-mode = 'true')
-        let $different_line_from_next := not($element/..[@class='ocr_line'] = $elements[$count+1]/..[@class='ocr_line'])
         where teigeneration:intersect_bbox_and_rect($rect, $element) return 
-            if ($is_line_mode and $different_line_from_next) then
+            (: in line mode and different line from next :)
+            if (($rect/@data-rectangle-line-mode = 'true') and not($element/..[@class='ocr_line'] = $elements[$count+1]/..[@class='ocr_line'])) then
                 ($element,<tei:lb/>)
             else 
                 $element
@@ -315,13 +315,13 @@ declare function teigeneration:raw_in_rect($my_collection as xs:string, $rect as
 
 declare function teigeneration:make_tei_zone_raw($my_collection as xs:string, $zone as xs:string) as node()* {
             for $rect in collection($my_collection || "/SVG")//svg:rect[@data-rectangle-type=$zone]
-            let $is_first_rect := teigeneration:is_first_rectangle_of_type_in_doc($rect)
-            order by util:document-name($rect), $rect/@data-rectangle-ordinal 
-                return 
-                if ($is_first_rect) then
-                (<tei:pb facs="{functx:substring-before-last(util:document-name($rect),'.')}"/>,teigeneration:raw_in_rect($my_collection, $rect))
-                else
-                    teigeneration:raw_in_rect($my_collection, $rect)
+                let $is_first_rect := teigeneration:is_first_rectangle_of_type_in_doc($rect)
+                order by util:document-name($rect), $rect/@data-rectangle-ordinal 
+                    return 
+                    if ($is_first_rect) then
+                    (<tei:pb facs="{functx:substring-before-last(util:document-name($rect),'.')}"/>,<html:span> </html:span>,teigeneration:raw_in_rect($my_collection, $rect))
+                    else
+                       (teigeneration:raw_in_rect($my_collection, $rect))
 };
 
 
@@ -339,10 +339,20 @@ declare function teigeneration:strip_spans($input as node()?) {
     <xsl:apply-templates/>
 </xsl:template>
 <!-- when we have a lb element, we want to keep the non-dehyphenated form -->
-<xsl:template match="*[@data-dehyphenatedform][not(following-sibling::tei:lb)]">
-    <xsl:if test="@data-dehyphenatedform!=''">
-        <xsl:value-of select="concat(normalize-space(@data-dehyphenatedform), ' ')"/>
-    </xsl:if>
+<xsl:template match="html:span[@data-hyphenendpair and not(following-sibling::tei:lb)][substring(normalize-space(./text()),string-length(normalize-space(./text())),1) = '-']"> 
+    <xsl:value-of select="concat(normalize-space(concat(substring(normalize-space(./text()),1,string-length(normalize-space(./text()))-1), following::html:span[@data-hyphenstartpair = current()/@data-hyphenendpair]/text())), ' ')"/>
+</xsl:template>
+    <!-- check if first of pair has an ending hyphen. If it does, output nothing. Otherwise, output my text() -->
+<xsl:template match="html:span[@data-hyphenstartpair]">
+	<xsl:choose>
+		<xsl:when test="preceding::html:span[@data-hyphenendpair = current()/@data-hyphenstartpair][following-sibling::tei:lb]">
+			<xsl:value-of select="concat(normalize-space(current()/text()), ' ')"/>
+		</xsl:when>
+		<xsl:when test="not(substring(preceding::html:span[@data-hyphenendpair][@data-hyphenendpair = current()/@data-hyphenstartpair][1]/text(), string-length(preceding::html:span[@data-hyphenendpair = current()/@data-hyphenstartpair][1]/text())) = '-')">
+			<xsl:value-of select="concat(normalize-space(current()/text()), ' ')"/>
+                </xsl:when>
+		<xsl:otherwise/>
+	</xsl:choose>
 </xsl:template>
 <xsl:template match="node/@TEXT | text()">
   <xsl:if test="normalize-space(.)">
@@ -350,6 +360,7 @@ declare function teigeneration:strip_spans($input as node()?) {
   </xsl:if>
 </xsl:template>
 </xsl:stylesheet>
+
 return transform:transform($input, $xslt, ())
 };
 
@@ -379,7 +390,10 @@ declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $
                 {teigeneration:make_ogl_publicationStmt($OGLHeader, $vol)}
                 <tei:sourceDesc>
                     <tei:biblStruct>
-                        <tei:monogr> <!--Removed author, since there is more than one-->
+                        <tei:monogr>
+                            <!-- proofread the following carefully, as it is automatically generated
+                                 from whatever metadata was provided by the scanning site -->
+                            <tei:author><tei:persName>{$imageMetadata/../dc:creator[1]/text()}</tei:persName></tei:author>
                             <!--Short version of title; no period; lang attribute-->
                             <tei:title xml:lang="lat">{$imageMetadata/../dc:title[1]/text()}</tei:title> 
                             <tei:editor></tei:editor>
