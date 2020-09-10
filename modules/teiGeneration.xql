@@ -338,21 +338,21 @@ declare function teigeneration:strip_spans($input as node()?) {
 <xsl:template match="html:span">
     <xsl:apply-templates/>
 </xsl:template>
-<!-- when we have a lb element, we want to keep the non-dehyphenated form -->
-<xsl:template match="html:span[@data-hyphenendpair and not(following-sibling::tei:lb)][substring(normalize-space(./text()),string-length(normalize-space(./text())),1) = '-']"> 
-    <xsl:value-of select="concat(normalize-space(concat(substring(normalize-space(./text()),1,string-length(normalize-space(./text()))-1), following::html:span[@data-hyphenstartpair = current()/@data-hyphenendpair]/text())), ' ')"/>
+<!-- when we have a lb element or a directly following <pb> element, we want to keep the non-dehyphenated form -->
+<xsl:template match="html:span[@data-hyphenendpair and not(following-sibling::tei:lb) and not(following::*[1][self::tei:pb])][substring(normalize-space(./text()),string-length(normalize-space(./text())),1) = '-']">
+    <xsl:value-of select="concat(normalize-space(concat(substring(normalize-space(./text()),1,string-length(normalize-space(./text()))-1), following::html:span[@data-hyphenstartpair = current()/@data-hyphenendpair][1]/text())), ' ')"/>
 </xsl:template>
     <!-- check if first of pair has an ending hyphen. If it does, output nothing. Otherwise, output my text() -->
 <xsl:template match="html:span[@data-hyphenstartpair]">
-	<xsl:choose>
-		<xsl:when test="preceding::html:span[@data-hyphenendpair = current()/@data-hyphenstartpair][following-sibling::tei:lb]">
-			<xsl:value-of select="concat(normalize-space(current()/text()), ' ')"/>
-		</xsl:when>
-		<xsl:when test="not(substring(preceding::html:span[@data-hyphenendpair][@data-hyphenendpair = current()/@data-hyphenstartpair][1]/text(), string-length(preceding::html:span[@data-hyphenendpair = current()/@data-hyphenstartpair][1]/text())) = '-')">
-			<xsl:value-of select="concat(normalize-space(current()/text()), ' ')"/>
+    <xsl:choose>
+        <xsl:when test="preceding::html:span[@data-hyphenendpair = current()/@data-hyphenstartpair][1][following-sibling::tei:lb]">
+            <xsl:value-of select="concat(normalize-space(current()/text()), ' ')"/>
+        </xsl:when>
+        <xsl:when test="not(substring(preceding::html:span[@data-hyphenendpair][@data-hyphenendpair = current()/@data-hyphenstartpair][1]/text(), string-length(preceding::html:span[@data-hyphenendpair = current()/@data-hyphenstartpair][1]/text())) = '-')">
+            <xsl:value-of select="concat(normalize-space(current()/text()), ' ')"/>
                 </xsl:when>
-		<xsl:otherwise/>
-	</xsl:choose>
+        <xsl:otherwise/>
+    </xsl:choose>
 </xsl:template>
 <xsl:template match="node/@TEXT | text()">
   <xsl:if test="normalize-space(.)">
