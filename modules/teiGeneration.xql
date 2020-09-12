@@ -316,7 +316,7 @@ declare function teigeneration:raw_in_rect($my_collection as xs:string, $rect as
 declare function teigeneration:make_tei_zone_raw($my_collection as xs:string, $zone as xs:string) as node()* {
             for $rect in collection($my_collection || "/SVG")//svg:rect[@data-rectangle-type=$zone]
                 let $is_first_rect := teigeneration:is_first_rectangle_of_type_in_doc($rect)
-                order by util:document-name($rect), $rect/@data-rectangle-ordinal 
+                order by util:document-name($rect), xs:integer($rect/@data-rectangle-ordinal)
                     return 
                     if ($is_first_rect) then
                     (<tei:pb facs="{functx:substring-before-last(util:document-name($rect),'.')}"/>,<html:span> </html:span>,teigeneration:raw_in_rect($my_collection, $rect))
