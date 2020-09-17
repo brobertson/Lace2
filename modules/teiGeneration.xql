@@ -405,9 +405,10 @@ declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $
                                 <tei:date>{$imageMetadata/../dc:date[1]/text()}</tei:date>
                             </tei:imprint>
                         </tei:monogr>
-                        <!-- 'target' needs to point to the page on which the text begins. This is given as an example.
+                        <!-- 'target' needs to point to the page on which the text begins. 
+                            For example 'https://archive.org/details/poetaebucoliciet00amei/page/n435/mode/2up?q=suffusiones'.
                         -->
-                        <tei:ref target="https://archive.org/details/poetaebucoliciet00amei/page/n435/mode/2up?q=suffusiones"><!-- e.g. Internet Archive --></tei:ref>
+                        <tei:ref target=""><!-- e.g. Internet Archive --></tei:ref>
                     </tei:biblStruct>
                 </tei:sourceDesc>
             </tei:fileDesc>
@@ -421,8 +422,9 @@ declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $
                 <!-- sample top level refsDecl for lines -->
                 <tei:refsDecl n="CTS">
                     <tei:cRefPattern matchPattern="(\w+)" n="lines" replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n='$1'])"/>
+                    <tei:p>This pointer pattern extracts lines</tei:p>
                 </tei:refsDecl>
-                <tei:p>This pointer pattern extracts lines</tei:p>
+
             </tei:encodingDesc>
             <tei:profileDesc>
                 <tei:langUsage>
