@@ -186,7 +186,7 @@ declare function teigeneration:make_divs_from_changed_ref_level($spans as node()
             let $count_of_ms := count($miles)
             for $ms at $count in $miles
                 let $ref := teigeneration:get_ref_at_level($ms/@data-ctsurn,$ref_level)
-                let $start_index := functx:index-of-node($spans, $ms)+1
+                let $start_index := functx:index-of-node($spans, $ms)
                 return
                     if ($ref_level = $ref_depth) then
                         <tei:div  type="textpart"  subtype="{$ref_level}" n="{$ref}" >
@@ -316,7 +316,7 @@ declare function teigeneration:raw_in_rect($my_collection as xs:string, $rect as
 declare function teigeneration:make_tei_zone_raw($my_collection as xs:string, $zone as xs:string) as node()* {
             for $rect in collection($my_collection || "/SVG")//svg:rect[@data-rectangle-type=$zone]
                 let $is_first_rect := teigeneration:is_first_rectangle_of_type_in_doc($rect)
-                order by util:document-name($rect), xs:integer($rect/@data-rectangle-ordinal)
+                order by util:document-name($rect), xs:integer($rect/@data-rectangle-ordinal) 
                     return 
                     if ($is_first_rect) then
                     (<tei:pb facs="{functx:substring-before-last(util:document-name($rect),'.')}"/>,<html:span> </html:span>,teigeneration:raw_in_rect($my_collection, $rect))
@@ -335,17 +335,19 @@ declare function teigeneration:strip_spans($input as node()?) {
             <xsl:apply-templates select="@*|node()"/>
         </xsl:copy>
     </xsl:template>
+    <!-- delete urn pickers if they get through -->
+    <xsl:template match="html:span[@class='cts_picker']"/>
 <xsl:template match="html:span">
     <xsl:apply-templates/>
 </xsl:template>
 <!-- when we have a lb element or a directly following <pb> element, we want to keep the non-dehyphenated form -->
-<xsl:template match="html:span[@data-hyphenendpair and not(following-sibling::tei:lb) and not(following::*[1][self::tei:pb])][substring(normalize-space(./text()),string-length(normalize-space(./text())),1) = '-']">
+<xsl:template match="html:span[@data-hyphenendpair and not(following::*[1][self::tei:lb]) and not(following::*[1][self::tei:pb])][substring(normalize-space(./text()),string-length(normalize-space(./text())),1) = '-']">
     <xsl:value-of select="concat(normalize-space(concat(substring(normalize-space(./text()),1,string-length(normalize-space(./text()))-1), following::html:span[@data-hyphenstartpair = current()/@data-hyphenendpair][1]/text())), ' ')"/>
 </xsl:template>
     <!-- check if first of pair has an ending hyphen. If it does, output nothing. Otherwise, output my text() -->
 <xsl:template match="html:span[@data-hyphenstartpair]">
     <xsl:choose>
-        <xsl:when test="preceding::html:span[@data-hyphenendpair = current()/@data-hyphenstartpair][1][following-sibling::tei:lb]">
+        <xsl:when test="preceding::html:span[@data-hyphenendpair = current()/@data-hyphenstartpair and (following::*[1][self::tei:pb])]">
             <xsl:value-of select="concat(normalize-space(current()/text()), ' ')"/>
         </xsl:when>
         <xsl:when test="not(substring(preceding::html:span[@data-hyphenendpair][@data-hyphenendpair = current()/@data-hyphenstartpair][1]/text(), string-length(preceding::html:span[@data-hyphenendpair = current()/@data-hyphenstartpair][1]/text())) = '-')">
@@ -437,6 +439,3 @@ declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $
     </tei:text>
 </tei:TEI>
 };
-
-
-
