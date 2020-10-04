@@ -33,4 +33,5 @@ xdb:store-files-from-pattern(concat("/system/config", $target), $dir, "*.xconf")
 (:  Added by BGR to usual stuff, this changes the public repository to the one
  : that contains Lace stuff. Not using this for a bit.
 ,update replace doc("/db/apps/packageservice/configuration.xml")/settings/repositories/repository with <repository active="true" default="true">http://heml.ddns.net:8080/exist/apps/public-repo/</repository>
+
 :)
