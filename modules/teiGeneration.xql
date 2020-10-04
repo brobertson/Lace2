@@ -236,11 +236,31 @@ declare function teigeneration:milestones_to_divs($spans as node()+) as node()* 
 
 };
 
+(: The early OCR dehyphenation code did not make these links unique within the run, which is a huge pain when it comes to finding them in a flattened sequence of elements
+ : So this function preps the data by putting the document name before the link number, like  scholiaineuripi00schwgoog_0137#2. Because the dehyphenator will soon start doing
+ : this itself, we are checking if there is a '#', used as an indication of a unique identifier across the run, and if it's there, we aren't messing with anything.
+ : This also keeps us from re-doing this process each time we generate a TEI text, creating ids like 
+ : 'scholiaineuripi00schwgoog_013#scholiaineuripi00schwgoog_013#scholiaineuripi00schwgoog_013#2'
+ : :)
+ 
+declare function teigeneration:make_hyphenation_links_unique($my_collection as xs:string) as empty-sequence() {
+    for $hyphenated_start_link in (collection($my_collection)//html:span/@data-hyphenendpair, collection($my_collection)//html:span/@data-hyphenstartpair)
+        return 
+            if (not(fn:contains($hyphenated_start_link,'#'))) then
+                update value $hyphenated_start_link with concat(util:document-name($hyphenated_start_link), '#', $hyphenated_start_link)
+            else
+                ()
+};
+
 declare function teigeneration:make_all_tei($my_collection as xs:string, $ref as xs:string) as node()* {
+    let $null := teigeneration:make_hyphenation_links_unique($my_collection)
+    return
         if ($my_collection = '' or $ref = '')
         then
            error(QName('http://heml.mta.ca/Lace2/Error/','HugeZipFile'),'Inappropriate number of subdocuments in path"' || $my_collection || '"')
         else 
+            (: TODO run a function that modifies in the database all @data-hyphenendpair and @data-hyphenstartpair elements that do not contain '#' into versions that have the document id, like scholiaineuripi00schwgoog_0137 and '#', prepended :)
+            
             <tei:body>
                 {
         for $type in $teigeneration:svg_zone_types
@@ -325,6 +345,58 @@ declare function teigeneration:make_tei_zone_raw($my_collection as xs:string, $z
 };
 
 
+(:  A function that deals with the html:span elements when encountered in 
+ : strip_spans_xquery, below. Both of these are experimental and currently not used. :)
+declare function teigeneration:strip_spans_treat_span($span as node()) as item()* {
+        (: Omit cts picker buttons from the output :)
+        if ($span[@class='cts_picker']) then 
+            ()
+            else
+                if ($span[@data-hyphenendpair] and fn:substring(normalize-space($span/text()),string-length(normalize-space($span/text()))) = '-') then
+                    let $pair_match := $span/@data-hyphenendpair
+                    return
+                        normalize-space(fn:substring(normalize-space($span/text()),1,string-length(normalize-space($span/text()))-1) || $span/following::html:span[@data-hyphenstartpair = $pair_match][1]/text())
+                    else
+                        if ($span[@data-hyphenstartpair] and 
+                        fn:substring(normalize-space($span/preceding::html:span[@data-hyphenendpair = $span/@data-hyphenstartpair])
+                            , 
+                            string-length(normalize-space($span/preceding::html:span[@data-hyphenendpair = $span/@data-hyphenstartpair])))
+                            = '-') then
+                                ()
+                            else
+                    (: if the span is empty, then don't append a space to it :)
+                        if (normalize-space($span/text())) then
+                            normalize-space($span/text())
+                            else 
+                                ()
+};
+
+(: copy the input to the output without modification, excepting the case of a html:span element,
+ : which is passed to a special function. This is an xquery implementation of the function 'strip_spans()'
+ : below, which uses xslt instead. To switch to this experimental version, alter the function call
+ : in getTeiVolume.xq.
+ :)
+declare function teigeneration:strip_spans_xquery($input as item()*) as item()* {
+for $node in $input
+   return 
+      typeswitch($node)
+        case element(html:span) return teigeneration:strip_spans_treat_span($node)
+        case element()
+           return
+              element {name($node)} {
+                (: output each attribute in this element :)
+                for $att in $node/@*
+                   return
+                      attribute {name($att)} {$att}
+                ,
+                (: output all the sub-elements of this element recursively :)
+                for $child in $node
+                   return teigeneration:strip_spans_xquery($child/node())
+              }
+        (: otherwise pass it through.  Used for text(), comments, and PIs :)
+        default return $node
+};
+
 declare function teigeneration:strip_spans($input as node()?) {
     let $xslt := <xsl:stylesheet version="1.0" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" version="1.0" encoding="UTF-8"/>
@@ -373,6 +445,7 @@ declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $
     return
 <tei:TEI xml:space="preserve" xmlns:tei="http://www.tei-c.org/ns/1.0">
     <tei:teiHeader xml:lang="en">
+
             <tei:fileDesc>
                 <tei:titleStmt>
                     <tei:title xml:lang="grc"><!--This ought to be the title of
