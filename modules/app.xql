@@ -441,35 +441,35 @@ function app:getImageLink($imageFile as xs:string?) {
  : TODO: This needs to be replaced with one that goes to an arbitrary collection in the database and counts 
  : the files within it.
  :  :)
- declare function app:navButton($collectionUri, $positionInCollection as xs:integer, $skipBy as xs:integer, $label as xs:string) {
+ declare function app:navButton($collectionUri, $positionInCollection as xs:integer, $skipBy as xs:integer, $label as xs:string, $popup_label as xs:string) {
     let $targetIndex := $positionInCollection + $skipBy
     return
     if ($skipBy = 0)
     then
         <li class="page-item active">
-      <a class="page-link" href="#">{$positionInCollection}</a>
+      <a title='{$popup_label}' class="page-link" href="#">{$positionInCollection}</a>
     </li>
     else if (($targetIndex >= count(collection($collectionUri))) or ($targetIndex <= 0))
     then
         <li class="page-item">
-      <span class="notAvailable">{$label}</span>
+      <span title='{$popup_label}' class="notAvailable">{$label}</span>
     </li>
     else
         <li class="page-item">
-      <a class="page-link" href="{concat("?collectionUri=", $collectionUri, "&amp;positionInCollection=", $targetIndex)}">{$label}</a>
+      <a class="page-link" title='{$popup_label}' href="{concat("?collectionUri=", $collectionUri, "&amp;positionInCollection=", $targetIndex)}">{$label}</a>
     </li>
 };
 
- declare function app:paginationWidget($collectionUri, $positionInCollection as xs:integer) {
+ declare function app:paginationWidget($collectionUri, $positionInCollection as xs:integer, $currentPageLabel) {
 <nav aria-label="...">
   <ul class="pagination">
-   {app:navButton($collectionUri,$positionInCollection,-20,"-20")}
-    {app:navButton($collectionUri,$positionInCollection,-5,"-5")}
-    {app:navButton($collectionUri,$positionInCollection,-1,"Previous")}
-    {app:navButton($collectionUri,$positionInCollection,0,"")}
-    {app:navButton($collectionUri,$positionInCollection,1,"Next")}
-    {app:navButton($collectionUri,$positionInCollection,5,"+5")}
-    {app:navButton($collectionUri,$positionInCollection,20,"+20")}
+   {app:navButton($collectionUri,$positionInCollection,-20,"-20","")}
+    {app:navButton($collectionUri,$positionInCollection,-5,"-5","")}
+    {app:navButton($collectionUri,$positionInCollection,-1,"Previous","")}
+    {app:navButton($collectionUri,$positionInCollection,0,"",$currentPageLabel)}
+    {app:navButton($collectionUri,$positionInCollection,1,"Next","")}
+    {app:navButton($collectionUri,$positionInCollection,5,"+5","")}
+    {app:navButton($collectionUri,$positionInCollection,20,"+20","")}
   </ul>
   </nav>
 };
@@ -661,7 +661,7 @@ response:set-header( "X-Content-Type-Options", 'nosniff' ))
                          
 <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#editingInfo">?</button>{app:formatCatalogEntryForCollectionUri($imageCollection)}
              {app:dropdownMenu($collectionUri)}
-             {app:paginationWidget($collectionUri, $positionInCollection)} 
+             {app:paginationWidget($collectionUri, $positionInCollection, $meAsPng)} 
 
 <div id="editingInfo" class="modal fade" role="dialog">
   <div class="modal-dialog">
