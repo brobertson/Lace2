@@ -253,8 +253,7 @@ declare function teigeneration:make_hyphenation_links_unique($my_collection as x
 };
 
 declare function teigeneration:make_all_tei($my_collection as xs:string, $ref as xs:string) as node()* {
-    let $null := teigeneration:make_hyphenation_links_unique($my_collection)
-    return
+  (: let $null := teigeneration:make_hyphenation_links_unique($my_collection) :)
         if ($my_collection = '' or $ref = '')
         then
            error(QName('http://heml.mta.ca/Lace2/Error/','HugeZipFile'),'Inappropriate number of subdocuments in path"' || $my_collection || '"')
@@ -344,9 +343,24 @@ declare function teigeneration:make_tei_zone_raw($my_collection as xs:string, $z
                        (teigeneration:raw_in_rect($my_collection, $rect))
 };
 
+(:  A function that deals with the html:span elements that have @data-hyphenstartpair attributes,
+ : namely those that are the second half of a hyphenation pair. This is called by the below funtion, 
+ : teigeneration:strip_spans_treat_span
+ :)
+declare function teigeneration:strip_spans_treat_end_hyphenation_span($span as node()) as item()* {
+    let $start_match := $span/preceding::html:span[@data-hyphenendpair = $span/@data-hyphenstartpair][1]
+    return
+    if (fn:substring(normalize-space($start_match/text()),string-length(normalize-space($start_match/text()))) = '-') then
+            ()
+        else
+         if (normalize-space($span/text())) then
+                            normalize-space($span/text())
+                            else 
+                                ()   
+};
 
 (:  A function that deals with the html:span elements when encountered in 
- : strip_spans_xquery, below. Both of these are experimental and currently not used. :)
+ : strip_spans_xquery, below.  :)
 declare function teigeneration:strip_spans_treat_span($span as node()) as item()* {
         (: Omit cts picker buttons from the output :)
         if ($span[@class='cts_picker']) then 
@@ -357,12 +371,8 @@ declare function teigeneration:strip_spans_treat_span($span as node()) as item()
                     return
                         normalize-space(fn:substring(normalize-space($span/text()),1,string-length(normalize-space($span/text()))-1) || $span/following::html:span[@data-hyphenstartpair = $pair_match][1]/text())
                     else
-                        if ($span[@data-hyphenstartpair] and 
-                        fn:substring(normalize-space($span/preceding::html:span[@data-hyphenendpair = $span/@data-hyphenstartpair])
-                            , 
-                            string-length(normalize-space($span/preceding::html:span[@data-hyphenendpair = $span/@data-hyphenstartpair])))
-                            = '-') then
-                                ()
+                        if ($span[@data-hyphenstartpair] ) then
+                            teigeneration:strip_spans_treat_end_hyphenation_span($span)
                             else
                     (: if the span is empty, then don't append a space to it :)
                         if (normalize-space($span/text())) then
@@ -372,11 +382,9 @@ declare function teigeneration:strip_spans_treat_span($span as node()) as item()
 };
 
 (: copy the input to the output without modification, excepting the case of a html:span element,
- : which is passed to a special function. This is an xquery implementation of the function 'strip_spans()'
- : below, which uses xslt instead. To switch to this experimental version, alter the function call
- : in getTeiVolume.xq.
+ : which is passed to a special function.  Its function call is in getTeiVolume.xq.
  :)
-declare function teigeneration:strip_spans_xquery($input as item()*) as item()* {
+declare function teigeneration:strip_spans($input as item()*) as item()* {
 for $node in $input
    return 
       typeswitch($node)
@@ -391,51 +399,10 @@ for $node in $input
                 ,
                 (: output all the sub-elements of this element recursively :)
                 for $child in $node
-                   return teigeneration:strip_spans_xquery($child/node())
+                   return teigeneration:strip_spans($child/node())
               }
         (: otherwise pass it through.  Used for text(), comments, and PIs :)
         default return $node
-};
-
-declare function teigeneration:strip_spans($input as node()?) {
-    let $xslt := <xsl:stylesheet version="1.0" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-<xsl:output method="xml" version="1.0" encoding="UTF-8"/>
-<!--Identity template,
-        provides default behavior that copies all content into the output -->
-    <xsl:template match="@*|node()">
-        <xsl:copy>
-            <xsl:apply-templates select="@*|node()"/>
-        </xsl:copy>
-    </xsl:template>
-    <!-- delete urn pickers if they get through -->
-    <xsl:template match="html:span[@class='cts_picker']"/>
-<xsl:template match="html:span">
-    <xsl:apply-templates/>
-</xsl:template>
-<!-- when we have a lb element or a directly following <pb> element, we want to keep the non-dehyphenated form -->
-<xsl:template match="html:span[@data-hyphenendpair and not(following::*[1][self::tei:lb]) and not(following::*[1][self::tei:pb])][substring(normalize-space(./text()),string-length(normalize-space(./text())),1) = '-']">
-    <xsl:value-of select="concat(normalize-space(concat(substring(normalize-space(./text()),1,string-length(normalize-space(./text()))-1), following::html:span[@data-hyphenstartpair = current()/@data-hyphenendpair][1]/text())), ' ')"/>
-</xsl:template>
-    <!-- check if first of pair has an ending hyphen. If it does, output nothing. Otherwise, output my text() -->
-<xsl:template match="html:span[@data-hyphenstartpair]">
-    <xsl:choose>
-        <xsl:when test="preceding::html:span[@data-hyphenendpair = current()/@data-hyphenstartpair and (following::*[1][self::tei:pb])]">
-            <xsl:value-of select="concat(normalize-space(current()/text()), ' ')"/>
-        </xsl:when>
-        <xsl:when test="not(substring(preceding::html:span[@data-hyphenendpair][@data-hyphenendpair = current()/@data-hyphenstartpair][1]/text(), string-length(preceding::html:span[@data-hyphenendpair = current()/@data-hyphenstartpair][1]/text())) = '-')">
-            <xsl:value-of select="concat(normalize-space(current()/text()), ' ')"/>
-                </xsl:when>
-        <xsl:otherwise/>
-    </xsl:choose>
-</xsl:template>
-<xsl:template match="node/@TEXT | text()">
-  <xsl:if test="normalize-space(.)">
-    <xsl:value-of select="concat(normalize-space(.), ' ')"/>
-  </xsl:if>
-</xsl:template>
-</xsl:stylesheet>
-
-return transform:transform($input, $xslt, ())
 };
 
 
