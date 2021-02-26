@@ -84,7 +84,7 @@ exists(for $child in xmldb:get-child-collections($collection)
  : catalog file
  :)
 declare function app:countCatalog($node as node(), $model as map(*)) {
-        count(collection('/db/apps')//lace:imagecollection/dc:identifier)
+    count(collection('/db/apps')//lace:imagecollection/dc:identifier)
 };
 
 (: 
@@ -110,6 +110,7 @@ declare function app:formatCatalogEntry($node as node(), $model as map(*), $arch
     return
     <xh:span class="catalogueEntry" title="{$text}">{$creator_string} ({$text/../dc:date/text()}). <xh:i>{fn:substring($text/../dc:title/text(),1,80)}</xh:i>.</xh:span>
 };
+
 
 (: 
  : for a given dc:identifier node, format the contents and link to 
@@ -159,8 +160,9 @@ declare function app:catalog($node as node(), $model as map(*)) {
     if (app:countCatalog($node, $model) = 0) then 
         <xh:tr><xh:td>There are no installed texts. Please add them by using the eXist <xh:a href="/exist/apps/dashboard/admin#/packagemanager">package manager</xh:a>. You may need to sign into your 'admin' account first.</xh:td></xh:tr>
     else
-    for $text in collection('/db/apps')//lace:imagecollection/dc:identifier
-        order by $text/../dc:creator[0]
+    for $imageset in collection('/db/apps')//lace:imagecollection
+        let $text := $imageset/dc:identifier
+        order by $imageset/dc:creator[0]
         return 
             if (exists(collection('/db/apps')//lace:run[dc:identifier/text() = $text/text()]))
             then
