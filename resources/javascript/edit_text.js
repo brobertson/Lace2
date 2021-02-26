@@ -16,9 +16,9 @@ function get_bbox_array(bbox_string) {
 
 function get_bbox_array_of_element(jquery_element) {
     ot_attr = jquery_element.attr("original-title");
-    console.log("the ot_attr is: " + ot_attr)
+    //console.log("the ot_attr is: " + ot_attr)
     if (typeof ot_attr !== typeof undefined && ot_attr !== false && ot_attr.indexOf('bbox') !== -1) {
-        console.log("returing ot_attr")
+       // console.log("returing ot_attr")
         return get_bbox_array(ot_attr);
     }
     else {
@@ -144,66 +144,23 @@ function updateCTSURN(urnpicker_id, my_action) {
     });
 }
 
-/***
- * Old way of updating a word, which does one at a time. 
- * This will be replaced with 'update_xmldbs' in all cases if the latter works
- * out.
- ****/
-function update_xmldb(element) {
-    var data = {};
-    data['value'] = $(element).text();
-    data['id'] = $(element).attr('id');
-    doc = $('.ocr_page').attr('title')
-    data['doc'] = doc
-    var n = doc.lastIndexOf('/');
-    var fileName = doc.substring(n + 1);
-    data['fileName'] = fileName
-    var filePath = doc.substring(0, n);
-    data['filePath'] = filePath
-    whole_address = 'modules/updateWord.xq';
-    //console.log("posting ", data, " to ", whole_address)
-    old_attribute = element.getAttribute("data-manually-confirmed")
-    element.setAttribute("data-manually-confirmed", "true");
-    /**
-    $.post(whole_address, data, function(data, textStatus, xhr) {
-            //console.log("success!" + xhr.responseText)
-            //this is the 'success' function 
-            //if the update works, it will fire.
-            //We can't use JQuery syntax here, for some reason.
+function test_text(textIn) {
+    if (textIn.length > 200) {
+        return true
+    }
+    return true
+}
 
-        })
-        .fail(function(xhr, textStatus, errorThrown) {
-            element.setAttribute("data-manually-confirmed", old_attribute);
-            if ((xhr.status == 404) || (xhr.status === 0)) {
-                alert("The connection has been lost to the lace server.")
-            } else {
-                alert(xhr.responseText + " status" + xhr.status);
-            }
-        });
-        **/
-    $.ajax({
-        url: whole_address,
-        method: "POST",
-        dataType: "xml",
-        data: data,
-      beforeSend: function( xhr ) {
-        console.log("sending" + xhr)
-        pause_editing()
-      }
-    })
-    .done(function( data ) {
-        if ( console && console.log ) {
-          //console.dirxml(data);
-        }
-        resume_editing()
-    })
-    .fail(function() {
-        //make_page-not_gray()
-        element.setAttribute("data-manually-confirmed", old_attribute);
-        alert("The connection has been lost to the lace server.")
-        resume_editing()
-    
-  });
+function clean_text(textIn) {
+    //replace no break space with space
+    textIn = textIn.replace(/\u00A0/g,' ')
+    //erase unknown character and multiplication sign
+    textIn = textIn.replace(/[\uFFFD\u00D7]/g,'')
+    //change MODIFIER LETTER APOSTROPHE, APOSTROPHE, GREEK KORONIS to RIGHT SINGLE QUOTATION MARK
+    textIn = textIn.replace(/[ʼ'᾽]/g,'’')
+    //change ANO TELEIA, DOT OPERATOR to MIDDLE DOT
+    textIn = textIn.replace(/[⋅·]/g,'·')
+    return textIn
 }
 
 /*****
@@ -228,39 +185,21 @@ function update_xmldbs(elementsIn, validateOnly) {
     var filePath = doc.substring(0, n);
     data['filePath'] = filePath
     whole_address = 'modules/updateWords.xq';
-    console.log("posting ", data, " to ", whole_address)
+    //console.log("posting ", data, " to ", whole_address)
     //old_attribute = element.getAttribute("data-manually-confirmed")
-    
-    /**
-    $.post(whole_address, data, function(data, textStatus, xhr) {
-            //console.log("success!" + xhr.responseText)
-            //this is the 'success' function 
-            //if the update works, it will fire.
-            //We can't use JQuery syntax here, for some reason.
-
-        })
-        .fail(function(xhr, textStatus, errorThrown) {
-            element.setAttribute("data-manually-confirmed", old_attribute);
-            if ((xhr.status == 404) || (xhr.status === 0)) {
-                alert("The connection has been lost to the lace server.")
-            } else {
-                alert(xhr.responseText + " status" + xhr.status);
-            }
-        });
-        **/
     $.ajax({
         url: whole_address,
         method: "POST",
         dataType: "xml",
         data: data,
       beforeSend: function( xhr ) {
-        console.log("sending" + xhr)
+        //console.log("sending" + xhr)
         pause_editing()
       }
     })
     .done(function( data ) {
         if ( console && console.log ) {
-          console.dirxml(data);
+          //console.dirxml(data);
         }
         find_next_focus(element)
         resume_editing()
@@ -744,8 +683,11 @@ $(function() {
     });
     $('.ocr_word').bind('keypress', function(e) {
         if (e.which == 13) {
-            console.log("return hit")
+            //console.log("return hit")
             e.preventDefault();
+            test_text($(this).text())
+            //set the text to a cleaned version
+            $(this).text(clean_text($(this).text()))
             update_xmldbs([this]);
             //console.log(get_editing_progress())
             update_progress_bar()
@@ -806,7 +748,7 @@ $(function() {
                         //console.log("theres additional data, that we'll strip")
                         bbox = bbox.substr(0, bbox.indexOf(';'));
                     }
-                    console.log(bbox_array)
+                    //console.log(bbox_array)
                     var url = new URL(window.location.href);
                     var collectionUri = url.searchParams.get("collectionUri");
                     //collectionUri = $.urlParam('collectionUri');

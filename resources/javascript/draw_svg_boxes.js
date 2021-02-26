@@ -409,7 +409,7 @@ $(document).ready(function() {
   });
   $(this).on("keyup", function(event) {
       active_id = document.activeElement.id
-      console.log("so there was a keyup and it was " + event.key + " and the active element was " + active_id)
+      //console.log("so there was a keyup and it was " + event.key + " and the active element was " + active_id)
       const key = event.key; // const {key} = event; ES6+
         if ((key === "Backspace" || key === "Delete") && $(".rectangle").hasClass( "selected_rectangle" )) {
          //console.log("it was the delete key on a rectangle: " + active_id)
