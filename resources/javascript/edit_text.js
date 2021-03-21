@@ -144,6 +144,68 @@ function updateCTSURN(urnpicker_id, my_action) {
     });
 }
 
+
+/***
+ * Old way of updating a word, which does one at a time. 
+ * This will be replaced with 'update_xmldbs' in all cases if the latter works
+ * out.
+ ****/
+function update_xmldb(element) {
+    var data = {};
+    data['value'] = $(element).text();
+    data['id'] = $(element).attr('id');
+    doc = $('.ocr_page').attr('title')
+    data['doc'] = doc
+    var n = doc.lastIndexOf('/');
+    var fileName = doc.substring(n + 1);
+    data['fileName'] = fileName
+    var filePath = doc.substring(0, n);
+    data['filePath'] = filePath
+    whole_address = 'modules/updateWord.xq';
+    //console.log("posting ", data, " to ", whole_address)
+    old_attribute = element.getAttribute("data-manually-confirmed")
+    element.setAttribute("data-manually-confirmed", "true");
+    /**
+    $.post(whole_address, data, function(data, textStatus, xhr) {
+            //console.log("success!" + xhr.responseText)
+            //this is the 'success' function 
+            //if the update works, it will fire.
+            //We can't use JQuery syntax here, for some reason.
+        })
+        .fail(function(xhr, textStatus, errorThrown) {
+            element.setAttribute("data-manually-confirmed", old_attribute);
+            if ((xhr.status == 404) || (xhr.status === 0)) {
+                alert("The connection has been lost to the lace server.")
+            } else {
+                alert(xhr.responseText + " status" + xhr.status);
+            }
+        });
+        **/
+    $.ajax({
+        url: whole_address,
+        method: "POST",
+        dataType: "xml",
+        data: data,
+      beforeSend: function( xhr ) {
+        console.log("sending" + xhr)
+        pause_editing()
+      }
+    })
+    .done(function( data ) {
+        if ( console && console.log ) {
+          //console.dirxml(data);
+        }
+        resume_editing()
+    })
+    .fail(function() {
+        //make_page-not_gray()
+        element.setAttribute("data-manually-confirmed", old_attribute);
+        alert("The connection has been lost to the lace server.")
+        resume_editing()
+    
+  });
+}
+
 function test_text(textIn) {
     if (textIn.length > 200) {
         return true
