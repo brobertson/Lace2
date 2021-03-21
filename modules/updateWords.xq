@@ -11,7 +11,7 @@ let $fullPath := $collectionPath || '/' || $fileName
 let $validate_only := xs:boolean(request:get-parameter('validateOnly', 'false'))
 let $unused0 := response:set-header("Access-Control-Allow-Origin", "*")
 
-let $page := doc($fullPath)//xh:div[@class='ocr_page']
+(:  let $page := doc($fullPath)//xh:div[@class='ocr_page'] :)
 let $update_thru_map := function($id, $new){
     let $word := doc($fullPath)//xh:span[@id = $id]
     let $unused1 := update  value $word/@data-manually-confirmed with 'true'
@@ -29,7 +29,7 @@ let $output := if ($validate_only) then
     else
         map:for-each($elements, $update_thru_map)
 return 
-    
+    (:
     if (not(xmldb:collection-available($collectionPath))) then (
         let $sowhat := response:set-status-code(400)
         return
@@ -45,7 +45,9 @@ return
         return
             "Error! the user guest does not have access to file '" || $fullPath
         )
+
     else (
+        :)
         <html>
             <body>
         <p id="updatewords">
@@ -57,10 +59,8 @@ return
         <p>
             IDs: {$output}
             </p>
-            <p>json input of 'elements': {serialize($elements, 
-        <output:serialization-parameters>
-            <output:method>json</output:method>
-        </output:serialization-parameters>)}</p>
         </body>
         </html>
+        (:
     )
+        :)
