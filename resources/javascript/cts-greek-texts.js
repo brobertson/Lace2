@@ -2084,6 +2084,8 @@
 {label: "Michael Ducas, History", id: "tlg3146.tlg001.1st1K-grc1:"},
 {label: "Ambrogio Novidio Fracco, Sacri fasti", id: "stoa0367.stoa001.ogl-lat1:"},
 {label: "Mochion Hypothekai", id: "urn:cts:greekLit:tlg0575.tlg002.1st1K-grc1:"},
+{label: "Pliny the Younger, Epistulae", id: "urn:cts:latinLit:phi1318.phi001.ogl-lat1:"},
+{label: "Pliny the Younger, Panegyricus", id: "urn:cts:latinLit:phi1318.phi002.ogl-lat1:"},
 {label: "*END MILESTONE*", id : "__end__" }
 ]
 ;
