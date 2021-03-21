@@ -222,6 +222,10 @@ function clean_text(textIn) {
     textIn = textIn.replace(/[ʼ'᾽]/g,'’')
     //change ANO TELEIA, DOT OPERATOR to MIDDLE DOT
     textIn = textIn.replace(/[⋅·]/g,'·')
+    //replace '<' with LEFT ANGLE BRACKET 3008
+    textIn = textIn.replace(/[\u003C]/g,'\u3008')
+    //replace '>' with RIGHT ANGLE BRACKET 3009
+    textIn = textIn.replace(/[\u003E]/g,'\u3009')
     return textIn
 }
 
