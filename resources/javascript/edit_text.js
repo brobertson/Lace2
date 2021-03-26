@@ -821,8 +821,11 @@ $(function() {
                     var path_array = page_path.split('/');
                     var page_file = path_array[path_array.length - 1];
                     var scale = $("#page_image").attr("data-scale")
-                    width = (bbox_array[2] - bbox_array[0]) + 10
-                    height = (bbox_array[3] - bbox_array[1])
+                    height_in = (bbox_array[3] - bbox_array[1])
+                    min_height = 40 
+                    height = Math.max(min_height, height_in)
+                    image_scale = height / height_in
+                    width = (bbox_array[2] - bbox_array[0]) * image_scale
                     $("#svg_focus_rect").attr("x", bbox_array[0] * scale)
                     $("#svg_focus_rect").attr("y", bbox_array[1] * scale)
                     $("#svg_focus_rect").attr("width", width * scale)
