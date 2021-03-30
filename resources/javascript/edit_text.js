@@ -1,3 +1,38 @@
+
+/**
+* initialize bloodhound
+**/
+// constructs the suggestion engine
+
+
+var text_suggestions = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('label'),
+    queryTokenizer: Bloodhound.tokenizers.whitespace, // see its meaning above
+    local: [{label: 'Apollonius of Rhodes, Argonautica',id: 'urn:cts:greekLit:tlg0001.tlg001.1st1K-grc1:'},
+        {label: 'Theognis, Elegiae', id: 'urn:cts:greekLit:tlg0002.tlg001.1st1K-grc1:'},
+        {label: 'Thucydides, Histories', id: 'urn:cts:greekLit:tlg0003.tlg001.1st1K-grc1:'}],
+    prefetch: {
+        url:'resources/javascript/cts-greek-texts.json',
+        cache: false
+    }
+});
+
+/*
+var countries_suggestions = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.whitespace,
+    queryTokenizer: Bloodhound.tokenizers.whitespace, // see its meaning above
+    local: [{label: 'Apollonius of Rhodes, Argonautica',id: 'urn:cts:greekLit:tlg0001.tlg001.1st1K-grc1:'},
+        {label: 'Theognis, Elegiae', id: 'urn:cts:greekLit:tlg0002.tlg001.1st1K-grc1:'},
+        {label: 'Thucydides, Histories', id: 'urn:cts:greekLit:tlg0003.tlg001.1st1K-grc1:'}],
+    local: ['France','Indiaah'],
+    prefetch: {
+        url:'resources/javascript/cts-greek-texts.json',
+        cache: false
+    }
+});
+
+*/
+
 function error_message(message) {
      $("#error_message").text(message)
      $("#myModal").modal()
@@ -580,7 +615,7 @@ function make_cts_urn_picker(element) {
     cts_picker.attr("data-starting-span", $(element).attr("id"))
     /**
      * Put a typeahead on the text field
-     **/
+    
     $("#" + uniq_picker).typeahead({
         default_val: "my default val",
         hint: true,
@@ -598,7 +633,7 @@ function make_cts_urn_picker(element) {
         },
         //limit does not work, and we are hard-fixed to 8.
         //See this discussion: https://stackoverflow.com/questions/26111281/twitters-typeahead-limit-not-working
-        //limit: Number.MAX_VALUE,
+        //limit: 10,
         updater: function(item) {
             var selectedItem = this.map[item];
             this.$element.data('selected', selectedItem);
@@ -610,6 +645,40 @@ function make_cts_urn_picker(element) {
             return item
         }
     });
+    **/
+    $("#" + uniq_picker).typeahead({
+        hint: true,
+        highlight: true,
+        minLength: 1
+    },
+    {
+        name: 'texts',
+        source: text_suggestions,   // Bloodhound instance is passed as the source
+        display: function(item) {        // display: 'name' will also work
+        return item.label;
+    },
+    
+    /*
+    {
+        name: 'countries',
+        source: countries_suggestions,   // Bloodhound instance is passed as the source
+        display: function(item) {        // display: 'name' will also work
+            return item.label;
+        }
+    */
+    });
+
+  
+
+
+
+$("#" + uniq_picker).bind('typeahead:select', function(ev, item) {
+            console.log("typeahead:select: ", item["id"])
+            $(this).attr("data-ctsurn", item["id"])
+            $(this).attr("data-author-name", item["label"])
+            $("#" + uniq_picker + "_additional").focus()
+});
+
     $("#" + uniq_picker + "_additional").on('keypress', function(event) {
         //console.log("we get an inserted line keypress")
         if (event.which == 13) {
@@ -639,6 +708,7 @@ function make_cts_urn_picker(element) {
             console.log("here, uniq_picker is " + uniq_picker)
             updateCTSURN(uniq_picker, "add")
             //now delete all the inner inputs and this button
+            $("#" + uniq_picker).typeahead('destroy');
             $("#" + uniq_picker).remove()
             $("#" + uniq_picker + "_additional").remove()
             $("#" + uniq_picker + "_ok_button").remove()
@@ -731,6 +801,7 @@ $(function() {
     $("#verifyPageOkButton").click(function (e) {
         verify_whole_page_actual();
     });
+
     /** 
      * Bind the following 'return' key presses.
      **/
@@ -825,11 +896,12 @@ $(function() {
                     min_height = 40 
                     height = Math.max(min_height, height_in)
                     image_scale = height / height_in
-                    width = (bbox_array[2] - bbox_array[0]) * image_scale
+                    width_in = (bbox_array[2] - bbox_array[0])
+                    width = width_in * image_scale
                     $("#svg_focus_rect").attr("x", bbox_array[0] * scale)
                     $("#svg_focus_rect").attr("y", bbox_array[1] * scale)
-                    $("#svg_focus_rect").attr("width", width * scale)
-                    $("#svg_focus_rect").attr("height", height * scale)
+                    $("#svg_focus_rect").attr("width", width_in * scale)
+                    $("#svg_focus_rect").attr("height", height_in * scale)
                     $('#svg_focus_rect').attr('visibility', 'visible');
                     return generate_image_tag_call(collectionUri, page_file, bbox, width, height)
                 },
