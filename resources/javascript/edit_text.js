@@ -8,9 +8,6 @@
 var text_suggestions = new Bloodhound({
     datumTokenizer: Bloodhound.tokenizers.obj.whitespace('label'),
     queryTokenizer: Bloodhound.tokenizers.whitespace, // see its meaning above
-    local: [{label: 'Apollonius of Rhodes, Argonautica',id: 'urn:cts:greekLit:tlg0001.tlg001.1st1K-grc1:'},
-        {label: 'Theognis, Elegiae', id: 'urn:cts:greekLit:tlg0002.tlg001.1st1K-grc1:'},
-        {label: 'Thucydides, Histories', id: 'urn:cts:greekLit:tlg0003.tlg001.1st1K-grc1:'}],
     prefetch: {
         url:'resources/javascript/cts-greek-texts.json',
         cache: false
@@ -261,6 +258,11 @@ function clean_text(textIn) {
     textIn = textIn.replace(/[\u003C]/g,'\u3008')
     //replace '>' with RIGHT ANGLE BRACKET 3009
     textIn = textIn.replace(/[\u003E]/g,'\u3009')
+    //delete 1fbe GREEK PROSGEGRAMMENI
+    if (textIn.includes('\u1FBE')) {
+        alert("Do not use U+1FBE GREEK PROSGEGRAMMENI to edit these texts. Consult with your guide documents and use U+0345 IOTA SUBSCRIPT instead.")
+    }
+    textIn = textIn.replace(/\u1FBE/g,'')
     return textIn
 }
 
