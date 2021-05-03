@@ -443,15 +443,16 @@ function app:getImageLink($imageFile as xs:string?) {
  : TODO: This needs to be replaced with one that goes to an arbitrary collection in the database and counts 
  : the files within it.
  :  :)
- declare function app:navButton($collectionUri, $positionInCollection as xs:integer, $skipBy as xs:integer, $label as xs:string, $popup_label as xs:string) {
+declare function app:navButton($collectionUri, $positionInCollection as xs:integer, $skipBy as xs:integer, $label as xs:string, $popup_label as xs:string) {
     let $targetIndex := $positionInCollection + $skipBy
+    let $numberOfImages := count(collection(app:imageCollectionFromCollectionUri($collectionUri)))
     return
     if ($skipBy = 0)
     then
         <li class="page-item active">
       <a title='{$popup_label}' class="page-link" href="#">{$positionInCollection}</a>
     </li>
-    else if (($targetIndex >= count(collection($collectionUri))) or ($targetIndex <= 0))
+    else if ($targetIndex >= $numberOfImages or ($targetIndex <= 0))
     then
         <li class="page-item">
       <span title='{$popup_label}' class="notAvailable">{$label}</span>
