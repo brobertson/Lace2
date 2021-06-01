@@ -2,33 +2,16 @@
 /**
 * initialize bloodhound
 **/
-// constructs the suggestion engine
-
 
 var text_suggestions = new Bloodhound({
     datumTokenizer: Bloodhound.tokenizers.obj.whitespace('label'),
     queryTokenizer: Bloodhound.tokenizers.whitespace, // see its meaning above
     prefetch: {
-        url:'resources/javascript/cts-greek-texts.json',
+        url:'urns_to_json.xq',
         cache: false
     }
 });
 
-/*
-var countries_suggestions = new Bloodhound({
-    datumTokenizer: Bloodhound.tokenizers.whitespace,
-    queryTokenizer: Bloodhound.tokenizers.whitespace, // see its meaning above
-    local: [{label: 'Apollonius of Rhodes, Argonautica',id: 'urn:cts:greekLit:tlg0001.tlg001.1st1K-grc1:'},
-        {label: 'Theognis, Elegiae', id: 'urn:cts:greekLit:tlg0002.tlg001.1st1K-grc1:'},
-        {label: 'Thucydides, Histories', id: 'urn:cts:greekLit:tlg0003.tlg001.1st1K-grc1:'}],
-    local: ['France','Indiaah'],
-    prefetch: {
-        url:'resources/javascript/cts-greek-texts.json',
-        cache: false
-    }
-});
-
-*/
 
 function error_message(message) {
      $("#error_message").text(message)
@@ -147,15 +130,7 @@ function updateCTSURN(urnpicker_id, my_action) {
     data['starting-span'] = picker_span.attr("data-starting-span")
     data['value'] = composed_urn
     data['action'] = my_action
-    /*
-    $.post('modules/updateCTSUrn.xq', data, function(data, textStatus, xhr) {
-            console.log("success updating CTS URN: " + composed_urn + " on " + picker_span_string + " at " + filePath + "/" + fileName + " before " + data['next_sibling_id']) //success
-        })
-        .fail(function(xhr, textStatus, errorThrown) {
-            //failure
-            console.log("failure updating CTS URN")
-        });
-    */ 
+  
     $.ajax({
         url: 'modules/updateCTSUrn.xq',
         method: "POST",
@@ -197,22 +172,7 @@ function update_xmldb(element) {
     //console.log("posting ", data, " to ", whole_address)
     old_attribute = element.getAttribute("data-manually-confirmed")
     element.setAttribute("data-manually-confirmed", "true");
-    /**
-    $.post(whole_address, data, function(data, textStatus, xhr) {
-            //console.log("success!" + xhr.responseText)
-            //this is the 'success' function 
-            //if the update works, it will fire.
-            //We can't use JQuery syntax here, for some reason.
-        })
-        .fail(function(xhr, textStatus, errorThrown) {
-            element.setAttribute("data-manually-confirmed", old_attribute);
-            if ((xhr.status == 404) || (xhr.status === 0)) {
-                alert("The connection has been lost to the lace server.")
-            } else {
-                alert(xhr.responseText + " status" + xhr.status);
-            }
-        });
-        **/
+
     $.ajax({
         url: whole_address,
         method: "POST",
@@ -349,23 +309,7 @@ function update_all_xmldb(element) {
     data['query'] = $(element).attr('data-selected-form');
     data['id'] = $element.attr('id');
     console.log("updated " + data['query'] + " with " + data['correctedForm'] + " in all of " + data['filePath']);
-    /*
-    $.post('modules/updateMany.xq', data, function(dataReturned, textStatus, xhr) {
-        console.log("success!" + xhr.responseText)
-        set_of_blinkers = $(".ocr_word").filter(function() {
-            return ($(this).text() === data['query'])
-        })
-        //console.log("blinker count " + set_of_blinkers.length)
-        set_of_blinkers.addClass("blinker");
-        //
-        //this is the 'success' function 
-        //if the update works, it will fire.
-        //We can't use JQuery syntax here, for some reason.
-
-    }).fail(function(xhr, textStatus, errorThrown) {
-        alert(xhr.responseText);
-    });
-    */
+ 
     $.ajax({
     url: 'modules/updateMany.xq',
     method: "POST",
@@ -465,17 +409,7 @@ function delete_added_element(buttonElement) {
     data['id'] = enclosing_element
     //this has been stored in the database, so we need to do a call to xquery to 
     //delete it from there, and only delete it from the DOM if that call is successful
-    /*
-    $.post('modules/deleteElement.xq', data, function(returnedData, textStatus, xhr) {
-        //console.log("success!" + xhr.responseText)
-        //console.log("id is " + data["id"])
-        // if it succeeds in removing from the database, 
-        // then also remove from the DOM on the screen 
-        $("#" + data['id']).remove();
-    }).fail(function(xhr, textStatus, errorThrown) {
-        alert(xhr.responseText);
-    });
-    */
+
     $.ajax({
         url: 'modules/deleteElement.xq',
         method: "POST",
@@ -591,12 +525,7 @@ function insert_line(element, below) {
 }
 
 function make_cts_urn_picker(element) {
-    if( typeof cts_tags === 'undefined' || cts_tags === null ){
-        //cts_tags is defined in a separate file, so it could be 
-        //undefined, unassigned, etc.
-        alert("The cts tag list is corrupted and so a URN picker can't be set.");
-        return;//this ensures that nothing further happens 
-    }
+    
     /** 
      * See if we have cookies set to preset this data
      * 
@@ -660,14 +589,7 @@ function make_cts_urn_picker(element) {
         return item.label;
     },
     
-    /*
-    {
-        name: 'countries',
-        source: countries_suggestions,   // Bloodhound instance is passed as the source
-        display: function(item) {        // display: 'name' will also work
-            return item.label;
-        }
-    */
+
     });
 
   
