@@ -11,6 +11,7 @@ declare function urnlibrary:xmlTable() {
     
     let $urnLibrary := doc("/apps/lace/resources/xml/urns.xml")/ctsTags
         for $tag in $urnLibrary/*
+        order by $tag/@label
         return
             <html:tr>
                 <html:td>{data($tag/@label)}</html:td>
