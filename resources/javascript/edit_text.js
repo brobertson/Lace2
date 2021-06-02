@@ -205,26 +205,6 @@ function test_text(textIn) {
     return true
 }
 
-function clean_text(textIn) {
-    //replace no break space with space
-    textIn = textIn.replace(/\u00A0/g,' ')
-    //erase unknown character and multiplication sign
-    textIn = textIn.replace(/[\uFFFD\u00D7]/g,'')
-    //change MODIFIER LETTER APOSTROPHE, APOSTROPHE, GREEK KORONIS to RIGHT SINGLE QUOTATION MARK
-    textIn = textIn.replace(/[ʼ'᾽]/g,'’')
-    //change ANO TELEIA, DOT OPERATOR to MIDDLE DOT
-    textIn = textIn.replace(/[⋅·]/g,'·')
-    //replace '<' with LEFT ANGLE BRACKET 3008
-    textIn = textIn.replace(/[\u003C]/g,'\u3008')
-    //replace '>' with RIGHT ANGLE BRACKET 3009
-    textIn = textIn.replace(/[\u003E]/g,'\u3009')
-    //delete 1fbe GREEK PROSGEGRAMMENI
-    if (textIn.includes('\u1FBE')) {
-        alert("Do not use U+1FBE GREEK PROSGEGRAMMENI to edit these texts. Consult with your guide documents and use U+0345 IOTA SUBSCRIPT instead.")
-    }
-    textIn = textIn.replace(/\u1FBE/g,'')
-    return textIn
-}
 
 /*****
  * Experimental multi-element update
