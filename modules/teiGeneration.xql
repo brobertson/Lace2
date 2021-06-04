@@ -42,11 +42,11 @@ declare function teigeneration:make_ogl_respStmt($OGLHeader as xs:boolean) as no
 };
 
 declare function teigeneration:make_respStmt($first_name, $last_name) as node()* {
-      <tei:respStmt>
-         <tei:persName>{$first_name} {$last_name}</tei:persName>
-         <tei:orgName></tei:orgName>
-         <resp>Digital conversion and editing</resp>
-      </tei:respStmt>
+    <tei:respStmt>
+        <tei:persName>{$first_name} {$last_name}</tei:persName>
+        <tei:orgName></tei:orgName>
+        <resp>Digital conversion and editing</resp>
+    </tei:respStmt>
 };
 
 declare function teigeneration:convert_div_type_names($name as xs:string) as xs:string {
