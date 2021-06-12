@@ -70,14 +70,29 @@ declare function teigeneration:clear_extra_bbox_data($in as xs:string) as xs:str
 
 declare function teigeneration:get_bbox($node as node()) as xs:string {
     let $node_out :=
-        if ($node[@class='cts_picker']) then 
-            (: this tries to chose the following one to which it is bound. The problem 
-            with this is that it's maybe not in the bounds. You almost certainly want a picker to be 
+        if ($node[@class='cts_picker']) then
+            (: this tries to chose the following one to which it is bound. The problem
+            with this is that it's maybe not in the bounds. You almost certainly want a picker to be
             selected, so we'll use the bbox of the *line* instead
-            
+
             $node/following::*[@id=$node/@data-starting-span]
             :)
+
+
+            (: this selects the whole line, but what if it is not subsumed by the rectangle?)
             $node/..[@class="ocr_line"]
+            :)
+
+            (: so this is a more nuanced approach. If there is a following word-span, then we use it as the picker's bbox.
+            If there isn't, then we fall back to using the previous word in this line as the picker's bbox. If there isn't a
+            preceding word, then we use the line as the bbox, but honestly that means this line only has the picker, which is
+            strange. :)
+                if ($node/following-sibling::html:span[@class='ocr_word'][1]) then
+                    $node/following-sibling::html:span[@class='ocr_word'][1]
+                else if ($node/preceding-sibling::html:span[@class='ocr_word'][1]) then
+                    $node/preceding-sibling::html:span[@class='ocr_word'][1]
+                else
+                    $node/..[@class="ocr_line"]
         else
             $node
     let $out := substring(teigeneration:clear_extra_bbox_data($node_out/@title), 6)
