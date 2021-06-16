@@ -1,11 +1,14 @@
 
 /**
-* initialize bloodhound
+* initialize the typeahead suggestions for the urn picker. This
+* gets its data from a xquery script that generates json from a stored xml file.
+* That file can be edited in the urn_library.html page. As a result, 
+* the typeahead data can be edited within the browser.
 **/
 
 var text_suggestions = new Bloodhound({
     datumTokenizer: Bloodhound.tokenizers.obj.whitespace('label'),
-    queryTokenizer: Bloodhound.tokenizers.whitespace, // see its meaning above
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
     prefetch: {
         url:'urns_to_json.xq',
         cache: false
@@ -564,6 +567,7 @@ function make_cts_urn_picker(element) {
     },
     {
         name: 'texts',
+        limit: 10,
         source: text_suggestions,   // Bloodhound instance is passed as the source
         display: function(item) {        // display: 'name' will also work
         return item.label;
