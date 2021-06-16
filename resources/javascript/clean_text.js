@@ -4,7 +4,7 @@ function check_for_mixed_latin_greek(textIn) {
 
 function check_for_improperly_composed_greek(textIn) {
     textIn_nfc = textIn.normalize('NFC');
-    if (/[\u0300-\u0302]/.test(textIn_nfc) || /[\u0342-\u0345]/.test(textIn_nfc)) {
+    if (/[\u0300-\u0302]/.test(textIn_nfc) || /[\u0342-\u0345]/.test(textIn_nfc) || /[\u1FC0-\u1FC1]/.test(textIn_nfc) || /[\u1FCD-\u1FCF]/.test(textIn_nfc) || /[\u1FDD-\u1FDF]/.test(textIn_nfc) || /[\u1FED-\u1FEF]/.test(textIn_nfc) || /[\u1FFD-\u1FFE]/.test(textIn_nfc)) {
         char_dump = ""
         for (var i = 0; i < textIn_nfc.length; i++) {
             char_dump = char_dump + ' \\u' + (textIn_nfc[i].charCodeAt(0)  + 0x10000).toString(16).slice(1)
