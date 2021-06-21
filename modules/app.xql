@@ -40,7 +40,6 @@ declare function app:app-version-number($node as node(), $model as map(*)) as xs
 };
 
  (: 
-
  : Use a markdown renderer to convert the markdown in a given node into html. 
  : It can be evoked like this:
  : <div class="app:renderMarkdown">
@@ -183,9 +182,6 @@ declare function app:catalog($node as node(), $model as map(*)) {
         <xh:p>{collection('/db/apps')//dc:identifier}</xh:p>
 };
 :)
-
-
-
 declare function app:collectionInfo($collectionUri as xs:string) {
 let $coll := collection($collectionUri)
 let $number_of_spans : = doc($collectionUri || "/totals.xml")/lace:totals/lace:total_words
@@ -200,17 +196,14 @@ return
     <xh:div>Engine: {$coll//lace:ocrengine/text()}</xh:div>
     <xh:div>Classifier: {$coll//lace:classifier/text()}</xh:div>
     <xh:div>Date: {$coll//dc:date/text()}</xh:div>
-
 </xh:div>
 };
-
 declare function app:collectionInfo($node as node(), $model as map(*), $collectionUri as xs:string) {
     app:collectionInfo($collectionUri)
 };
  (: 
  : Provide a catalog of the $count most recently processed volumes, or archivetexts, 
  : ordered from most recently processed to least. 
-
  :)
 declare function app:latest($node as node(), $model as map(*), $count as xs:string?) {
     let $sorted-runs :=
@@ -228,22 +221,18 @@ declare function app:latest($node as node(), $model as map(*), $count as xs:stri
  declare function app:parent-collection-string($collection as xs:string) as xs:string? {
         replace(replace($collection, "^(.*)/[^/]+/?$", "$1"), "/db/Lace2Data/texts/", "")
 };
-
  declare function app:page-number-from-document-name($document-name as xs:string) as xs:string? {
        xs:string(xs:int(substring-before(functx:substring-after-last($document-name, '_'), '.')))
 };
-
 declare function app:image-identifier-node-for-doc-identifier-node($doc_identifier_node as node()) {
     collection('/db/apps')//lace:imagecollection/dc:identifier[text() = $doc_identifier_node]
 };
-
 (:  TODO this is a duplicate of a function in lacesvg module
  :  It should be faster to just poll the numbers in the running totals,
  :  but it isn't. Maybe they aren't properly indexed.  :)
 declare function app:hocrPageCompletion($document_node as node()) {
     format-number(app:hocrPageCompletionFloat($document_node), '0.0%')
 };
-
 declare function app:hocrPageCompletionFloat($document_node as node()) {
     let $spans : = $document_node//*[@data-spellcheck-mode]
     let $number_of_spans := count($spans)
@@ -256,7 +245,6 @@ declare function app:hocrPageCompletionFloat($document_node as node()) {
             ( $number_of_edited div  $number_of_spans)
     return $percentage
 };
-
  declare function app:getDocsAfter($coll as xs:string, $since as xs:dateTime) as node()*
 {
     (: we were doing this xmldb:find-last-modified-since(collection($coll), $since) 
@@ -282,12 +270,10 @@ for $c in collection($coll)
 		       </xh:tr>
 	    
 };
-
 declare function app:getImageIdentifierForDocumentNode($c as node()) {
     	let $identifier := collection(util:collection-name( $c ))//dc:identifier[1]
         return app:image-identifier-node-for-doc-identifier-node($identifier)
 };
-
 declare function app:getSideBySideViewDataForDocumentElement($c as node()) {
     let $collectionUri :=   util:collection-name( $c )
     let $image_identifier := app:getImageIdentifierForDocumentNode($c)
@@ -299,7 +285,6 @@ declare function app:getSideBySideViewDataForDocumentElement($c as node()) {
     let $positionInCollection := index-of($sortedImageCollection, $image_name) 
     return ( $collectionUri, $positionInCollection)
 };
-
 declare function app:getRecentlyModifiedPages($node as node(), $model as map(*), $days_ago as xs:string?) as node()*
 {
 let $coll := "/db/apps/"
@@ -320,7 +305,6 @@ let $since := xs:dateTime(current-dateTime()) - xs:dayTimeDuration($days_string)
       </xh:tbody>
     </xh:table>
 };
-
 (: 
  : End of functions relating to catalog entries.
  : 
@@ -330,7 +314,6 @@ let $since := xs:dateTime(current-dateTime()) - xs:dayTimeDuration($days_string)
  
 (: For a given $archive_number, chronologically list all the runs, in descending order :)
 declare function app:runs($node as node(), $model as map(*),  $archive_number as xs:string?) {
-
     for $run in collection('/db/apps')//lace:run[dc:identifier/text() = $archive_number]
     order by $run/dc:date descending
 return
@@ -339,17 +322,14 @@ return
 <xh:td>{app:collectionInfo(app:hocrCollectionUriForRunMetadataFile($run))}</xh:td>
 </xh:tr>
 };
-
 declare function app:formatRunTitle($node as node(), $model as map(*),  $collectionUri as xs:string)  {
     (app:formatCatalogEntryForCollectionUri(app:imageCollectionFromCollectionUri($collectionUri)),
     ' ',
     <xh:a href="{concat("side_by_side_view.html?collectionUri=",$collectionUri,"&amp;positionInCollection=2")}">{collection($collectionUri)//dc:date}</xh:a>)
 };
-
 declare function app:hocrCollectionUriForRunMetadataFile($run as node()) {
   util:collection-name($run)
 };
-
 (: Every run can, and often does, have multiple HOCR types, representing various stages of the process.
  : These might be 'raw', 'combined', 'selected' and so forth.
  : This function formats these types with hocrTypeStringForNumber and, if files are indeed available for
@@ -699,7 +679,6 @@ response:set-header( "X-Content-Type-Options", 'nosniff' ))
 </div>
 </div>
 </div>
-
             <xh:div class="progress"> 
   <xh:div id="progress_bar" class="progress-bar" role="progressbar" aria-valuenow="2" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></xh:div>
         </xh:div>
@@ -721,7 +700,6 @@ response:set-header( "X-Content-Type-Options", 'nosniff' ))
 <div class="col-sm-2">
 <button type="button" id="clear_zones_button" class="btn btn-sm">Clear Zones</button>
 </div>
-
  <!--div class="col-sm-1">
       One</div>
     <div class="col-sm-3">
@@ -738,31 +716,24 @@ response:set-header( "X-Content-Type-Options", 'nosniff' ))
 {$svg_canvas}
 </xh:div>
 </div>
-
 </xh:div>
   <!-- the old, non-svg way of doing things -->
   <!--xh:div class="col-sm-6">{app:getImageLink(concat('/exist/rest',$imageCollection,"/",$meAsPng))}</xh:div-->
-
   <xh:div class="col-sm-6 text-left" id="right_side">
   <!-- The hocr, which is layed out on the right of this page -->
   {app:add-attribute-to-ocrword($hocrPageNode, "contenteditable", 'true')}
   </xh:div>
 </xh:div>
-
 <!-- end interior coll and row -->
 <!--/xh:div>
 </xh:div-->
-
 </xh:div>
 </xh:div>
 };
-
-
 (:  
  : 
  : Functions related to search 
  :)
-
 declare function app:convert-match-expanded-to-hocr($node as node()) {
     (: the util:exand function produces these ugly exist:match tags around the matched text. 
      : Here, we convert these to <xh:span class="match"/>
@@ -777,8 +748,6 @@ declare function app:convert-match-expanded-to-hocr($node as node()) {
         default return
             $node
 };
-
-
 declare function app:formatSearchHit($hit as node()) as node() {
     let $expanded := app:convert-match-expanded-to-hocr(util:expand($hit, "expand-xincludes=no"))
     let $score as xs:float := ft:score($hit)
@@ -811,7 +780,7 @@ declare function app:search($node as node(), $model as map(*), $search as xs:str
         </xh:tr>
 )
 };
-
+ 
 declare function app:searchAllCollections($node as node(), $model as map(*)) {
     (: TODO make a global variable $search_default, which is used here and in search.html :)
     let $search:= request:get-parameter('search', 'λαμβ*')
@@ -830,4 +799,3 @@ declare function app:searchAllCollections($node as node(), $model as map(*)) {
             </xh:div>
             </xh:div>
 };
-
