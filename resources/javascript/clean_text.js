@@ -30,7 +30,7 @@ function clean_text(textIn) {
     textIn = textIn.replace(/—–/g,'-')
     //delete 1fbe GREEK PROSGEGRAMMENI
     if (textIn.includes('\u1FBE')) {
-        alert("Do not use U+1FBE GREEK PROSGEGRAMMENI to edit these texts. Consult with your guide documents and use U+0345 IOTA SUBSCRIPT instead.")
+        alert("Do not use U+1FBE GREEK PROSGEGRAMMENI to edit these texts. This sometimes happens when you try to add an iota subscript to a vowel already present. Instead, delete the existing vowel, and use the iota-subscript + vowel combination. If this doesn't work, please consult with your guide documents and trainers..")
     }
     textIn = textIn.replace(/\u1FBE/g,'')
     check_for_improperly_composed_greek(textIn)
