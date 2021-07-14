@@ -2,4 +2,5 @@
 <package xmlns="http://expath.org/ns/pkg" name="http://heml.mta.ca/Lace/application" abbrev="Lace" version="0.6.20" spec="1.0">
     <title>Lace: Visualizing, Editing and Searching Polylingual OCR Results</title>
     <dependency package="http://exist-db.org/apps/shared"/>
+    <dependency package="http://exist-db.org/apps/markdown"/>
 </package>
