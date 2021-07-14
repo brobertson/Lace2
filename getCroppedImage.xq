@@ -17,9 +17,6 @@ declare namespace lace="http://heml.mta.ca/2019/lace";
 :   or the empty sequence if the image does not exist
 :)
 
-declare variable $response:BAD-REQUEST := 400;
-declare variable $response:NOT-FOUND := 404;
-
 declare function local:scaleDimension($pixel as xs:string) {
     let $scale := 1.0 (: not 0.3 :)
      let   $float := xs:float($pixel) * $scale
@@ -67,17 +64,14 @@ let $image_width := image:get-width($croppedImage)
  : Dimensions for scaling are (height, width), not the other way around
  : See: https://exist-db.org/exist/apps/fundocs/view.html?uri=http://exist-db.org/xquery/image&location=java:org.exist.xquery.modules.image.ImageModule
  :   :)
- (::)
 let $scaling_dimensions := (local:scaleDimensionPostCrop($image_height), local:scaleDimensionPostCrop($image_width))
 let $scaled_image := image:scale($croppedImage, $scaling_dimensions, "image/jpeg")
-(:  ::)
 return
 if(request:get-method() eq "GET") then
     response:stream-binary($scaled_image, "image/jpeg", "cropped_image.jpg")
 else
-            (
-                response:set-status-code($response:NOT-FOUND),
-                <image-not-found>{$imageFile}</image-not-found>
-            )
-            
+    (
+        response:set-status-code(400),
+        <image-not-found>{$imageFile}</image-not-found>
+    )
 

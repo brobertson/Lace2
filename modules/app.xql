@@ -23,13 +23,13 @@ declare namespace map="http://www.w3.org/2005/xpath-functions/map";
  
  :)
 
-declare function functx:substring-after-last
+declare function app:substring-after-last
   ( $arg as xs:string? ,
     $delim as xs:string )  as xs:string {
 
    replace ($arg,concat('^.*',functx:escape-for-regex($delim)),'')
- } ;
-
+ };
+ 
 declare function app:app-version-number() as xs:string {
     let $pkg := collection(repo:get-root())//package:package[@name='http://heml.mta.ca/Lace/application']
    return $pkg/@abbrev || " v. " || $pkg/@version  
@@ -425,7 +425,7 @@ function app:getImageLink($imageFile as xs:string?) {
  :  :)
 declare function app:navButton($collectionUri, $positionInCollection as xs:integer, $skipBy as xs:integer, $label as xs:string, $popup_label as xs:string) {
     let $targetIndex := $positionInCollection + $skipBy
-    let $numberOfImages := count(collection(app:imageCollectionFromCollectionUri($collectionUri)))
+    let $numberOfImages := count(app:sortPngCollection(app:imageCollectionFromCollectionUri($collectionUri)))
     return
     if ($skipBy = 0)
     then
@@ -478,13 +478,14 @@ declare function app:imageCollectionFromCollectionUriPublic($node as node(), $mo
  :)
 
 declare function app:sortCollection($collectionUri as xs:string, $requiredSuffix as xs:string) {
-    for $item in collection($collectionUri)
+    for $item in xmldb:get-child-resources($collectionUri)
+
     (: There are other files in this collection, including repo.xml, etc. 
     :  So we filter it to include only the images. They must be pngs.
     :)
-    where (functx:substring-after-last(util:document-name($item), '.') = $requiredSuffix) 
-    order by util:document-name($item)
-    return util:document-name($item)
+    where (app:substring-after-last($item, '.') = $requiredSuffix) 
+    order by $item
+    return $item
     
 };
 
@@ -582,6 +583,22 @@ declare function app:makeZoningMenu() {
     {$items}
        </xh:ul>
       </xh:div>
+};
+
+declare function app:sidebysideNO($node as node(), $model as map(*), $collectionUri as xs:string, $positionInCollection as xs:integer?) {
+(:  The $collectionUri is for the run collection
+ :  The $positionInCollection is an *image* position 
+ :  Sorry for the confusion. 
+:)
+let $imageCollection := app:imageCollectionFromCollectionUri($collectionUri)
+(:  
+let $meAsPng := app:sortPngCollection($imageCollection)[$positionInCollection]
+ 
+let $myImageHeight := image:get-height(util:binary-doc(concat($imageCollection,"/",$meAsPng)))
+let $myImageWidth := image:get-width(util:binary-doc(concat($imageCollection,"/",$meAsPng)))
+:)
+return
+    <xh:div><xh:span>{app:sortPngCollection($imageCollection)}</xh:span></xh:div>
 };
 
 (:  Given an IMAGE position within a Document / Run, provide the editing view 
