@@ -27,7 +27,11 @@ declare function urnlibrary:delete($urn as xs:string) {
 };
 
 declare function urnlibrary:update($urn as xs:string, $label as xs:string) {
-    update insert <tag label="{$label}" urn="{$urn}"/> into doc("/apps/lace/resources/xml/urns.xml")/ctsTags
+    if (not(exists(doc("/apps/lace/resources/xml/urns.xml")/ctsTags/tag[@urn = $urn])))
+    then
+        update insert <tag label="{$label}" urn="{$urn}"/> into doc("/apps/lace/resources/xml/urns.xml")/ctsTags
+    else
+        ()
 };
 
 declare function urnlibrary:page($node as node(), $model as map(*), $action as xs:string*, $urn as xs:string*, $label as xs:string*) {
@@ -48,7 +52,7 @@ else
     
 return
     <html:div class="row">
-    <html:form action="">
+    <html:form name="addurn" action="" onSubmit="return check_add_urn_form()">
             {$update}
             <html:div class="row ">
             <html:div class="col-md-5 input-group">
@@ -58,7 +62,7 @@ return
                     </html:div>
                 </html:div>
             <html:div class="row">
-            <input type="hidden" name="action" value="update" />
+            <html:input type="hidden" name="action" value="update" />
             <html:input type="submit" value="Add pair"/>
             </html:div>
             </html:form>    

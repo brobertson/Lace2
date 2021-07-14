@@ -9,8 +9,13 @@ function check_for_improperly_composed_greek(textIn) {
         for (var i = 0; i < textIn_nfc.length; i++) {
             char_dump = char_dump + ' \\u' + (textIn_nfc[i].charCodeAt(0)  + 0x10000).toString(16).slice(1)
         }
-        alert("it appers this is improperly composed Greek:" + char_dump)
+        if (confirm("It appears this is improperly composed Greek:" + char_dump + "Do you wish to procede with entering it?")) {
+            return true
+        } else {
+            return false
+        }
     }
+    return true
 }
 
 function clean_text(textIn) {
@@ -33,6 +38,5 @@ function clean_text(textIn) {
         alert("Do not use U+1FBE GREEK PROSGEGRAMMENI to edit these texts. This sometimes happens when you try to add an iota subscript to a vowel already present. Instead, delete the existing vowel, and use the iota-subscript + vowel combination. If this doesn't work, please consult with your guide documents and trainers..")
     }
     textIn = textIn.replace(/\u1FBE/g,'')
-    check_for_improperly_composed_greek(textIn)
     return textIn
 }

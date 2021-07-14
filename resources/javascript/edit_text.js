@@ -591,6 +591,12 @@ $("#" + uniq_picker).bind('typeahead:select', function(ev, item) {
         //console.log("we get an inserted line keypress")
         if (event.which == 13) {
             event.preventDefault(); // To prevent actually entering return
+            passage_urn_component = $("#" + uniq_picker + "_additional").val() 
+            //check for malformed passage components, like those that end with '.'
+            if (passage_urn_component.substr(passage_urn_component.length - 1) === ".") {
+                alert("the passage component is malformed because it ends with '.'");
+                return;
+            } 
             console.log("return in picker_additional: " + uniq_picker)
             //add data and tooltip to span
             the_span = $("#" + uniq_picker + "_span")
@@ -606,8 +612,8 @@ $("#" + uniq_picker).bind('typeahead:select', function(ev, item) {
                $("#"+uniq_picker).attr("data-ctsurn", ctsurn_cookie)
                $("#"+uniq_picker).attr("data-author-name",authorname_cookie)
             }
-            composed_urn = $("#"+uniq_picker).attr("data-ctsurn") + $("#" + uniq_picker + "_additional").val()
-            readable_name = $("#" + uniq_picker).attr("data-author-name") + " " + $("#" + uniq_picker + "_additional").val() + " = " + composed_urn
+            composed_urn = $("#"+uniq_picker).attr("data-ctsurn") + passage_urn_component
+            readable_name = $("#" + uniq_picker).attr("data-author-name") + " " + passage_urn_component + " = " + composed_urn
             the_span.attr("data-ctsurn", composed_urn)
             the_span.attr("data-toggle", "tooltip")
             the_span.attr("data-placement", "top")
@@ -733,6 +739,10 @@ $(function() {
             test_text($(this).text())
             //set the text to a cleaned version
             $(this).text(clean_text($(this).text()))
+            if (!(check_for_improperly_composed_greek($(this).text()))) {
+                console.log("the text was improperly formed")
+                return
+            }
             update_xmldbs([this]);
             //console.log(get_editing_progress())
             update_progress_bar()
@@ -823,3 +833,28 @@ $(function() {
     //end generate tooltips
     
 });
+
+/**
+ * Functions to verify clean data when using the addurn form on the urn_library.html page
+ * Checks that the urn string ends with a colon and that it has four colon-separated sub-parts
+ **/
+function check_add_urn_form() {
+    urn_string = document.addurn.urn.value
+    label = document.addurn.label.value
+    //urns must end with ':'
+    if (!(urn_string.charAt(urn_string.length-1) === ':')) {
+        alert("urn " + urn_string + " is not properly formed because it doesn't end with ':'")
+        return false;
+    }
+    urn_parts_count = urn_string.split(':').length;
+    if (urn_parts_count != 5) {
+        alert("urn " + urn_string + " is not properly formed because it has " + urn_parts_count + " colon-separated parts, not the required 5")
+        return false;
+    }
+    if (label.length < 10) {
+        alert("the label is not well formed: it has to be at least 10 characters long")
+        return false
+    }
+    //alert ("we're checking form: " + urn_string)
+    return true;
+}
