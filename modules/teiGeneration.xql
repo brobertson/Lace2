@@ -378,19 +378,27 @@ declare function teigeneration:strip_spans_treat_span($span as node()) as item()
         if ($span[@class='cts_picker']) then 
             ()
             else
+                (: if this is a hyphenpair start and it ends with a '-' :)
                 if ($span[@data-hyphenendpair] and fn:substring(normalize-space($span/text()),string-length(normalize-space($span/text()))) = '-') then
                     let $pair_match := $span/@data-hyphenendpair
+                    let $hyphenation_pair_end_text := $span/following::html:span[@data-hyphenstartpair = $pair_match][1]/text()
                     return
-                        normalize-space(fn:substring(normalize-space($span/text()),1,string-length(normalize-space($span/text()))-1) || $span/following::html:span[@data-hyphenstartpair = $pair_match][1]/text())
-                    else
-                        if ($span[@data-hyphenstartpair] ) then
-                            teigeneration:strip_spans_treat_end_hyphenation_span($span)
-                            else
-                    (: if the span is empty, then don't append a space to it :)
-                        if (normalize-space($span/text())) then
+                        (: if the matching end part doesn't exist or is blank then don't do anything :)
+                        if (not($hyphenation_pair_end_text)) then
                             normalize-space($span/text())
-                            else 
-                                ()
+                        (: otherwise, dehyphenate both halves :)
+                        else
+                            normalize-space(fn:substring(normalize-space($span/text()),1,string-length(normalize-space($span/text()))-1) || $hyphenation_pair_end_text) 
+                (: if this is a hyphenpair end half, send it to the function that deals with those :)
+                else
+                    if ($span[@data-hyphenstartpair] ) then
+                        teigeneration:strip_spans_treat_end_hyphenation_span($span)
+                        else
+                (: if the span is empty, then don't append a space to it :)
+                if (normalize-space($span/text())) then
+                    normalize-space($span/text())
+                    else 
+                        ()
 };
 
 (: copy the input to the output without modification, excepting the case of a html:span element,
@@ -467,7 +475,7 @@ declare function teigeneration:wrap_tei($body as node(), $collectionUri, $vol, $
             <tei:encodingDesc>
                 <tei:editorialDecl>
                     <tei:correction>
-                        <tei:p>{app:app-version-number()} copyright 2013-2020, Bruce Robertson, Dept. of Classics, Mount Allison University. Developed through the support of the <tei:ref target="https://nbif.ca/en">NBIF</tei:ref>.</tei:p>
+                        <tei:p>{app:app-version-number()} copyright 2013-2021, Bruce Robertson, Dept. of Classics, Mount Allison University.</tei:p>
                     </tei:correction>
                 </tei:editorialDecl>
                 <tei:p>The following text is encoded in accordance with EpiDoc standards and with the CTS/CITE Architecture</tei:p>
