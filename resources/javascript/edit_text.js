@@ -119,11 +119,28 @@ function updateCTSURN(urnpicker_id, my_action) {
     var filePath = doc.substring(0, n);
     data['filePath'] = filePath
     picker_span = $(picker_span_string)
-    composed_urn = $("#" + urnpicker_id).attr("data-ctsurn") + $("#" + urnpicker_id + "_additional").val()
+    work_part = $("#" + urnpicker_id).attr("data-ctsurn")
+    reference_part = $("#" + urnpicker_id + "_additional").val()
+    composed_urn = $("#" + urnpicker_id).attr("data-ctsurn") + reference_part
+    //check that we are using the same depth if we are using a previously used work_part
+    workpart_from_cookie = Cookies.get('ctsurn')
+    reference_depth_from_cookie = Cookies.get('reference-depth')
+    
     console.log("my action is " + my_action)
     if (my_action === "add") {
-        Cookies.set('ctsurn', $("#" + urnpicker_id).attr("data-ctsurn"), { expires: 7 });
+                
+        reference_depth = reference_part.split(".").length
+        console.log("reference depth of " + reference_part + " is " + reference_depth)
+        console.log(" reference depth from cookie: " + reference_depth_from_cookie)
+        if ( (workpart_from_cookie === work_part) && (reference_depth != reference_depth_from_cookie) ) {
+            alert("Warning: the depth of this reference '" + reference_part + " is different from the previous reference used for " +  work_part + " which was " + reference_depth_from_cookie)
+        }
+        
+        Cookies.set('ctsurn', work_part, { expires: 7 });
         Cookies.set('author-name', $("#" + urnpicker_id).attr("data-author-name"), { expires: 7 });
+        Cookies.set('reference-depth', reference_depth, { expires: 7 });
+
+        
     }
     data['name'] = $("#" + urnpicker_id).attr("data-author-name") + " " + $("#" + urnpicker_id + "_additional").val()
     data['id'] = urnpicker_id + "_span"
@@ -591,12 +608,17 @@ $("#" + uniq_picker).bind('typeahead:select', function(ev, item) {
         //console.log("we get an inserted line keypress")
         if (event.which == 13) {
             event.preventDefault(); // To prevent actually entering return
-            passage_urn_component = $("#" + uniq_picker + "_additional").val() 
+            passage_urn_component = $("#" + uniq_picker + "_additional").val()
+            console.log("passage_urn_component is " + passage_urn_component)
             //check for malformed passage components, like those that end with '.'
             if (passage_urn_component.substr(passage_urn_component.length - 1) === ".") {
-                alert("the passage component is malformed because it ends with '.'");
+                alert("Error: the passage component is malformed because it ends with '.'");
                 return;
-            } 
+            }
+            if (passage_urn_component === "") {
+                alert("Error: the passage component cannot be blank.");
+                return;
+            }
             console.log("return in picker_additional: " + uniq_picker)
             //add data and tooltip to span
             the_span = $("#" + uniq_picker + "_span")
